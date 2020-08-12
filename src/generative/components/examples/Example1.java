@@ -17,10 +17,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.ArrayList;
 
-class Printability implements IObjectiveFunction{
+class TotalFitness implements IObjectiveFunction{
 	Environment e;
 	int numOfUses;
-	Printability() {
+	TotalFitness() {
 		this.e = new Environment(600, 600, 20, 0.3f, 5, 30, 60, 20, 12345);
 		this.numOfUses = 0;
 	}
@@ -71,10 +71,52 @@ class Printability implements IObjectiveFunction{
 	}
 }
 
+/*
+ * A fitness function to explore different printability scores
+ */
+
+class Printability implements IObjectiveFunction{
+	Environment e;
+	int numOfUses;
+	float target;
+	Printability(float _target) {
+		this.e = new Environment(600, 600, 20, 0.3f, 5, 30, 60, 20, 12345);
+		this.numOfUses = 0;
+		this.target = _target;
+	}
+	
+	public double valueOf (double[] x) {
+		this.numOfUses++;
+		
+		// Initialise result variable
+		double res = 0;
+		// create chromosome from x
+		Environment env = new Environment(this.e);
+		Chromosome c = new Chromosome(x);
+
+		Simulation s = new Simulation(c, env, 500,20);
+//		
+		s.generate();
+		
+		// Get printability
+		float printability = s.printability();
+
+		return Math.abs(printability - target);
+	}
+	
+	// This method checks if the chromosome is within valid range of values
+	public boolean isFeasible(double[] x) {
+		for(int i = 0; i < x.length; i++) {
+			if(x[i] < 0 || x[i] > 1) return false;
+		}
+		return true;
+	}
+}
+
 public class Example1 {
 	public static void main(String[] args) {
 		// Instantiate fitness function
-		IObjectiveFunction fitfun = new Printability();
+		IObjectiveFunction fitfun = new Printability(0.3f);
 		
 		// new a CMA-ES and set some initial values
 		CMAEvolutionStrategy cma = new CMAEvolutionStrategy();
@@ -83,18 +125,18 @@ public class Example1 {
 		cma.setInitialX(0.5); // in each dimension, also setTypicalX can be used
 		cma.setInitialStandardDeviation(0.2); // also a mandatory setting 
 //		cma.options.stopFitness = 1e-14;       // optional setting
-		cma.options.stopMaxIter = 100;
+		cma.options.stopMaxIter = 40;
 		
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm");
 		LocalDateTime now = LocalDateTime.now();
 		String date = dtf.format(now);
-		String path = "..\\out\\";
+		String path = "../output/";
 		String fitnessDataFile = "FitnessData_"+date;
 		String genesDataFile = "GenesData_"+date;
 		
 		// sets the prefix for the output files
 //		cma.options.outputFileNamesPrefix = "C:\\Users\\camil\\01_Other Work\\Code Dev\\out\\"+date+"cma_out_";
-		cma.options.outputFileNamesPrefix = "..\\out\\"+date+"cma_out_";
+		cma.options.outputFileNamesPrefix = "../output/"+date+"cma_out_";
 		
 		// Initialise output data (fitness)
 		String fitnessData = "(randomSeed=" + cma.getSeed() + ", " + new Date().toString() + ")\n";

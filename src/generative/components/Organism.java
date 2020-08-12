@@ -390,6 +390,7 @@ public class Organism implements Serializable{
 		}
 	}
 	
+	
 	/**
 	 * Adds a new cell at the midpoint of a spring.
 	 * The spring becomes two new ones

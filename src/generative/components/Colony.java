@@ -17,6 +17,7 @@ public class Colony implements Serializable {
 	//organism
 	float initSubs;    //initial subdivisions of first organism
 	float initRad;     //initial radius of first organism
+	
 	//spring
 	float minRestLen;  //minimum rest length for springs
 	float springCoef;  //spring coefficient
@@ -96,6 +97,10 @@ public class Colony implements Serializable {
 		this.e = _e;
 	}
 	
+	public Environment getEnvironment() {
+		return this.e;
+	}
+	
 	public void setZPosition(float z) {
 		for (Organism o : this.organisms) {
 			for(Cell c : o.getCells()) {
@@ -133,7 +138,10 @@ public class Colony implements Serializable {
 			o.setSpringSplitThreshold(t);
 		}
 	}
-	  //======================UPDATE FUNCTION====================
+	
+	/*
+	 * Update method
+	 */
 	public void update() {
 		
 //		System.out.println("Pre eat");
@@ -156,22 +164,24 @@ public class Colony implements Serializable {
 	    this.updateOrganisms();
 	    
 //	    System.out.println("Post update");
-	}
+	} //update colony
 
-	  //==========================================
 
-	  void updateOrganisms() {
-		  for (int i = 0; i< this.organisms.size(); i++) {
-			  Organism o = this.organisms.get(i);
-			  if (o.splitting == "false") {
-				  o.update(e.width, e.height);
-			  } else if (o.splitting == "energy") {
-				  this.splitOrganism(i);
-			  } else if (o.splitting == "self") {
-				  this.splitSelfIntersect(i);
-			  }
-		  }
-	  }
+	/*
+	 * Update organisms
+	 */
+	void updateOrganisms() {
+		for (int i = 0; i< this.organisms.size(); i++) {
+			Organism o = this.organisms.get(i);
+			if (o.splitting == "false") {
+				o.update(e.width, e.height);
+			} else if (o.splitting == "energy") {
+				this.splitOrganism(i);
+			} else if (o.splitting == "self") {
+				this.splitSelfIntersect(i);
+			}
+		}
+	} //updateOrganisms
 	  
 	  void eat() {
 		  if (this.e == null) return;

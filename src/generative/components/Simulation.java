@@ -91,6 +91,31 @@ public class Simulation {
 		}
 	}
 	
+	public void printColony(String fileName) {
+		if(this.colony3d.layers.size() < 1) return;
+//		Colony3D scaledColony3d = this.colony3d.scale(this.outputSize, this.outputLayerHeight, this.e);
+		
+		// initialise gCode
+		GCode gCode = new GCode();
+		
+		// iterate through layers
+		for(Colony layer : this.colony3d.layers) {
+			int layerNumber = this.colony3d.layers.indexOf(layer);
+			if(layerNumber < 3) gCode.setMultiplier(1.25f);
+			if(layerNumber >= 3) gCode.setMultiplier(.9f);
+			gCode.writeGcodeLayer(layerNumber, layer);
+			System.out.println("Layer "+layerNumber+" added to gCode");
+		}
+		
+		
+		Colony lastLayer = this.colony3d.layers.get(this.colony3d.layers.size() - 1);
+		Organism lastOrg = lastLayer.organisms.get(lastLayer.organisms.size() -1);
+		OVector finalPoint = lastOrg.cells.get(lastOrg.cells.size() - 1).loc;
+		
+		gCode.export(fileName, finalPoint);
+		
+	}
+	
 	public Colony3D getColony3D() {
 		return this.colony3d;
 	}
@@ -526,7 +551,17 @@ public class Simulation {
 //		  return Math.variance(radii);
 //		}
 //
-//		  //====================TOTAL FITNESS=================
+//		  //==//	public void printColony() {
+//			// Initialise GCode
+//			GCode gc = new GCode();
+//			
+//			// Set gcode parameters (to be added later)
+//			
+//			// scale 3D colony
+//			Colony3D scaled = this.
+//			
+//			
+//		}==================TOTAL FITNESS=================
 //		  float getFitness() {
 //		    //use sigma function to add printability score
 //		    //The values used for the fuction are: m = 1.0, mp = 0.7, k = 15

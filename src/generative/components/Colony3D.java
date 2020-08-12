@@ -122,4 +122,16 @@ public class Colony3D{
 		
 	}
 	
+//	public void printColony() {
+//		// Initialise GCode
+//		GCode gc = new GCode();
+//		
+//		// Set gcode parameters (to be added later)
+//		
+//		// scale 3D colony
+//		Colony3D scaled = this.
+//		
+//		
+//	}
+	
 }
