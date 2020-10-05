@@ -4,41 +4,21 @@ package generative.components;
 //import processing.core.*;
 import java.util.*;
 
-/**
- * This is a template class and can be used to start a new processing Library.
- * Make sure you rename this class as well as the name of the example package 'template' 
- * to your own Library naming convention.
- * 
- * (the tag example followed by the name of an example included in folder 'examples' will
- * automatically include the example in the javadoc.)
- *
- * @example Hello 
- */
-
 public class Chromosome {
 	
 	// myParent is a reference to the parent sketch
 //	PApplet myParent;
 	 //ArrayList<Float> genes;
-	float metabolicRate;
-	float maxVel;
-	float maxEnergy;
-	float springCoef;
-	float splitRate;
-
-//	int myVariable = 0;
-	
-	public final static String VERSION = "##library.prettyVersion##";
-	
+	double metabolicRate;
+	double maxVel;
+	double maxEnergy;
+	double springCoef;
+	double splitRate;
 
 	/**
-	 * a Constructor, usually called in the setup() method in your sketch to
-	 * initialize and start the Library.
-	 * 
-	 * @example Hello
-	 * @param theParent the parent PApplet
+	 * Constructor
 	 */
-	public Chromosome(ArrayList<Float> newGenes){
+	public Chromosome(ArrayList<Double> newGenes){
 	    this.metabolicRate = newGenes.get(0);
 	    this.maxVel = newGenes.get(1);
 	    this.maxEnergy = newGenes.get(2);
@@ -47,18 +27,18 @@ public class Chromosome {
 	}
 	
 	public Chromosome(double[] newGenes){
-	    this.metabolicRate = (float)newGenes[0];
-	    this.maxVel = (float)newGenes[1];
-	    this.maxEnergy = (float)newGenes[2];
-	    this.springCoef = (float)newGenes[3];
-	    this.splitRate = (float)newGenes[4];
+	    this.metabolicRate = newGenes[0];
+	    this.maxVel = newGenes[1];
+	    this.maxEnergy = newGenes[2];
+	    this.springCoef = newGenes[3];
+	    this.splitRate = newGenes[4];
 	}
 	
-	public Chromosome(float _metabolicRate,
-			           float _maxVel,
-			           float _maxEnergy,
-			           float _springCoef,
-			           float _splitRate){
+	public Chromosome(double _metabolicRate,
+					double _maxVel,
+					double _maxEnergy,
+					double _springCoef,
+					double _splitRate){
 		this.metabolicRate = _metabolicRate;
 		this.maxVel = _maxVel;
 		this.maxEnergy = _maxEnergy;
@@ -67,9 +47,9 @@ public class Chromosome {
 	}
 	
 	//=====GET GENES=========
-	  public ArrayList<Float> getGenes()
+	  public ArrayList<Double> getGenes()
 	  {
-	     ArrayList<Float> genes = new ArrayList<Float>();
+	     ArrayList<Double> genes = new ArrayList<Double>();
 	     genes.add(this.metabolicRate);
 	     genes.add(this.maxVel);
 	     genes.add(this.maxEnergy);
@@ -78,20 +58,25 @@ public class Chromosome {
 
 	     return genes;
 	  }
-
+	  
+	  public double[] getGenes2() {
+		  double[] genes = {(double) this.metabolicRate, (double) this.maxVel, (double) this.maxEnergy, (double) this.springCoef, (double) this.splitRate};
+		  return genes;
+	  }
+	  	
 	  public String chrToString(){
-	    ArrayList<Float> genes = this.getGenes();
+	    ArrayList<Double> genes = this.getGenes();
 	    ArrayList<String> chr = new ArrayList<String>();
-	    for (Float g : genes){
-	      chr.add(Float.toString(g));
+	    for (Double g : genes){
+	      chr.add(Double.toString(g));
 	    }
 
 	    return String.join("_", chr);
 
 	  }
 
-	  public float get(int index){
-	    ArrayList<Float> genes = new ArrayList<Float>();
+	  public double get(int index){
+	    ArrayList<Double> genes = new ArrayList<Double>();
 	    genes.add(this.metabolicRate);
 	    genes.add(this.maxVel);
 	    genes.add(this.maxEnergy);

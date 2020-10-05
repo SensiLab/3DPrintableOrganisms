@@ -6,13 +6,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-
-import processing.core.*;
+import processing.core.PApplet;
 
 public class Colony3D{
 
 	
 	ArrayList<Colony> layers;
+	
+	protected static PApplet p = null;
 	
 	public Colony3D(){
 		this.layers = new ArrayList<Colony>();
@@ -120,6 +121,10 @@ public class Colony3D{
 //	    // println(stringsOut);
 //	    saveStrings(fileName, stringsOut);
 		
+	}
+	
+	public static void setPApplet(PApplet _p) {
+		p = _p;
 	}
 	
 //	public void printColony() {

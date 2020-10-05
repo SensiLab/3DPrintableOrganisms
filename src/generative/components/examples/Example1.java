@@ -17,12 +17,17 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.ArrayList;
 
+
 class TotalFitness implements IObjectiveFunction{
-	Environment e;
+	public Environment e;
 	int numOfUses;
 	TotalFitness() {
 		this.e = new Environment(600, 600, 20, 0.3f, 5, 30, 60, 20, 12345);
 		this.numOfUses = 0;
+	}
+	
+	public long randomSeed() {
+		return this.e.getRandomSeed();
 	}
 	
 	public double valueOf (double[] x) {
@@ -80,9 +85,13 @@ class Printability implements IObjectiveFunction{
 	int numOfUses;
 	float target;
 	Printability(float _target) {
-		this.e = new Environment(600, 600, 20, 0.3f, 5, 30, 60, 20, 12345);
+		this.e = new Environment(600, 600, 20, 0.3f, 5, 30, 60, 20, -1);
 		this.numOfUses = 0;
 		this.target = _target;
+	}
+	
+	public long randomSeed() {
+		return this.e.getRandomSeed();
 	}
 	
 	public double valueOf (double[] x) {
@@ -114,9 +123,17 @@ class Printability implements IObjectiveFunction{
 }
 
 public class Example1 {
+	static void parseParams(String[] _params) {
+		// parse
+		
+	}
+	
 	public static void main(String[] args) {
+		
 		// Instantiate fitness function
-		IObjectiveFunction fitfun = new Printability(0.3f);
+//		IObjectiveFunction fitfun = new TotalFitness();
+//		TotalFitness fitfun = new TotalFitness();
+		Printability fitfun = new Printability(0.7f);
 		
 		// new a CMA-ES and set some initial values
 		CMAEvolutionStrategy cma = new CMAEvolutionStrategy();
@@ -124,28 +141,28 @@ public class Example1 {
 		cma.setDimension(5); // overwrite some loaded properties
 		cma.setInitialX(0.5); // in each dimension, also setTypicalX can be used
 		cma.setInitialStandardDeviation(0.2); // also a mandatory setting 
-//		cma.options.stopFitness = 1e-14;       // optional setting
-		cma.options.stopMaxIter = 40;
+		cma.options.stopFitness = 1e-6;       // optional setting
+		cma.options.stopMaxIter = 100;
 		
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm");
 		LocalDateTime now = LocalDateTime.now();
 		String date = dtf.format(now);
-		String path = "../output/";
+		String path = "../out/gCode_output/";
 		String fitnessDataFile = "FitnessData_"+date;
 		String genesDataFile = "GenesData_"+date;
 		
 		// sets the prefix for the output files
 //		cma.options.outputFileNamesPrefix = "C:\\Users\\camil\\01_Other Work\\Code Dev\\out\\"+date+"cma_out_";
-		cma.options.outputFileNamesPrefix = "../output/"+date+"cma_out_";
+		cma.options.outputFileNamesPrefix = "../out/"+date+"cma_out_";
 		
 		// Initialise output data (fitness)
-		String fitnessData = "(randomSeed=" + cma.getSeed() + ", " + new Date().toString() + ")\n";
+		String fitnessData = "(CMARandomSeed=" + cma.getSeed() + ", ENVRandomSeed=" + fitfun.randomSeed() + ", "+ new Date().toString() + ")\n";
 		// Add header
 		fitnessData+="iteration, evaluations, sigma, axisratio, bestever_fitness, best_fitness, median_fitness, worst_fitness, mindii, "
 		+ "idxmaxSD, maxSD, idxminSD, minSD \n";
 		
 		// Initialise output data (genetic information)
-		String genesData = "(randomSeed=" + cma.getSeed() + ", " + new Date().toString() + ")\n";
+		String genesData = "(randomSeed=" + cma.getSeed() + ", ENVRandomSeed=" + fitfun.randomSeed() + ", " + new Date().toString() + ")\n";
 		// Add header
 		genesData+="iteration, evaluations, sigma, void, fitness_of_recent_best, x_of_recent_best(1...dimension) \n";
 		
@@ -153,7 +170,7 @@ public class Example1 {
 		double[] fitness = cma.init();  // new double[cma.parameters.getPopulationSize()];
 
 		// initial output to files
-		cma.writeToDefaultFilesHeaders(0); // 0 == overwrites old files
+//		cma.writeToDefaultFilesHeaders(0); // 0 == overwrites old files
 		
 		// ARRAY TO STORE BEST SOLUTION PER ITERATION
 		ArrayList<Float> bestFunctionPerIter = new ArrayList<Float>();

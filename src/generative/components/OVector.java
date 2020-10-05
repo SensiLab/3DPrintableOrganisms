@@ -106,6 +106,12 @@ public class OVector implements Serializable {
 		return (float) Math.sqrt(dx*dx+dy*dy+dz*dz);
 	}
 	
+	public OVector rotate(float angle) {
+		float newX = (float)((this.x * Math.cos((double)angle)) - (this.y*Math.sin((double)angle)));
+		float newY = (float)((this.y * Math.cos((double)angle)) + (this.x*Math.sin((double)angle)));
+		return new OVector(x,y);
+	}
+	
 	public OVector cross(OVector other) {
 		float crossX = this.y * other.z - other.y * z;
 	    float crossY = this.z * other.x - other.z * x;
@@ -159,6 +165,11 @@ public class OVector implements Serializable {
 		OVector normal = new OVector(dy, -dx);
 		
 		return normal.normalize();
+	}
+	
+	public float heading() {
+		float angle = (float) Math.atan2(y, x);
+		return angle;
 	}
 	
 }

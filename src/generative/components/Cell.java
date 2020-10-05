@@ -11,16 +11,21 @@ public class Cell{
 	public OVector vel;
 	public OVector acc;
 	
-	Chromosome chromosome;
+	public Chromosome chromosome;
 	
 	public float energy = 5f;
+	float maxEMin = 6f;
+	float maxEMax = 20f;
+	
 	float maxEnergy;
 	float costOfLiving = 0.001f;
 
 //	float splitThreshold = 0.5f;	// defines the ratio of the total energy at which a connected spring can split
 
-	float maxForce = 2;
+//	float maxForce = 2;
 	float maxVel;
+	float maxVMin = 0.1f;
+	float maxVMax = 2f;
 //	public float orgMaxVel;
 	float minVel = 0.2f;
 
@@ -31,7 +36,8 @@ public class Cell{
 	float repForce = 50f;
 
 	int seekDist = 3;
-	float metabolicRate;
+
+	double metabolicRate;
 
 	float r = 5f;
 	
@@ -45,9 +51,9 @@ public class Cell{
 		this.chromosome = _chr;
 		
 		this.metabolicRate = this.chromosome.get(0);
-		this.maxVel = MathLib.map(this.chromosome.get(1), 0f, 1f, 1f, 5f);
+		this.maxVel = (float) MathLib.mapDouble(this.chromosome.get(1), 0f, 1f, this.maxVMin, this.maxVMax);
 //		this.orgMaxVel = this.maxVel;
-		this.maxEnergy = MathLib.map(this.chromosome.get(2), 0f, 1f, 6f, 20f);
+		this.maxEnergy = (float) MathLib.mapDouble(this.chromosome.get(2), 0f, 1f, this.maxEMin, this.maxEMax);
 	}
 
 	public Cell(OVector _loc, Chromosome _chr) {
@@ -58,9 +64,9 @@ public class Cell{
 	    this.chromosome = _chr;
 
 	    this.metabolicRate = this.chromosome.get(0);
-	    this.maxVel = MathLib.map(this.chromosome.get(1), 0f, 1f, 1f, 5f);
+	    this.maxVel = (float) MathLib.mapDouble(this.chromosome.get(1), 0f, 1f, 1f, 5f);
 //	    this.orgMaxVel = this.maxVel;
-	    this.maxEnergy = this.chromosome.get(2);
+	    this.maxEnergy = (float) this.chromosome.get(2);
 	}
 
 
@@ -118,9 +124,15 @@ public class Cell{
 	    //reset acceleration
 	    this.acc.mult(0);
 
-	    float currentVel = Math.max(this.vel.mag(), 0.001f);
-	    this.energy-=(this.costOfLiving * this.maxEnergy * this.metabolicRate * currentVel);
+//	    float currentVel = Math.max(this.vel.mag(), 0.001f);
+	    float currentVel = this.vel.mag();
+	    float currentE = Math.max(MathLib.sigmoid(this.energy, 1f, 0.3f, 10f), 0.001f);
+//	    this.energy-=(this.costOfLiving * this.maxEnergy * this.metabolicRate * currentVel * currentE); // Original formula
 	    
+//	    this.energy-=((this.costOfLiving) + (this.metabolicRate * 0.01f) + (((this.maxEnergy-this.maxEMin)/(this.maxEMax-this.maxEMin))*0.01f) + (currentVel * 0.01f)); // * (this.maxEMax) * this.metabolicRate * currentVel * currentE);
+	    
+//	    this.energy-=((this.costOfLiving) + (((this.metabolicRate) * (this.maxEnergy/this.maxEMax)) + ((currentVel/this.maxVMax)*this.costOfLiving)));
+	    this.energy-=(this.costOfLiving + (((this.metabolicRate * (this.maxEnergy/this.maxEMax)) + (currentVel/this.maxVMax)) * this.costOfLiving));
 	    //update split ratio
 //	    this.splitThreshold = Math.max((MathLib.sigmoid((this.energy/this.maxEnergy), 1.0f, 0.75f, -15f) * this.maxEnergy), 0.01f);
 	} //update
@@ -146,8 +158,20 @@ public class Cell{
 		this.loc.add(new OVector(0.1f,0.1f));
 	} //update3
 	
+	public float getRepRadius() {
+		return this.repRad;
+	}
+	
+	public float getMaxEnergy() {
+		return this.maxEnergy;
+	}
+	
 	public void setAttrForce(float f) {
 		this.attrForce = f;
+	}
+	
+	public void setCostOfLiving(float c) {
+		this.costOfLiving = c;
 	}
 	
 	public void setAttrRadius(float r) {
@@ -166,11 +190,13 @@ public class Cell{
 	}
 	
 	void resetMaxVel() {
-		this.maxVel = MathLib.map(this.chromosome.get(1), 0f, 1f, 1f, 5f);
+		this.maxVel = (float) MathLib.mapDouble(this.chromosome.get(1), 0f, 1f, this.maxVMin, this.maxVMax);
 	}
 	
 	public void applyForce(OVector force) {
-		force.mult(1/this.maxEnergy);
+//		force.mult(1/(this.maxEnergy/this.maxEMax));
+//		force.mult(1 - ((this.maxEnergy - this.maxEMin)/(this.maxEMax - this.maxEMin)));
+//		force.mult(1/this.maxEnergy);
 		this.acc.add(force);
 	}
 
@@ -270,7 +296,7 @@ public class Cell{
 	    foodTarget.normalize();
 
 	    //a cell will be more capable of moving toward a food source the higher its energy and food metabolism
-	    foodTarget.mult(this.energy * this.metabolicRate);
+	    foodTarget.mult(this.energy * (float) this.metabolicRate);
 	    this.applyForce(foodTarget);
 	    //drawVector(foodTarget, this.loc.x, this.loc.y, this.seekDist * e.resolution);
 	  } // seek food

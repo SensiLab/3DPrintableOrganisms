@@ -8,12 +8,12 @@ public class Spring{
 	
 	private float restLen;
 	public float lenCoef = 0.1f;
-	private float sprCoef;
+	private double sprCoef;
 	public float minRestLen;
 	public float maxLen;
 	public float newSpringLenMult;
 	
-	float splitThreshold = 0.3f;
+	float splitThreshold = 3f;
 	
 	public Spring(Cell _sp, Cell _ep) {
 	    this.sp = _sp;
@@ -68,11 +68,11 @@ public class Spring{
 	 * spring (i.e. how hard or soft the spring is)
 	 * @return the spring coefficient of the current spring
 	 */
-	public float getSpringCoef() {
+	public double getSpringCoef() {
 		return this.sprCoef;
 	}
 	
-	public void setSpringCoef(float sc) {
+	public void setSpringCoef(double sc) {
 		this.sprCoef = sc;
 	}
 	
@@ -181,19 +181,19 @@ public class Spring{
 			// contract spring
 	    	// pull in ep
 			OVector spToEp = OVector.sub(this.sp.loc, this.ep.loc);
-			this.ep.applyForce(spToEp.mult(this.sprCoef));
+			this.ep.applyForce(spToEp.mult((float)this.sprCoef));
 			// pull in sp
 			OVector epToSp = OVector.sub(this.ep.loc, this.sp.loc);
-			this.sp.applyForce(epToSp.mult(this.sprCoef));
+			this.sp.applyForce(epToSp.mult((float)this.sprCoef));
 	    } else {
 	    	// expand spring
 	    	// push ep
 			OVector spToEp = OVector.sub(this.ep.loc, this.sp.loc);
-			this.ep.applyForce(spToEp.mult(this.sprCoef));
+			this.ep.applyForce(spToEp.mult((float)this.sprCoef));
 			
 			//push sp
 			OVector epToSp = OVector.sub(this.sp.loc, this.ep.loc);
-			this.sp.applyForce(epToSp.mult(this.sprCoef));
+			this.sp.applyForce(epToSp.mult((float)this.sprCoef));
 		}
 	}
 }

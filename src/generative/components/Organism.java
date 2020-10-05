@@ -16,15 +16,17 @@ public class Organism implements Serializable{
 	int initSubdivs;
 	float initRadius;
 	
-	String splitting;
+	public String splitting;
 	float splitThreshold;
-	float splitEnergyMult = 1.5f;
+	float splitEnergyMult;
 	
 	public OVector selfIntPoint = null;
     public int[] intersectingSprings = null;
 	
 	float newOrgEnergy;
+	float orgInitEnergy;
 	float diffusionRate = 0.1f; //This is currently set as a constant
+	float energyLoss = 0.05f;
 	int maxSize = 150; 			//The max number of cells 
 	
 	public Organism() {
@@ -44,12 +46,14 @@ public class Organism implements Serializable{
 
 		this.splitting = "false";
 
-		this.newOrgEnergy = this.chromosome.get(4);
+		this.newOrgEnergy = 1f;//(float) MathLib.mapDouble(this.chromosome.get(4), 0f, 1f, 0.5f, 1f);
 
 		this.init();
 	}
 	
 	public Organism(ArrayList<Cell> _cells) {
+		ArrayList<Double> genes = _cells.get(0).chromosome.getGenes();
+		this.chromosome = new Chromosome(genes);
 		this.cells = _cells;
 		this.springs = new ArrayList<Spring>();
 		this.splitting = "false";
@@ -71,7 +75,7 @@ public class Organism implements Serializable{
 	
 	// COPY CONSTRUCTOR
 	public Organism(Organism _o) {
-		ArrayList<Float> genes = new ArrayList<Float>(_o.chromosome.getGenes());
+		ArrayList<Double> genes = new ArrayList<Double>(_o.chromosome.getGenes());
 		this.chromosome = new Chromosome(genes);
 		
 		this.cells = new ArrayList<Cell>();
@@ -127,9 +131,12 @@ public class Organism implements Serializable{
 			this.springs.clear();
 			this.connectCells();
 		}
-		this.splitThreshold = this.getTotalEnergy() * this.splitEnergyMult;
+		this.splitEnergyMult= (float)MathLib.mapDouble(this.chromosome.get(4), 0f, 1f, 0.66f, 1f); 
+		this.splitThreshold = this.getMaxEnergy() * this.splitEnergyMult;
 		
-	}
+		orgInitEnergy = getTotalEnergy();
+		
+	}//init
 	
 	/**
 	 * Creates springs between adjacent cells
@@ -158,9 +165,25 @@ public class Organism implements Serializable{
 		return this.chromosome;
 	}
 	
+	public void setCostOfLiving(float c) {
+		for (Cell cell : this.cells) {
+			cell.setCostOfLiving(c);
+		}
+	}
+	
+	public void resetInitEnergy() {
+		this.orgInitEnergy = this.getTotalEnergy();
+	}
+	
 	public float getTotalEnergy() {
 		float e = 0;
 		for (Cell c : this.cells) e+=c.energy;
+		return e;
+	}
+	
+	public float getMaxEnergy() {
+		float e = 0;
+		for(Cell c : this.cells)e+=c.getMaxEnergy();
 		return e;
 	}
 	
@@ -248,7 +271,8 @@ public class Organism implements Serializable{
 	 * checks if the organism should be put in "energy" splitting state
 	 */
 	public void checkEnergySplitting() {
-	    if (this.getTotalEnergy() >= this.splitThreshold && this.cells.size() > 10) {
+//	    if (this.getTotalEnergy() >= this.splitThreshold && this.cells.size() > 10) {
+		if (this.getTotalEnergy() >= (this.orgInitEnergy * 5f) && this.cells.size() > 10) {
 	    	this.splitting = "energy";
 	    }
 	}
@@ -320,7 +344,7 @@ public class Organism implements Serializable{
 	        float d = c.loc.dist(n.loc);
 
 	        float next_energy = cell_energy_add.get(next_cell);
-	        next_energy += (energy_to_pass * MathLib.map(d, 0, 300, 1, 0));
+	        next_energy += Math.max((energy_to_pass - (this.energyLoss * this.springs.get(current_cell).getLen())),0f);
 	        cell_energy_add.set(next_cell, next_energy);
 	      }
 	      if (current_cell == this.cells.size() - 1) {
@@ -390,6 +414,69 @@ public class Organism implements Serializable{
 		}
 	}
 	
+	public void splitCell(int c) {
+		Cell cell = this.cells.get(c);
+		Cell newCell = new Cell(cell);
+		//split energy of cells in two
+		float e = cell.energy;
+		cell.energy = e/2;
+		newCell.energy = e/2;
+		
+		//get indices of previous and next
+		int prev;
+		if(c == 0) {
+			prev = this.cells.size()-1;
+		}else {
+			prev = c-1;
+		}
+		
+		int next;
+		if(c == this.cells.size()-1) {
+			next = 0;
+		}else {
+			next = c+1;
+		}
+		
+		//reference to previous and next cells
+		Cell prevCell = this.cells.get(prev);
+		Cell nextCell = this.cells.get(next);
+		
+		//get normals of adjacent springs
+		OVector normPrev = OVector.getNormal(prevCell.loc,  cell.loc);
+		OVector normNext = OVector.getNormal(cell.loc, nextCell.loc);
+		
+		//get normal of cell
+		OVector norm = normPrev.add(normNext).normalize();
+		norm.setMag(e/2);
+		
+		//rotate normal vector for existing cell
+		cell.loc.add(norm.rotate((float)-(Math.PI)/2));
+		newCell.loc.add(norm.rotate((float)Math.PI));		
+		
+		
+		//add cell to org
+		this.cells.add(c+1, newCell);
+		
+		//create new springs
+		float coef = (float) this.springs.get(c).getSpringCoef();
+		float lenMult = this.springs.get(c).newSpringLenMult;
+		//remove spring
+		this.springs.remove(c);
+		Spring s = new Spring(cell, newCell, e/2, coef, lenMult);
+		Spring nextS = new Spring(newCell, nextCell, e/2, coef, lenMult);
+		
+		//add new springs in their corresponding locations
+		int sLoc = this.cells.indexOf(cell);
+		this.springs.add(sLoc, s);
+		int nextSLoc = this.cells.indexOf(nextCell);
+		this.springs.add(nextSLoc, nextS);
+
+		
+
+		
+		
+	} //splitCell
+	
 	
 	/**
 	 * Adds a new cell at the midpoint of a spring.
@@ -397,45 +484,10 @@ public class Organism implements Serializable{
 	 * @param the index of the spring to split.
 	 */
 	public void splitSpring(int s) {
-		Cell sp = this.springs.get(s).sp;
-	    Cell ep = this.springs.get(s).ep;
-	    
-	    //reduce energy of sp and ep
-	    float sp_transfer = sp.energy / 3;
-	    float ep_transfer = ep.energy / 3;
-
-	    sp.energy -= sp_transfer;
-	    ep.energy -= ep_transfer;
-
-	    // get spring coefficient
-	    float sc = this.springs.get(s).getSpringCoef();
-
-	    float l =  this.springs.get(s).getLen();
-	    
-	    float newLenMult = this.springs.get(s).newSpringLenMult;
-
-	    //remove spring
-	    this.springs.remove(s);
-
-	    //add cell in the middle
-	    OVector mpLoc = OVector.getMidPoint(sp.loc, ep.loc);
-	    
-	    float newSprLen = l * newLenMult;
-	    
-	    Cell mp = new Cell(mpLoc.x, mpLoc.y, this.chromosome);
-	    
-	    mp.repRad = sp.repRad;
-	    
-	    mp.energy = (sp_transfer + ep_transfer);
-	    //mp.setRepRadius(newSprLen/2);
-
-	    //create new springs
-	    this.cells.add(s+1, mp);
-	    Spring spMp = new Spring(sp, mp, newSprLen, sc, newLenMult);
-	    this.springs.add(s, spMp);
-
-	    Spring mpEp = new Spring(mp, ep, newSprLen, sc, newLenMult);
-	    this.springs.add(s+1, mpEp);
+		Spring spring = this.springs.get(s);
+		OVector mp = OVector.getMidPoint(spring.sp.loc, spring.ep.loc);
+		this.splitSpring(s, mp);
+//	
 	}
 	
 	public void splitSpring(int s, 	OVector split_point) {
@@ -450,7 +502,7 @@ public class Organism implements Serializable{
 	    sp.energy -= sp_transfer;
 	    ep.energy -= ep_transfer;
 
-	    float sc = this.springs.get(s).getSpringCoef();
+	    float sc = (float) this.springs.get(s).getSpringCoef();
 	    float l =  this.springs.get(s).getLen();
 	    float newLenMult = this.springs.get(s).newSpringLenMult;
 
@@ -475,7 +527,7 @@ public class Organism implements Serializable{
 	
 	
 	public void setSplitThreshold() {
-		this.splitThreshold = this.getTotalEnergy() * this.splitEnergyMult;
+		this.splitThreshold = this.getMaxEnergy() * this.splitEnergyMult;
 	}
 	
 	void setSpringCoef(float sc) {
@@ -713,20 +765,24 @@ public class Organism implements Serializable{
 		this.checkEnergySplitting();
 		//check overlapping cells
 		this.overlappingCells();
-		//check splitting state
-		if (this.splitting != "false") return;
-		// if 
-		this.diffuseEnergy();
+		//apply attraction and repulsion
 		this.applyAttraction();
 		this.applyRepulsion();
+		//update split threshold
+		this.splitThreshold = this.getMaxEnergy() * this.splitEnergyMult;
+		
+		//check splitting state
+		if (this.splitting != "false") return;
+		
+		// energy
+		this.diffuseEnergy();
 
-//		System.out.println("Done with cells. Starting spring update. Total Springs: "+this.springs.size());
 		//update springs
 		for (int i = 0; i < this.springs.size(); i++) {
 			Spring s = this.springs.get(i);
-	        if ((s.sp.energy + s.ep.energy) >= ((s.sp.maxEnergy + s.ep.maxEnergy) * s.getSplitThreshold()))
-	        	this.splitSpring(i);
-	        if (s.getLen() > s.sp.maxEnergy + s.ep.maxEnergy)
+//	        if ((s.sp.energy + s.ep.energy) >= ((s.sp.maxEnergy + s.ep.maxEnergy) * s.getSplitThreshold()))
+//	        	this.splitSpring(i);
+	        if (s.getLen() >= (s.sp.maxEnergy + s.ep.maxEnergy) * s.splitThreshold)
 	        	this.splitSpring(i);
 		}
 
@@ -740,7 +796,11 @@ public class Organism implements Serializable{
 			Cell c = this.cells.get(i);
 			if (c.energy <= 0.0001f) {
 				this.killCell(i);
+			}else if(c.energy >= c.getMaxEnergy()){
+				//split cell
+				this.splitCell(i);
 			}else {
+		
 //				c.borders(maxY, maxY);
 		        
 				//the maxVel of c is updated based on the size of the organism using a sigmoid function

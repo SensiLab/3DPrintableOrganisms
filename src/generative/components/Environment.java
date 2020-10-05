@@ -6,11 +6,11 @@ import java.util.Random;
 
 public class Environment implements Serializable{
 
-	int randSeed;
+	long randSeed;
 	Random generator;
 //	int noiseSeed;
 	
-	int randSeedOut;
+	long randSeedOut;
 //	int noiseSeedOut;
 	
 	long maxSeed = 2147483647;
@@ -40,7 +40,7 @@ public class Environment implements Serializable{
 	
 	int timestep;
 //
-	public Environment(int _width, int _height, int res, float _drag, int _numOfFs, int fsSizeMin, int fsSizeMax, float _foodGrowthRate, int _randSeed) {
+	public Environment(int _width, int _height, int res, float _drag, int _numOfFs, int fsSizeMin, int fsSizeMax, float _foodGrowthRate, long _randSeed) {
 		
 		this.randSeed = _randSeed;
 
@@ -117,12 +117,16 @@ public class Environment implements Serializable{
 		return fs;
 	}
 	
+	public long getRandomSeed() {
+		return this.randSeedOut;
+	}
+	
 	void init() {
 		this.generator = new Random();
-		if(this.randSeed <= -1){
-			long seed = this.generator.nextLong();			
-			this.randSeedOut = (int) seed;
-			long r = (long) this.randSeedOut;
+		if(this.randSeed == -1){
+			long seed = this.generator.nextLong();
+			this.randSeedOut = seed;
+			long r = this.randSeedOut;
       
 		}else{
 			this.randSeedOut = this.randSeed;

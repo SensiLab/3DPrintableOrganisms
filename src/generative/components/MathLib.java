@@ -18,6 +18,11 @@ public class MathLib {
 		  return r;
 	  }
 	  
+	  public static double mapDouble(double value, float valueRangeMin, float valueRangeMax, float newRangeMin, float newRangeMax) {
+		  double r = ((value - valueRangeMin) / (valueRangeMax - valueRangeMin)) * (newRangeMax - newRangeMin) + newRangeMin;
+		  return r;
+	  }
+	  
 	  
 	//returns the min distance between a point pt and a line ln
 	  public static float distPointLine(OVector pt, OVector[] ln) {

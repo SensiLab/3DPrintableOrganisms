@@ -31,7 +31,7 @@ public class Simulation {
 	ArrayList<ArrayList<ArrayList<OVector[]>>> pointCloud;
 	Colony3D colony3d;
 	Colony c;
-	float printabilityThreshold = 0.2f;
+	float printabilityThreshold = 0.4f;
 	float minPrintDiameter = 7.5f;
 	float outputSize = 120f;
 	float outputLayerHeight = 0.2f;
@@ -121,9 +121,12 @@ public class Simulation {
 	}
 	
 	float diameterFactor(float d, float threshold){
-		if(d > 2*threshold) return 1;
-		if(d >= threshold) return MathLib.map(d,threshold,(2*threshold),0.0f,1.0f);
-		return 0;
+		if(d >= threshold) {
+			return 1;
+		}else {
+			return d / threshold;
+		}
+		
 	}
 	
 	/**
@@ -250,6 +253,7 @@ public class Simulation {
 				float diameterFactor = diameterFactor(hullMinDiameter, this.minPrintDiameter);				
 				
 				ArrayList<Float> orgScores = new ArrayList<Float>();
+				//for every spring in organism
 				for(int k = 0; k < o.springs.size(); k++) {
 					Spring s = o.springs.get(k);
 					float edgeLen = s.getLen();

@@ -79,7 +79,7 @@ public class Colony implements Serializable {
 	// COPY CONSTRUCTOR
 	public Colony(Colony _c) {
 		// Copy chromosome
-		ArrayList<Float> genes = new ArrayList<Float>(_c.chromosome.getGenes());
+		ArrayList<Double> genes = new ArrayList<Double>(_c.chromosome.getGenes());
 		this.chromosome = new Chromosome(genes);
 				
 		this.organisms = new ArrayList<Organism>();
@@ -144,26 +144,26 @@ public class Colony implements Serializable {
 	 */
 	public void update() {
 		
-//		System.out.println("Pre eat");
+		System.out.println("Pre eat");
 		this.eat();
 		
-//		System.out.println("Post eat, pre repulsion");
+		System.out.println("Post eat, pre repulsion");
 		this.applyOrgRepulsion();
 
-//		System.out.println("Post repulsion, pre kill");
+		System.out.println("Post repulsion, pre kill");
 		//check if ant organism is smaller than 3 cells and kill it
 		this.killOrganisms();
 
-//		System.out.println("Post kill, pre overlaps");
+		System.out.println("Post kill, pre overlaps");
 	    this.checkFullOverlaps();
 
 	    //this.joinOverlapping(); //This function is to be implemented in the future
 	    
-//	    System.out.println("Post overlaps, pre update");
+	    System.out.println("Post overlaps, pre update");
 	    //update organisms
 	    this.updateOrganisms();
 	    
-//	    System.out.println("Post update");
+	    System.out.println("Post update");
 	} //update colony
 
 
@@ -222,7 +222,7 @@ public class Colony implements Serializable {
 		  float split_energy = o.cells.get(first_cell).energy;
 		  int dist_counter = 0;
 		  for (int i = 0; i < o.cells.size(); i++) {
-			  if (split_energy < o.splitThreshold * (o.newOrgEnergy/2)) {
+			  if (split_energy < (o.getTotalEnergy()/2)) {
 				  if (next_cell == o.cells.size() - 1) {
 					  next_cell = 0;
 				  } else {
@@ -234,7 +234,8 @@ public class Colony implements Serializable {
 				  break;
 			  }
 		  }
-
+		  
+		  
 		  if (dist_counter > 3 && o.cells.size() - dist_counter > 3) {
 			  last_cell = next_cell;
 		  } else {
@@ -244,7 +245,8 @@ public class Colony implements Serializable {
 				  last_cell =  first_cell+4 - o.cells.size();
 			  }
 		  }
-
+		  
+		  // Initialise attraction forces between splitting cells
 		  OVector force_to_first = OVector.sub(o.cells.get(first_cell).loc, o.cells.get(last_cell).loc);
 		  force_to_first.normalize().mult(100);
 
@@ -261,10 +263,12 @@ public class Colony implements Serializable {
 
 		  int cells_to_remove = o.cells.size() - cells_to_keep;
 		  int next_to_remove;
-
-		  if (split_pts_dist < 10) {
+		  
+		  // split if the distance between split points is equal to or smaller than 2*repulsionRadius
+		  if (split_pts_dist <= 2*o.cells.get(first_cell).getRepRadius()) {
 			  int new_first = first_cell;
 			  Organism new_o = new Organism(this.chromosome);
+//			  ArrayList<Cell> newOrgCells = new ArrayList<Cell>();
 			  new_o.splitting = "energy";
 
 			  for (int i = 0; i < cells_to_remove; i++) {
@@ -275,17 +279,22 @@ public class Colony implements Serializable {
 					  new_first--;
 				  }
 				  Cell new_c = new Cell(o.cells.get(next_to_remove));
+//				  newOrgCells.add(new_c);
 				  new_o.cells.add(new_c);
 				  o.killCell(next_to_remove);
 			  }
 			  o.splitting = "false";
 
+//			  Collections.reverse(newOrgCells);
 			  Collections.reverse(new_o.cells);
+//			  Organism new_o = new Organism(newOrgCells);
 			  new_o.connectCells();
-			  new_o.setSplitThreshold();
+//			  new_o.setSplitThreshold();
 			  new_o.setSpringCoef(0.5f);
 			  new_o.splitting = "false";
 			  o.setSpringCoef(0.5f);
+			  o.resetInitEnergy();
+			  new_o.resetInitEnergy();
 			  this.organisms.add(new_o);
 		  } else {
 			  //get line between start and end
@@ -433,7 +442,7 @@ public class Colony implements Serializable {
 		  Collections.reverse(new_o.cells);
 		  new_o.connectCells();
 		  new_o.setSplitThreshold();
-		  new_o.setSpringCoef(this.chromosome.get(3));
+		  new_o.setSpringCoef((float)this.chromosome.get(3));
 		  new_o.splitting = "false";
 	    
 		  this.organisms.add(new_o);
@@ -481,41 +490,55 @@ public class Colony implements Serializable {
 				  Organism other = this.organisms.get(j);
 				  ArrayList<Intersection> intersections = findIntersections(o, other);
 				  if (intersections.size() > 0) {
-					  o.splitting = "overlapping";
-					  other.splitting = "overlapping";
-
-					  Spring first_o = intersections.get(0).a;
-					  int index_first_o = o.springs.indexOf(first_o);
-					  Spring last_other = intersections.get(0).b;
-					  int index_last_other = other.springs.indexOf(last_other);
-					  OVector firstInt = first_o.getIntersectionPoint(last_other);
-
-					  o.splitSpring(index_first_o, firstInt);
-					  //other.splitSpring(index_last_other, firstInt);
-
-					  Spring last_o = intersections.get(intersections.size() - 1).a;
-					  int index_last_o = o.springs.indexOf(last_o);
-					  Spring first_other = intersections.get(intersections.size() - 1).b;
-					  int index_first_other = other.springs.indexOf(first_other);
-					  OVector lastInt = last_o.getIntersectionPoint(first_other);
-
-					  o.splitSpring(index_last_o, lastInt);
-					  other.splitSpring(index_first_other, lastInt);
-
-					  ArrayList<Cell> newCells = new ArrayList<Cell>();
-
-					  for (int k = 0; k < o.cells.size(); k++) {
-						  Cell c = o.cells.get(k);
-						  if (c.isInside(other)) {
-							  o.killCell(k);
-						  }
+					  
+					  //add all cells not in intersections to arraylist
+					  ArrayList<Cell> newOrg = new ArrayList<Cell>();
+					  for(Cell c : o.cells) {
+						  if(!c.isInside(other)) newOrg.add(c);
 					  }
-					  for (int k = 0; k < other.cells.size(); k++) {
-						  Cell c = other.cells.get(k);
-						  if (c.isInside(o)) {
-							  other.killCell(k);
-						  }
+					  
+					  for(Cell c : other.cells) {
+						  if(!c.isInside(o)) newOrg.add(c);
 					  }
+					  
+					  //polar sort cells
+					  
+					  
+//					  o.splitting = "overlapping";
+//					  other.splitting = "overlapping";
+//
+//					  Spring first_o = intersections.get(0).a;
+//					  int index_first_o = o.springs.indexOf(first_o);
+//					  Spring last_other = intersections.get(0).b;
+//					  int index_last_other = other.springs.indexOf(last_other);
+//					  OVector firstInt = first_o.getIntersectionPoint(last_other);
+//
+//					  o.splitSpring(index_first_o, firstInt);
+//					  //other.splitSpring(index_last_other, firstInt);
+//
+//					  Spring last_o = intersections.get(intersections.size() - 1).a;
+//					  int index_last_o = o.springs.indexOf(last_o);
+//					  Spring first_other = intersections.get(intersections.size() - 1).b;
+//					  int index_first_other = other.springs.indexOf(first_other);
+//					  OVector lastInt = last_o.getIntersectionPoint(first_other);
+//
+//					  o.splitSpring(index_last_o, lastInt);
+//					  other.splitSpring(index_first_other, lastInt);
+//
+//					  ArrayList<Cell> newCells = new ArrayList<Cell>();
+//
+//					  for (int k = 0; k < o.cells.size(); k++) {
+//						  Cell c = o.cells.get(k);
+//						  if (c.isInside(other)) {
+//							  o.killCell(k);
+//						  }
+//					  }
+//					  for (int k = 0; k < other.cells.size(); k++) {
+//						  Cell c = other.cells.get(k);
+//						  if (c.isInside(o)) {
+//							  other.killCell(k);
+//						  }
+//					  }
 				  }
 			  }
 		  }
@@ -577,6 +600,12 @@ public class Colony implements Serializable {
 	        }
 	      }
 	    }
+	  }
+	  
+	  public void setCostOfLiving(float c) {
+		  for (Organism org : this.organisms) {
+			  org.setCostOfLiving(c);
+		  }
 	  }
 
 	  int getCellCount() {
