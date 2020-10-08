@@ -664,7 +664,7 @@ public class Organism implements Serializable{
 					winner = p;
 				}else if(c == minCotan){
 					minCotan = c;
-					if(bm.dist(p) < bm.dist(winner)) winner = p;
+					if(bm.dist(p) <= bm.dist(winner)) winner = p;
 				}else{
 					continue; 
 				}

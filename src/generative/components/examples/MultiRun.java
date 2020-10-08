@@ -14,6 +14,11 @@ public class MultiRun {
 		int runs = 0;
 		int gens = 0;
 		int fitfunType = 0;
+		int populationSize = 8;
+		
+		long[] envSeeds = {-1632478226818474777L, 8558593120860338761L, 9063855533770827947L, 8141159607898132170L, -2228090770267545711L,
+				5760679812470627183L, 8122425018693031776L, 7233387513096301004L, 8063979647430030046L, 1209585713320896596L};
+		
 		
 		// Process inputs
 		// -r= for number of runs
@@ -33,6 +38,9 @@ public class MultiRun {
 				case "-f":
 					fitfunType = Integer.valueOf(arg[1]);
 					break;
+				case "-p":
+					populationSize = Integer.valueOf(arg[1]);
+					break;
 				default:
 					break;
 			}
@@ -47,7 +55,8 @@ public class MultiRun {
 		
 		System.out.println("Runs: "+ runs + "\n"
 						+ "Gens: " + gens +"\n"
-						+ "fitfunType: " + fitfunType);
+						+ "fitfunType: " + fitfunType+"\n"
+						+ "Population: " + populationSize);
 		
 		
 		
@@ -56,13 +65,14 @@ public class MultiRun {
 		
 		//Set parameters for cma
 		//Environment (This environment will be used for all 
-		Environment e = new Environment(600, 600, 20, 0.3f, 5, 30, 60, 20, -1);	//Environment with randomisation
-		cma.setEnvironment(e);
+//		Environment e = new Environment(600, 600, 20, 0.3f, 5, 30, 60, 20, -1);	//Environment with randomisation
+//		Environment e = new Environment(600, 600, 15, 0.3f, 5, 5, 10, 10, 0.2f, -1);	//Environment with randomisation
+//		cma.setEnvironment(e);
 		
-		String destFolder = "../out/CMA_Testing/";
+		String destFolder = "../out/evo_output/Complexity_004/";
 		
 		// call multirun
-		cma.evolveMultiple(runs, gens, fitfunType, destFolder);
+		cma.evolveMultiple(envSeeds, gens, fitfunType, populationSize, destFolder);
 //		cma.evolve(10, 1e-6, 1, e, destFolder);		
 		
 	}

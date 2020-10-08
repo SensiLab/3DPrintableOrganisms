@@ -65,6 +65,33 @@ public class Environment implements Serializable{
 
 		this.init();
 	}
+	
+public Environment(int _width, int _height, int res, float _drag, int _numOfFs, int fsSizeMin, int fsSizeMax, float _foodGrowthRate, float _foodDecayRate, long _randSeed) {
+		
+		this.randSeed = _randSeed;
+
+		this.width = _width;
+		this.height = _height;
+		this.resolution = res;
+		this.cols = this.width/this.resolution;
+		this.rows = this.height/this.resolution;
+		
+		this.drag = _drag;
+
+		this.numOfFoodSources = _numOfFs;
+		this.foodSourceSizeMin = fsSizeMin;
+		this.foodSourceSizeMax = fsSizeMax;
+		this.foodGrowthRate = _foodGrowthRate;
+		this.foodDecayRate = _foodDecayRate;
+
+//		dragField = new float[this.cols][this.rows];
+		this.nutrientField = new float[this.cols][this.rows];
+
+		this.initFS = new ArrayList<FoodSource>();
+		this.foodSources = new ArrayList<FoodSource>();
+
+		this.init();
+	}
 		
 	//========COPY CONSTRUCTOR========
 	public Environment(Environment _e){
@@ -174,12 +201,12 @@ public class Environment implements Serializable{
 				
 				// Create a new food source
 				FoodSource newFs = new FoodSource(this.generator.nextInt(cols), this.generator.nextInt(rows), totEnergyOfFoodSources);
-				for (Organism o : c.organisms) {
-					while (newFs.inOrganism(o, this.resolution)) {
-						newFs.col = this.generator.nextInt(cols);
-						newFs.row = this.generator.nextInt(rows);
-					}
-				}
+//				for (Organism o : c.organisms) {
+//					while (newFs.inOrganism(o, this.resolution)) {
+//						newFs.col = this.generator.nextInt(cols);
+//						newFs.row = this.generator.nextInt(rows);
+//					}
+//				}
 
 				this.foodSources.add(newFs);
 			}

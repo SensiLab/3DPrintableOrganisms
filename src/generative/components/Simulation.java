@@ -31,6 +31,7 @@ public class Simulation {
 	ArrayList<ArrayList<ArrayList<OVector[]>>> pointCloud;
 	Colony3D colony3d;
 	Colony c;
+	float costOfLiving;
 	float printabilityThreshold = 0.4f;
 	float minPrintDiameter = 7.5f;
 	float outputSize = 120f;
@@ -64,8 +65,8 @@ public class Simulation {
 		//copy environment
 		Environment env = new Environment(this.e);
 		this.c.setEnvironment(env);
-
-//		this.pointCloud.clear();
+		
+		//		this.pointCloud.clear();
 		this.colony3d.clear();
 
 		for (int i = 0; i < this.colonySize + this.colonyWarmup; i++) {
@@ -389,19 +390,29 @@ public class Simulation {
 
 	//returns median of convexity ratio of all organisms
 	public float convexity(){
-		ArrayList<Float> convexityRatios = new ArrayList<Float>();
+//		ArrayList<Float> convexityRatios = new ArrayList<Float>();
 		//for every layer
+		float totalPerimeter = 0;
+		float totalConvexPerimeter = 0;
 		for(Colony layer : this.colony3d.layers){
 			// for every organism
 			for(Organism org : layer.organisms){
-				convexityRatios.add(this.getConvexityRatio(org));
+//				int n = layer.organisms.indexOf(org);
+				float perimeter = org.getPerimeter();
+				float convexPerimeter = org.getConvexHullPerimeter();
+				totalPerimeter+=perimeter;
+				totalConvexPerimeter+=convexPerimeter;
+//				float cr = this.getConvexityRatio(org);
+//				System.out.println("Org "+totalOrgs+" Conv: "+ cr);
+				
+//				convexityRatios.add(this.getConvexityRatio(org));
 			}
 		}
 //	    Collections.sort(convexityRatios, null);
 //	    return convexityRatios.get(convexityRatios.size()/2);
-		float convexitySum = 0;
-		for (float r : convexityRatios) convexitySum+=r;
-		return convexitySum / (float) convexityRatios.size();
+//		for (float r : convexityRatios) convexitySum+=r;
+//		return convexitySum / (float) totalOrgs;
+		return totalConvexPerimeter / totalPerimeter;
 	}
 	  
 	//=================COMPACTNESS===========
@@ -490,9 +501,30 @@ public class Simulation {
 		    // println(millis());
 		    return angles;
 		  }
-
+		
+		public ArrayList<Float> getRealAngles(){
+			ArrayList<Float> angles = new ArrayList<Float>();
+			// a.b/mag(a)*mag(b)
+			for(Colony layer:this.colony3d.layers) {
+				for(Organism org : layer.organisms) {
+					for(int i = 0; i < org.springs.size()-1;i++) {
+						Spring s = org.springs.get(i);
+						Spring nexts = org.springs.get(i+1);
+						OVector v1 = OVector.sub(s.sp.loc, s.ep.loc);
+						OVector v2 = OVector.sub(nexts.ep.loc, nexts.sp.loc);
+						float cosA = OVector.dot(v1, v2)/(v1.mag() * v2.mag());
+						float a = (float) Math.acos((double) cosA);
+						angles.add(a);
+					}
+				}
+			}
+			
+			return angles;
+		}
+			
 		  public float angleDispersionCoefficient(){
-		    ArrayList<Float> a = this.getAngles();
+//		    ArrayList<Float> a = this.getAngles();
+			  ArrayList<Float> a = this.getRealAngles();
 		    Collections.sort(a, null);
 		    float q1 = a.get((int)(a.size()/4));
 		    float q3 = a.get((int)(3 * (a.size()/4)));
@@ -577,7 +609,15 @@ public class Simulation {
 //		    float a = this.areaDispersionCoefficient()/4;
 //		    return (p + c + l + a);
 //		  }
+		  public void setCostOfLiving(float cost) {
+			  this.c.setCostOfLiving(cost);
+		  }
+		  
+		  public void setSpringRLMult(float rl) {
+			  this.c.setSpringRLMult(rl);
+		  }
 }
+
 
 
 

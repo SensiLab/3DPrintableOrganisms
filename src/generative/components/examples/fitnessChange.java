@@ -20,7 +20,7 @@ public class fitnessChange {
 		String destFolder = "../out/CMA_Testing/MultiFitnessFunc/";
 		
 		//Evolve with angle dispersion
-		cma.evolve(200, 1e-5, 3, e, destFolder, "Conv_");
+//		cma.evolve(200, 1e-5, 3, e, destFolder, "Conv_");
 		//Get the result
 		double[] parent = cma.getCurrentBest();
 		

@@ -3,10 +3,14 @@ package generative.components;
 import java.util.ArrayList;
 
 public class Spring{
+	
+	Chromosome chromosome;
+	
 	public Cell sp;
 	public Cell ep;
 	
 	private float restLen;
+	private float energyMult = 2.5f;
 	public float lenCoef = 0.1f;
 	private double sprCoef;
 	public float minRestLen;
@@ -16,13 +20,15 @@ public class Spring{
 	float splitThreshold = 3f;
 	
 	public Spring(Cell _sp, Cell _ep) {
+		this.chromosome = _sp.chromosome;
+		
 	    this.sp = _sp;
 	    this.ep = _ep;
 
 	    this.minRestLen = this.sp.repRad + this.ep.repRad;
 
 	    this.restLen = 20;
-	    this.sprCoef = 0.5f;
+	    this.sprCoef = this.chromosome.get(3);
 
 	    this.newSpringLenMult = 0.6f;	    
 	}
@@ -90,6 +96,10 @@ public class Spring{
 	 */
 	public void setRestLen(float l) {
 		this.restLen = l;
+	}
+	
+	public void setEnergyMult(float _em) {
+		this.energyMult = _em;
 	}
 
 	/**
@@ -174,7 +184,7 @@ public class Spring{
 
 	public void update() {
 		// set rest length to the sum of the energies contained in connected cells
-	    float rl = (this.sp.energy + this.ep.energy);
+	    float rl = (this.sp.energy + this.ep.energy) * this.energyMult;
 	    this.restLen = rl;
 	    
 	    if (this.getLen() > this.restLen) {

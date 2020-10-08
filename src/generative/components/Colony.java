@@ -144,26 +144,26 @@ public class Colony implements Serializable {
 	 */
 	public void update() {
 		
-		System.out.println("Pre eat");
+//		System.out.println("Pre eat");
 		this.eat();
 		
-		System.out.println("Post eat, pre repulsion");
+//		System.out.println("Post eat, pre repulsion");
 		this.applyOrgRepulsion();
 
-		System.out.println("Post repulsion, pre kill");
+//		System.out.println("Post repulsion, pre kill");
 		//check if ant organism is smaller than 3 cells and kill it
 		this.killOrganisms();
 
-		System.out.println("Post kill, pre overlaps");
+//		System.out.println("Post kill, pre overlaps");
 	    this.checkFullOverlaps();
 
 	    //this.joinOverlapping(); //This function is to be implemented in the future
 	    
-	    System.out.println("Post overlaps, pre update");
+//	    System.out.println("Post overlaps, pre update");
 	    //update organisms
 	    this.updateOrganisms();
 	    
-	    System.out.println("Post update");
+//	    System.out.println("Post update");
 	} //update colony
 
 
@@ -188,13 +188,17 @@ public class Colony implements Serializable {
 		  if (this.organisms.size() < 1) return;
 
 		  for (Organism o : this.organisms) {
-			  for (Cell c : o.cells) {
-//				  System.out.println("About to seek food");
-				  c.seekFood(this.e);
-//				  System.out.println("Food found! About to eat it");
-				  c.eat(this.e);
-//				  System.out.println("Ate the food");
-				  c.addDrag(this.e);
+			  if(o.splitting != "false") {
+				  return;
+			  }else {
+				  for (Cell c : o.cells) {
+	//				  System.out.println("About to seek food");
+					  c.seekFood(this.e);
+	//				  System.out.println("Food found! About to eat it");
+					  c.eat(this.e);
+	//				  System.out.println("Ate the food");
+					  c.addDrag(this.e);
+			  	}
 			  }
 		  }
 	  }
@@ -614,6 +618,14 @@ public class Colony implements Serializable {
 	      totalCells += o.cells.size();
 	    }
 	    return totalCells;
+	  }
+	  
+	  public void setSpringRLMult(float rl) {
+		  for (Organism org : this.organisms) {
+			  for (Spring s : org.getSprings()) {
+				  s.setEnergyMult(rl);
+			  }
+		  }
 	  }
 	  
 	  public Chromosome getChromosome() {

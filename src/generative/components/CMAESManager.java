@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Random;
 
 import fr.inria.optimization.cmaes.CMAEvolutionStrategy;
 import fr.inria.optimization.cmaes.fitness.IObjectiveFunction;
@@ -242,6 +243,7 @@ class Complexity implements FitnessFunction{
 		// Initialise simulation
 		Simulation s = new Simulation(c, env, 500,100);
 		// Generate object
+//		System.out.println("Starting generation");
 		s.generate();
 		
 		// add printability to overall results
@@ -404,20 +406,27 @@ public class CMAESManager {
 	
 	} //evolveFromParent
 		
-	public void evolve(int maxIterations, double stopFitness, int _fitfun, Environment _e, String destinationFolder, String _filePrefix) {
+	public void evolve(int maxIterations, double stopFitness, int _fitfun, int _popSize, Environment _e, String destinationFolder, String _filePrefix) {
 //		IObjectiveFunction fitfun = this.fitfun;
 		
 		fitfun = selectFitnessFunction(_fitfun, _e); 
+		
+		double[] initialX = new double[5];
+		for(int i = 0; i < initialX.length; i++) {
+			initialX[i] = new Random().nextDouble();
+		}
 
 	
 		// new a CMA-ES and set some initial values
 		CMAEvolutionStrategy cma = new CMAEvolutionStrategy();
 		cma.readProperties(); // read options, see file CMAEvolutionStrategy.properties
 		cma.setDimension(5); // overwrite some loaded properties
-		cma.setInitialX(0.5); // in each dimension, also setTypicalX can be used
-		cma.setInitialStandardDeviation(0.2); // also a mandatory setting 
+//		cma.setInitialX(0.5); // in each dimension, also setTypicalX can be used
+		cma.setInitialX(initialX); // in each dimension, also setTypicalX can be used
+		cma.setInitialStandardDeviation(0.1); // also a mandatory setting 
 		cma.options.stopFitness = stopFitness;       // optional setting
 		cma.options.stopMaxIter = maxIterations;
+		cma.parameters.setPopulationSize(_popSize);
 
 		// initialize cma and get fitness array to fill in later
 		double[] fitness = cma.init();  // new double[cma.parameters.getPopulationSize()];
@@ -518,19 +527,44 @@ public class CMAESManager {
 	
 	
 	
-	public void evolveMultiple(int _runs, int _gens, int _fitfunType, String _savePath) {
+	public void evolveMultiple(int _runs, int _gens, int _fitfunType, int _popSize, String _savePath) {
 		System.out.println("evolveMultiple has been called to run for "+_runs+" cycles");
 		
 		for(int i = 0; i < _runs; i++){			
 			
 			//Set environment
-			Environment runEnv = new Environment(600, 600, 20, 0.3f, 5, 30, 60, 20, -1);
+			Environment runEnv = new Environment(600, 600, 15, 0.3f, 5, 5, 10, 10, 0.2f, -1);
 			
 			//Set file prefix
 			String filePrefix = String.format("%03d", i);
 			
 			//call evolve
-			this.evolve(_gens, 1e-6, _fitfunType, runEnv, _savePath, filePrefix);
+			this.evolve(_gens, 1e-6, _fitfunType, _popSize, runEnv, _savePath, filePrefix);
+			
+		}
+		
+		
+	}
+	
+	public void evolveMultiple(long[] envSeeds, int _gens, int _fitfunType, int _popSize, String _savePath) {
+//		if(envSeeds.length != _runs) {
+//			System.out.println("Please make sure that the number of environment seeds ("+envSeeds.length+")\n matches the number of runs ("+_runs+")");
+//			return;
+//		}
+//		
+//		System.out.println("evolveMultiple has been called to run for "+_runs+" cycles");
+		
+		
+		for(int i = 0; i < envSeeds.length; i++){			
+			
+			//Set environment
+			Environment runEnv = new Environment(600, 600, 15, 0.3f, 5, 5, 10, 10,0.2f, envSeeds[i]);
+			
+			//Set file prefix
+			String filePrefix = String.format("%03d", i);
+			
+			//call evolve
+			this.evolve(_gens, 1e-6, _fitfunType, _popSize, runEnv, _savePath, filePrefix);
 			
 		}
 		

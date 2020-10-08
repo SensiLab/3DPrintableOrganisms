@@ -30,7 +30,7 @@ public class Cell{
 	float minVel = 0.2f;
 
 	public float attrRad = 150f;
-	float attrForce = 0.05f;
+	float attrForce = 0.005f;
 	float repRad = 5f;
 	float minRepRad = 3f;
 	float repForce = 50f;
@@ -298,6 +298,9 @@ public class Cell{
 	    //a cell will be more capable of moving toward a food source the higher its energy and food metabolism
 	    foodTarget.mult(this.energy * (float) this.metabolicRate);
 	    this.applyForce(foodTarget);
+	    
+	    //subtract energy proportional to the magnitude of the force
+	    
 	    //drawVector(foodTarget, this.loc.x, this.loc.y, this.seekDist * e.resolution);
 	  } // seek food
 
