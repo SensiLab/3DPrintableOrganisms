@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 //import fr.inria.optimization.cmaes.IntDouble;
-import processing.core.*;
+import processing.core.PVector;
 
 
 public class Simulation {
@@ -28,7 +28,7 @@ public class Simulation {
 	int colonySize;
 	int colonyWarmup;
 	int envRes = 20;
-	ArrayList<ArrayList<ArrayList<OVector[]>>> pointCloud;
+	ArrayList<ArrayList<ArrayList<PVector[]>>> pointCloud;
 	Colony3D colony3d;
 	Colony c;
 	float costOfLiving;
@@ -49,7 +49,7 @@ public class Simulation {
 
 		this.c = new Colony(this.chromosome, this.e);
 
-		this.pointCloud = new ArrayList<ArrayList<ArrayList<OVector[]>>>();
+		this.pointCloud = new ArrayList<ArrayList<ArrayList<PVector[]>>>();
 		this.colony3d = new Colony3D();
 
 		// println("Simulation initialised\n"+" Env: "+this.e+"\n");
@@ -111,7 +111,7 @@ public class Simulation {
 		
 		Colony lastLayer = this.colony3d.layers.get(this.colony3d.layers.size() - 1);
 		Organism lastOrg = lastLayer.organisms.get(lastLayer.organisms.size() -1);
-		OVector finalPoint = lastOrg.cells.get(lastOrg.cells.size() - 1).loc;
+		PVector finalPoint = lastOrg.cells.get(lastOrg.cells.size() - 1).loc;
 		
 		gCode.export(fileName, finalPoint);
 		
@@ -140,14 +140,14 @@ public class Simulation {
 	 * @param layer (the colony in which the spring is)
 	 * @return array with the index of the organism and the spring in the colony
 	 */
-	static int[] closestEdge(OVector pt, Colony layer){
+	static int[] closestEdge(PVector pt, Colony layer){
 		  float minDist = 99999999;
 		  int closestOrg = -1;
 		  int closestEdge = -1;
 		  for(int i = 0; i < layer.organisms.size(); i++){
 			  Organism organism = layer.organisms.get(i);
 			  for(int j = 0; j < organism.springs.size(); j++){
-				  OVector[] edge = {organism.springs.get(j).sp.loc, organism.springs.get(j).ep.loc};
+				  PVector[] edge = {organism.springs.get(j).sp.loc, organism.springs.get(j).ep.loc};
 				  float d = distPointLine(pt, edge);
 				  if(d < minDist){
 					  minDist = d;
@@ -213,7 +213,7 @@ public class Simulation {
 		for(Organism o : scaledColony3d.layers.get(0).organisms) {
 			ArrayList<Float> orgLayer0Scores = new ArrayList<Float>();
 			
-			ArrayList<OVector> cHull = o.getConvexHull();
+			ArrayList<PVector> cHull = o.getConvexHull();
 			float hullMinDiameter = minDiameter(cHull);
 			float diameterFactor = diameterFactor(hullMinDiameter, this.minPrintDiameter);
 			
@@ -249,7 +249,7 @@ public class Simulation {
 				Organism o = layer.organisms.get(j);
 				
 				// calculate the diameter factor here
-				ArrayList<OVector> cHull = o.getConvexHull();
+				ArrayList<PVector> cHull = o.getConvexHull();
 				float hullMinDiameter = minDiameter(cHull);
 				float diameterFactor = diameterFactor(hullMinDiameter, this.minPrintDiameter);				
 				
@@ -262,7 +262,7 @@ public class Simulation {
 					// calculate the score for this edge here
 					
 					//check support for start point
-					OVector sp = s.sp.loc;
+					PVector sp = s.sp.loc;
 					// Get the index of the organism and spring in the colony layerBelow
 					int[] spClosestEdgeCoordinates = closestEdge(sp, layerBelow);
 					// get the support score of the edge closest to sp on layer below
@@ -270,28 +270,28 @@ public class Simulation {
 					// Get the actual spring
 					Spring closestSpringSp = layerBelow.organisms.get(spClosestEdgeCoordinates[0]).springs.get(spClosestEdgeCoordinates[1]);
 					// make a reference to the positions of the closest spring's sp and ep
-					OVector[] closestEdgeSp = {closestSpringSp.sp.loc, closestSpringSp.ep.loc};
+					PVector[] closestEdgeSp = {closestSpringSp.sp.loc, closestSpringSp.ep.loc};
 					
 					float distSP = distPointLine(sp, closestEdgeSp);
 					float scoreSp = printabilityScore(distSP,this.printabilityThreshold) * closestEdgeScoreSp;
 					
 					//check support for mid point
-					OVector mp = OVector.getMidPoint(s.sp.loc, s.ep.loc);
+					PVector mp = VectorOps.getMidPoint(s.sp.loc, s.ep.loc);
 					int[] mpClosestEdgeCoordinates = closestEdge(mp, layerBelow);
 					// get the support score of the edge closest to mp on layer below
 					float closestEdgeScoreMp = colonyScores.get(i-1).get(mpClosestEdgeCoordinates[0]).get(mpClosestEdgeCoordinates[1]);
 					Spring closestSpringMp = layerBelow.organisms.get(mpClosestEdgeCoordinates[0]).springs.get(mpClosestEdgeCoordinates[1]);
-					OVector[] closestEdgeMp = {closestSpringMp.sp.loc, closestSpringMp.ep.loc};
+					PVector[] closestEdgeMp = {closestSpringMp.sp.loc, closestSpringMp.ep.loc};
 					float distMP = distPointLine(mp, closestEdgeMp);
 					float scoreMp = printabilityScore(distMP,this.printabilityThreshold) * closestEdgeScoreMp;
 					
 					//check support for end point
-					OVector ep = s.ep.loc;
+					PVector ep = s.ep.loc;
 					int[] epClosestEdgeCoordinates = closestEdge(ep, layerBelow);
 					// get the support score of the edge closest to ep on layer below
 					float closestEdgeScoreEp = colonyScores.get(i-1).get(epClosestEdgeCoordinates[0]).get(epClosestEdgeCoordinates[1]);
 					Spring closestSpringEp = layerBelow.organisms.get(epClosestEdgeCoordinates[0]).springs.get(epClosestEdgeCoordinates[1]);
-					OVector[] closestEdgeEp = {closestSpringEp.sp.loc, closestSpringEp.ep.loc};
+					PVector[] closestEdgeEp = {closestSpringEp.sp.loc, closestSpringEp.ep.loc};
 					float distEP = distPointLine(ep, closestEdgeEp);
 					float scoreEp = printabilityScore(distEP,this.printabilityThreshold) * closestEdgeScoreEp;
 					
@@ -321,7 +321,7 @@ public class Simulation {
 	 * @return distance as a float
 	 */
 	
-	static float distPointLine(OVector pt, OVector[] ln) {
+	static float distPointLine(PVector pt, PVector[] ln) {
 		  float x = pt.x;
 		  float y = pt.y;
 
@@ -338,13 +338,13 @@ public class Simulation {
 	
 	/**
 	 * Finds the farthest point to given line
-	 * @param line as an OVector[] with a start point and an end point
+	 * @param line as an PVector[] with a start point and an end point
 	 * @param array of points
 	 * @return the distance between the line and the point farthest away from it
 	 */
-	static float maxLinePointDist(OVector[] ln, ArrayList<OVector> points){
+	static float maxLinePointDist(PVector[] ln, ArrayList<PVector> points){
 		float maxDist = 0;
-		for(OVector pt : points){
+		for(PVector pt : points){
 			float d = distPointLine(pt, ln);
 			if(d > maxDist) maxDist = d;
 		}
@@ -356,18 +356,18 @@ public class Simulation {
 	 * @param organism
 	 * @return
 	 */
-	public static float minDiameter(ArrayList<OVector> organism){
+	public static float minDiameter(ArrayList<PVector> organism){
 		  // println("minDiameter called");
-		  ArrayList<OVector[]> edges = new ArrayList<OVector[]>();
+		  ArrayList<PVector[]> edges = new ArrayList<PVector[]>();
 		  for(int i = 0; i < organism.size() - 1; i++) {
-			  OVector[] edge = {organism.get(i), organism.get(i+1)};
+			  PVector[] edge = {organism.get(i), organism.get(i+1)};
 			  edges.add(edge);
 		  }
-		  OVector[] lastEdge = {organism.get(organism.size() - 1), organism.get(0)};
+		  PVector[] lastEdge = {organism.get(organism.size() - 1), organism.get(0)};
 		  edges.add(lastEdge);
 		  
 		  ArrayList<Float> diameters = new ArrayList<Float>();
-		  for(OVector[] l : edges){
+		  for(PVector[] l : edges){
 		    float d = maxLinePointDist(l,organism);
 		    diameters.add(d);
 		    // println(d);
@@ -381,7 +381,7 @@ public class Simulation {
 	//=================CONVEXITY===========
 	//convexity ratio of single organism
 	public float getConvexityRatio(Organism organism){
-//		ArrayList<OVector> convexHull = organism.getConvexHull();
+//		ArrayList<PVector> convexHull = organism.getConvexHull();
 		float totalPerimeter = organism.getPerimeter();
 		float convexPerimeter = organism.getConvexHullPerimeter();
 
@@ -451,13 +451,13 @@ public class Simulation {
 //		    ArrayList<Float> angleDifference = new ArrayList<Float>();
 //		    //for every layer
 //		    for(int i = 0; i < this.pointCloud.size(); i++){
-//		      ArrayList<ArrayList<OVector[]>> layer = this.pointCloud.get(i);
+//		      ArrayList<ArrayList<PVector[]>> layer = this.pointCloud.get(i);
 //		      //for every organism
 //		      for (int j = 0; j < layer.size(); j++){
-//		        ArrayList<OVector[]> org = layer.get(j);
+//		        ArrayList<PVector[]> org = layer.get(j);
 //		        for (int k = 0; k < org.size()-1; k++){
-//		          OVector[] spring = org.get(k);
-//		          OVector[] nextSpring = org.get(k+1);
+//		          PVector[] spring = org.get(k);
+//		          PVector[] nextSpring = org.get(k+1);
 //		          float magOfSum = spring[0].dist(nextSpring[1]); //distance from sp1 to ep2
 //		          float sumOfMags = spring[0].dist(spring[1]) + nextSpring[0].dist(nextSpring[1]); //distance from sp1 to ep2 via ep1
 //
@@ -478,14 +478,14 @@ public class Simulation {
 		    ArrayList<Float> angles = new ArrayList<Float>();
 		    //for every layer
 		    for(Colony layer : this.colony3d.layers){
-//		      ArrayList<ArrayList<OVector[]>> layer = this.colony3d.layers.get(i);
+//		      ArrayList<ArrayList<PVector[]>> layer = this.colony3d.layers.get(i);
 		      //for every organism
 		      for (Organism org : layer.organisms){
-//		        ArrayList<OVector[]> org = layer.get(j);
+//		        ArrayList<PVector[]> org = layer.get(j);
 		    	// for every spring
 		        for (int i = 0; i < org.springs.size()-1; i++){
-		          OVector[] spring = {org.springs.get(i).sp.loc,org.springs.get(i).ep.loc};
-		          OVector[] nextSpring = {org.springs.get(i+1).sp.loc, org.springs.get(i+1).ep.loc};
+		          PVector[] spring = {org.springs.get(i).sp.loc,org.springs.get(i).ep.loc};
+		          PVector[] nextSpring = {org.springs.get(i+1).sp.loc, org.springs.get(i+1).ep.loc};
 		          float magOfSum = spring[0].dist(nextSpring[1]); //distance from sp1 to ep2
 		          float sumOfMags = spring[0].dist(spring[1]) + nextSpring[0].dist(nextSpring[1]); //distance from sp1 to ep2 via ep1
 
@@ -510,9 +510,9 @@ public class Simulation {
 					for(int i = 0; i < org.springs.size()-1;i++) {
 						Spring s = org.springs.get(i);
 						Spring nexts = org.springs.get(i+1);
-						OVector v1 = OVector.sub(s.sp.loc, s.ep.loc);
-						OVector v2 = OVector.sub(nexts.ep.loc, nexts.sp.loc);
-						float cosA = OVector.dot(v1, v2)/(v1.mag() * v2.mag());
+						PVector v1 = PVector.sub(s.sp.loc, s.ep.loc);
+						PVector v2 = PVector.sub(nexts.ep.loc, nexts.sp.loc);
+						float cosA = PVector.dot(v1, v2)/(v1.mag() * v2.mag());
 						float a = (float) Math.acos((double) cosA);
 						angles.add(a);
 					}
@@ -547,8 +547,8 @@ public class Simulation {
 //		  
 //
 //		  //Solidity
-//		  float getSolidtyRatio(ArrayList<OVector[]> organism){
-//		    ArrayList<OVector[]> convexHull = getConvexHull(organism);
+//		  float getSolidtyRatio(ArrayList<PVector[]> organism){
+//		    ArrayList<PVector[]> convexHull = getConvexHull(organism);
 //		    float totalArea = organismArea(organism);
 //		    float convexArea = organismArea(convexHull);
 //
@@ -558,9 +558,9 @@ public class Simulation {
 //		  float solidityMedian(){
 //		      ArrayList<Float> solidityRatios = new ArrayList<Float>();
 //		    //for every layer
-//		    for(ArrayList<ArrayList<OVector[]>> layer : this.pointCloud){
+//		    for(ArrayList<ArrayList<PVector[]>> layer : this.pointCloud){
 //		      // for every organism
-//		      for(ArrayList<OVector[]> org : layer){
+//		      for(ArrayList<PVector[]> org : layer){
 //		        solidityRatios.add(getSolidtyRatio(org));
 //		      }
 //		    }
@@ -569,12 +569,12 @@ public class Simulation {
 //		  }
 //
 //		  //===================CIRCULAR VARIANCE=============
-//		  ArrayList<Float> getRadii(ArrayList<ArrayList<ArrayList<OVector[]>>> pointCloud){
+//		  ArrayList<Float> getRadii(ArrayList<ArrayList<ArrayList<PVector[]>>> pointCloud){
 //		  ArrayList<Float> radii = new ArrayList<Float>();
-//		  for(ArrayList<ArrayList<OVector[]>> layer:pointCloud){
-//		    for(ArrayList<OVector[]> org:layer){
-//		      OVector centroid = getCentroid(org);
-//		      for(OVector[] l : org){
+//		  for(ArrayList<ArrayList<PVector[]>> layer:pointCloud){
+//		    for(ArrayList<PVector[]> org:layer){
+//		      PVector centroid = getCentroid(org);
+//		      for(PVector[] l : org){
 //		        radii.add(l[0].dist(centroid));
 //		      }
 //		    }

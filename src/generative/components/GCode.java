@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 //import java.math.*;
 import java.util.*;
+import processing.core.PVector;
 
 public class GCode {
 	
@@ -52,7 +53,7 @@ public class GCode {
 		this.extrusion_multiplier = 1.0f;
 	}
 	
-	float extrude(OVector p1, OVector p2) {
+	float extrude(PVector p1, PVector p2) {
 		  float points_distance = p1.dist(p2);
 		  //println("Distance: "+points_distance);
 		  float vol_extruded_path = extruded_path_section * points_distance;
@@ -134,7 +135,7 @@ public class GCode {
 
 	} //startPrint()
 	
-	void endPrint(OVector _ep) {
+	void endPrint(PVector _ep) {
 		float x = _ep.x + 5;
 		float y = _ep.y + 5;
 		gCommand("");
@@ -186,24 +187,24 @@ public class GCode {
 		gCommand("G1 Z" + (z + 0.4) + " F10800.000");
 
 		setSpeed(2500);
-		OVector origin = new OVector();
+		PVector origin = new PVector();
 		//--------------traverse all organisms
 		for (Organism org : layer.organisms) {
 			//-------------traverse all edges
 			for (Spring s : org.springs) {
 				int j = org.springs.indexOf(s);
 				//Get edge
-				OVector[] l = {s.sp.loc, s.ep.loc};
+				PVector[] l = {s.sp.loc, s.ep.loc};
 				//get start point
 				float spX = ((l[0].x) * print_output_x) / (width);
 				float spY = ((l[0].y) * print_output_y) / (height);
 		      
-				OVector sp = new OVector(spX, spY);
+				PVector sp = new PVector(spX, spY);
 
 				float epX = ((l[1].x) * print_output_x) / (width);
 				float epY = ((l[1].y) * print_output_y) / (height);
 
-				OVector ep = new OVector(epX, epY);
+				PVector ep = new PVector(epX, epY);
 
 
 				float extrusion = extrude(sp, ep);
@@ -244,7 +245,7 @@ public class GCode {
 
 	} // write layer
 	
-	public void export(String fileName, OVector _ep) {
+	public void export(String fileName, PVector _ep) {
 
 		// End print
 		endPrint(_ep);

@@ -3,6 +3,7 @@ package generative.components;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
+import processing.core.PVector;
 
 public class Environment implements Serializable{
 
@@ -253,7 +254,7 @@ public Environment(int _width, int _height, int res, float _drag, int _numOfFs, 
 		this.timestep++;
 	}
 
-  public float lookupNutrients(OVector loc) {
+  public float lookupNutrients(PVector loc) {
     int col = (int) Math.min(Math.max(loc.x/resolution, 0), this.cols-1);
     int row = (int) Math.min(Math.max(loc.y/resolution, 0), this.rows-1);
     return this.nutrientField[col][row];
@@ -269,7 +270,7 @@ public Environment(int _width, int _height, int res, float _drag, int _numOfFs, 
 	  this.nutrientField[_col][_row] = 0f;
   }
 
-  int[] getCurrentTile(OVector loc) {
+  int[] getCurrentTile(PVector loc) {
     
 
     int col = (int) Math.min(Math.max(loc.x/resolution, 0), this.cols-1);

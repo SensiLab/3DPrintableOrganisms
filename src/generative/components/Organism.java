@@ -3,6 +3,7 @@ package generative.components;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.lang.Math;
+import processing.core.PVector;
 
 public class Organism implements Serializable{
 	
@@ -11,7 +12,7 @@ public class Organism implements Serializable{
 	ArrayList<Cell> cells;
 	ArrayList<Spring> springs;
 	
-	OVector initialLocation;
+	PVector initialLocation;
 	
 	int initSubdivs;
 	float initRadius;
@@ -20,7 +21,7 @@ public class Organism implements Serializable{
 	float splitThreshold;
 	float splitEnergyMult;
 	
-	public OVector selfIntPoint = null;
+	public PVector selfIntPoint = null;
     public int[] intersectingSprings = null;
 	
 	float newOrgEnergy;
@@ -34,7 +35,7 @@ public class Organism implements Serializable{
 		this.springs = new ArrayList<Spring>();
 	}
 	
-	public Organism(Chromosome chr, OVector _loc, int subdivs, float rad) {
+	public Organism(Chromosome chr, PVector _loc, int subdivs, float rad) {
 		this.chromosome = chr;
 		this.cells = new ArrayList<Cell>();
 		this.springs = new ArrayList<Spring>();
@@ -101,7 +102,7 @@ public class Organism implements Serializable{
 		if (this.cells.size() < 1) {
 			// If the new organism is initialised from scratch
 			if (this.initialLocation == null) {
-				this.initialLocation = new OVector(0,0);
+				this.initialLocation = new PVector(0,0);
 			}
 			for (int i=0; i<this.initSubdivs; i++) {
 				float angle = (float)(2*Math.PI)/this.initSubdivs;
@@ -241,11 +242,11 @@ public class Organism implements Serializable{
 	
 	/**
 	 * This method populates the selfIntPoint and intersectingSprings fields
-	 * It may require rewriting for simplification (perhaps return a OVector point?)
+	 * It may require rewriting for simplification (perhaps return a PVector point?)
 	 */
 	void selfIntersection() {
 	    if (this.splitting == "self") return;
-	    OVector intersection;
+	    PVector intersection;
 	    //check every spring against all other springs
 	    for (int i = 0; i < this.springs.size() - 2; i++) {
 	      Spring s = this.springs.get(i);
@@ -442,11 +443,11 @@ public class Organism implements Serializable{
 		Cell nextCell = this.cells.get(next);
 		
 		//get normals of adjacent springs
-		OVector normPrev = OVector.getNormal(prevCell.loc,  cell.loc);
-		OVector normNext = OVector.getNormal(cell.loc, nextCell.loc);
+		PVector normPrev = VectorOps.getNormal(prevCell.loc,  cell.loc);
+		PVector normNext = VectorOps.getNormal(cell.loc, nextCell.loc);
 		
 		//get normal of cell
-		OVector norm = normPrev.add(normNext).normalize();
+		PVector norm = normPrev.add(normNext).normalize();
 		norm.setMag(e/2);
 		
 		//rotate normal vector for existing cell
@@ -485,12 +486,12 @@ public class Organism implements Serializable{
 	 */
 	public void splitSpring(int s) {
 		Spring spring = this.springs.get(s);
-		OVector mp = OVector.getMidPoint(spring.sp.loc, spring.ep.loc);
+		PVector mp = VectorOps.getMidPoint(spring.sp.loc, spring.ep.loc);
 		this.splitSpring(s, mp);
 //	
 	}
 	
-	public void splitSpring(int s, 	OVector split_point) {
+	public void splitSpring(int s, 	PVector split_point) {
 		if(s > this.springs.size() - 1) return;
 		Cell sp = this.springs.get(s).sp;
 	    Cell ep = this.springs.get(s).ep;
@@ -510,7 +511,7 @@ public class Organism implements Serializable{
 	    this.springs.remove(s);
 
 	    //add cell in the middle
-	    OVector mpLoc = split_point;
+	    PVector mpLoc = split_point;
 	    float newSprLen = l * newLenMult;
 	    Cell mp = new Cell(mpLoc.x, mpLoc.y, this.chromosome);
 	    mp.energy = (sp_transfer = ep_transfer);
@@ -559,11 +560,11 @@ public class Organism implements Serializable{
 	 */
 	public float getArea(){
 		
-		ArrayList<OVector[]> org = new ArrayList<OVector[]>();
+		ArrayList<PVector[]> org = new ArrayList<PVector[]>();
 		for(Spring s:this.springs){
-			OVector sp = s.sp.loc;
-			OVector ep = s.ep.loc;
-			OVector[] spring = {sp,ep};
+			PVector sp = s.sp.loc;
+			PVector ep = s.ep.loc;
+			PVector[] spring = {sp,ep};
 			org.add(spring);
 		}
 
@@ -590,7 +591,7 @@ public class Organism implements Serializable{
 	 * @param org
 	 * @return
 	 */
-	public static float getArea(ArrayList<OVector[]> org) {
+	public static float getArea(ArrayList<PVector[]> org) {
 		float psum = 0;
 		float nsum = 0;
 		for(int i = 0; i< org.size(); i++){
@@ -609,21 +610,21 @@ public class Organism implements Serializable{
 		return area;
 	}
 	
-	public static Boolean leftTurn(OVector a, OVector b, OVector c) {
+	public static Boolean leftTurn(PVector a, PVector b, PVector c) {
 		// println("======== LT execution =============");
 		// println("Vectors:", a, b, c);
-		OVector p1 = OVector.sub(a, b);
-		OVector p2 = OVector.sub(c, b);
-		OVector cross = p1.cross(p2);
+		PVector p1 = PVector.sub(a, b);
+		PVector p2 = PVector.sub(c, b);
+		PVector cross = p1.cross(p2);
 		// println("Cross.z = "+cross.z);
 		// There seems to be a precission issue
 		// With angle = 0, cross returns small negative value.
 		return cross.z >= -5E-4;
 	}
 	
-	public static OVector bottomMost(ArrayList<OVector> pts) {
-		OVector winner = new OVector();
-		for (OVector p : pts) {
+	public static PVector bottomMost(ArrayList<PVector> pts) {
+		PVector winner = new PVector();
+		for (PVector p : pts) {
 			if (p.y > winner.y) {
 				winner = p;
 			}else if(p.y == winner.y){
@@ -637,16 +638,16 @@ public class Organism implements Serializable{
 		return winner;
 	}
 	
-	public static ArrayList<OVector> polarSort(ArrayList<OVector> pts) {
+	public static ArrayList<PVector> polarSort(ArrayList<PVector> pts) {
 		//make a copy of pts array
-		ArrayList<OVector> ptsCopy = new ArrayList<OVector>();
-		for (OVector p : pts) ptsCopy.add(new OVector(p.x, p.y));
-		// ArrayList<OVector> points = removeDuplicates(ptsCopy);
+		ArrayList<PVector> ptsCopy = new ArrayList<PVector>();
+		for (PVector p : pts) ptsCopy.add(new PVector(p.x, p.y));
+		// ArrayList<PVector> points = removeDuplicates(ptsCopy);
 		//initialise sorted array
-		ArrayList<OVector> sorted = new ArrayList<OVector>();
+		ArrayList<PVector> sorted = new ArrayList<PVector>();
 
 		//get bottomMost
-		OVector bm = bottomMost(ptsCopy);
+		PVector bm = bottomMost(ptsCopy);
 
 		//add bm to sorted
 		sorted.add(bm);
@@ -656,8 +657,8 @@ public class Organism implements Serializable{
 		double prevMinCotan = -1;
 		while (ptsCopy.size() > 0) {
 			double minCotan = 999999999;
-			OVector winner = new OVector();
-			for (OVector p : ptsCopy) {
+			PVector winner = new PVector();
+			for (PVector p : ptsCopy) {
 				double c = (p.x - bm.x)/(p.y - bm.y);
 				if(c < minCotan){
 					minCotan = c;
@@ -678,7 +679,7 @@ public class Organism implements Serializable{
 			//   println("dist to prev = "+distToPrev+"dist to current = "+distToCurrent);
 		    // }
 			if(winner.x != lastX && winner.y != lastY){
-				sorted.add(new OVector(winner.x, winner.y));
+				sorted.add(new PVector(winner.x, winner.y));
 				ptsCopy.remove(winner);
 			}else{
 				ptsCopy.remove(winner);
@@ -688,14 +689,14 @@ public class Organism implements Serializable{
 		return sorted;
 	}
 	
-	public ArrayList<OVector> getConvexHull() {
+	public ArrayList<PVector> getConvexHull() {
 		// Get all points in organism
-		ArrayList<OVector> pts = new ArrayList<OVector>();
+		ArrayList<PVector> pts = new ArrayList<PVector>();
 		for(Cell c : this.cells) pts.add(c.loc);
 		// If an organism is a triangle, return
 		if(pts.size() < 4) return pts;
 		//sort points
-		ArrayList<OVector> sorted = polarSort(pts);
+		ArrayList<PVector> sorted = polarSort(pts);
 
 		//traverse pts and check left turns
 		ArrayList<Integer> stack = new ArrayList<Integer>();
@@ -726,11 +727,11 @@ public class Organism implements Serializable{
 		}
 
 		//initialise convex hull container
-		ArrayList<OVector> hull = new ArrayList<OVector>();
+		ArrayList<PVector> hull = new ArrayList<PVector>();
 	  
 		for (int i = 0; i < stack.size(); i++) {
 			int index = stack.get(i);			
-			OVector p = sorted.get(index);
+			PVector p = sorted.get(index);
 			hull.add(p);
 		}
 	  
@@ -738,11 +739,11 @@ public class Organism implements Serializable{
 	}
 	
 	public float getConvexHullPerimeter() {
-		ArrayList<OVector> convexHull = this.getConvexHull();
+		ArrayList<PVector> convexHull = this.getConvexHull();
 		float perimeter = 0f;
 		for(int i = 0; i < convexHull.size()-1;i++) {
-			OVector sp = convexHull.get(i);
-			OVector ep = convexHull.get(i+1);
+			PVector sp = convexHull.get(i);
+			PVector ep = convexHull.get(i+1);
 			perimeter+=sp.dist(ep);
 		}
 		perimeter+=convexHull.get(convexHull.size()-1).dist(convexHull.get(0));

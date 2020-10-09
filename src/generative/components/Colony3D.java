@@ -6,14 +6,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import processing.core.PApplet;
+import processing.core.PVector;
 
 public class Colony3D{
 
 	
 	ArrayList<Colony> layers;
-	
-	protected static PApplet p = null;
 	
 	public Colony3D(){
 		this.layers = new ArrayList<Colony>();
@@ -50,7 +48,7 @@ public class Colony3D{
 					float x = c.loc.x * xyFactor / e.width;
 					float y = c.loc.y * xyFactor / e.height;
 					float z = c.loc.z * zFactor;
-					OVector newLoc = new OVector(x,y,z);
+					PVector newLoc = new PVector(x,y,z);
 					Cell scaledC = new Cell(newLoc, layer.getChromosome());
 					scaledOrg.addCell(scaledC);
 				}
@@ -104,7 +102,7 @@ public class Colony3D{
 	        StringBuilder sb = new StringBuilder();
 	        //add the start point for every line of org
 	        for(Cell c : org.cells){
-	          OVector sp = c.loc;
+	          PVector sp = c.loc;
 	          String pt = "("+Float.toString(sp.x)+","+Float.toString(sp.y)+","+Float.toString(sp.z)+")";
 	          sb.append(pt);
 	          if(org.cells.indexOf(c) != org.cells.size()-1) sb.append(";");
@@ -123,10 +121,7 @@ public class Colony3D{
 		
 	}
 	
-	public static void setPApplet(PApplet _p) {
-		p = _p;
-	}
-	
+
 //	public void printColony() {
 //		// Initialise GCode
 //		GCode gc = new GCode();

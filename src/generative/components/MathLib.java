@@ -1,5 +1,7 @@
 package generative.components;
 
+import processing.core.PVector;
+
 public class MathLib {
 	
 	  /*
@@ -25,7 +27,7 @@ public class MathLib {
 	  
 	  
 	//returns the min distance between a point pt and a line ln
-	  public static float distPointLine(OVector pt, OVector[] ln) {
+	  public static float distPointLine(PVector pt, PVector[] ln) {
 		  float x = pt.x;
 		  float y = pt.y;
 

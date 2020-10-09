@@ -4,12 +4,14 @@ import java.lang.Math;
 
 import java.util.ArrayList;
 
+import processing.core.PVector;
+
 public class Cell{
 	
 	
-	public OVector loc;
-	public OVector vel;
-	public OVector acc;
+	public PVector loc;
+	public PVector vel;
+	public PVector acc;
 	
 	public Chromosome chromosome;
 	
@@ -44,9 +46,9 @@ public class Cell{
 	
 	//-----------CONSTUCTORS
 	public Cell(float x, float y, Chromosome _chr) {
-		this.acc = new OVector(0, 0);
-		this.vel = new OVector(0, 0);
-		this.loc = new OVector(x, y);
+		this.acc = new PVector(0, 0);
+		this.vel = new PVector(0, 0);
+		this.loc = new PVector(x, y);
 		
 		this.chromosome = _chr;
 		
@@ -56,10 +58,10 @@ public class Cell{
 		this.maxEnergy = (float) MathLib.mapDouble(this.chromosome.get(2), 0f, 1f, this.maxEMin, this.maxEMax);
 	}
 
-	public Cell(OVector _loc, Chromosome _chr) {
-	    this.acc = new OVector(0, 0);
-	    this.vel = new OVector(0, 0);
-	    this.loc = new OVector(_loc.x, _loc.y);
+	public Cell(PVector _loc, Chromosome _chr) {
+	    this.acc = new PVector(0, 0);
+	    this.vel = new PVector(0, 0);
+	    this.loc = new PVector(_loc.x, _loc.y);
 
 	    this.chromosome = _chr;
 
@@ -71,9 +73,9 @@ public class Cell{
 
 
 	public Cell(float x, float y, float _attrRad, float _attrForce, float _repRad, float _repForce) {
-	    this.acc = new OVector(0, 0);
-	    this.vel = new OVector(0, 0);
-	    this.loc = new OVector(x, y);
+	    this.acc = new PVector(0, 0);
+	    this.vel = new PVector(0, 0);
+	    this.loc = new PVector(x, y);
 
 	    this.attrRad = _attrRad;
 	    this.attrForce = _attrForce;
@@ -90,7 +92,7 @@ public class Cell{
 	    float x = c.loc.x;
 	    float y = c.loc.y;
 	    float z = c.loc.z;
-	    this.loc = new OVector(x,y,z);
+	    this.loc = new PVector(x,y,z);
 
 	    this.attrRad = c.attrRad;
 	    this.attrForce = c.attrForce;
@@ -124,6 +126,11 @@ public class Cell{
 	    //reset acceleration
 	    this.acc.mult(0);
 
+	    //update velocity based on weight
+	    if(this.vel.mag() > 0) {
+	    	//reduce velocity for next timestep.
+	    	this.vel.mult(1 - this.energy * 0.0001f);
+	    }
 //	    float currentVel = Math.max(this.vel.mag(), 0.001f);
 	    float currentVel = this.vel.mag();
 	    float currentE = Math.max(MathLib.sigmoid(this.energy, 1f, 0.3f, 10f), 0.001f);
@@ -155,7 +162,7 @@ public class Cell{
 	} //update2
 	
 	public void update3() {
-		this.loc.add(new OVector(0.1f,0.1f));
+		this.loc.add(new PVector(0.1f,0.1f));
 	} //update3
 	
 	public float getRepRadius() {
@@ -189,21 +196,26 @@ public class Cell{
 		this.maxVel = v;
 	}
 	
+	public float getMaxVel() {
+		return this.maxVel;
+	}
+	
 	void resetMaxVel() {
 		this.maxVel = (float) MathLib.mapDouble(this.chromosome.get(1), 0f, 1f, this.maxVMin, this.maxVMax);
 	}
 	
-	public void applyForce(OVector force) {
+	public void applyForce(PVector force) {
 //		force.mult(1/(this.maxEnergy/this.maxEMax));
 //		force.mult(1 - ((this.maxEnergy - this.maxEMin)/(this.maxEMax - this.maxEMin)));
 //		force.mult(1/this.maxEnergy);
+		
 		this.acc.add(force);
 	}
 
 	//attract
 	public void attract(Cell other) {
 		float attrMag = this.attrForce/(this.loc.dist(other.loc) + 0.0001f);
-		OVector attr = OVector.sub(this.loc, other.loc);
+		PVector attr = PVector.sub(this.loc, other.loc);
 	    attr.setMag(attrMag);
 	    other.applyForce(attr);
 	}
@@ -211,7 +223,7 @@ public class Cell{
 	//repel
 	public void repel(Cell other) {
 		float attrMag = this.repForce/(this.loc.dist(other.loc)+0.001f);
-	    OVector attr = OVector.sub(other.loc, this.loc);
+	    PVector attr = PVector.sub(other.loc, this.loc);
 	    attr.setMag(attrMag);
 	    other.applyForce(attr);
 	}
@@ -270,14 +282,14 @@ public class Cell{
 	    }
 	  }
 
-	  OVector findFoodTarget(Environment e) {
+	  PVector findFoodTarget(Environment e) {
 	    //ArrayList<int[]> neighbours = this.getNeighbours(e);;
 	    int[] targetTile = this.findMaxEnergyNeighbour(e);
 
 	    if (targetTile != null) {
 	      float foodX = targetTile[0] * e.resolution + (e.resolution/2);
 	      float foodY = targetTile[1] * e.resolution + (e.resolution/2);
-	      OVector foodLoc = new OVector(foodX, foodY);
+	      PVector foodLoc = new PVector(foodX, foodY);
 	      return foodLoc;
 	    }else{
 	     return null;
@@ -286,12 +298,13 @@ public class Cell{
 //
 //	  //seek food
 	  public void seekFood(Environment e) {
-	    OVector foodLoc = this.findFoodTarget(e);
+	    PVector foodLoc = this.findFoodTarget(e);
 
 	    //apply force
 	    if (foodLoc == null) return;
 	    if (this.energy >= this.maxEnergy) return;
-	    OVector foodTarget = OVector.sub(foodLoc, this.loc);
+	    
+	    PVector foodTarget = PVector.sub(foodLoc, this.loc);
 
 	    foodTarget.normalize();
 
@@ -305,9 +318,9 @@ public class Cell{
 	  } // seek food
 
 
-//	  Boolean isOccluded(OVector food, ArrayList<Spring> others) {
-//	    //OVector mp = this.getMidpoint();
-//	    OVector offset = OVector.sub(food, this.loc).normalize();
+//	  Boolean isOccluded(PVector food, ArrayList<Spring> others) {
+//	    //PVector mp = this.getMidpoint();
+//	    PVector offset = PVector.sub(food, this.loc).normalize();
 //
 //	    float x3 = offset.x;
 //	    float y3 = offset.y;

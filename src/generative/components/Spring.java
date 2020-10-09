@@ -1,6 +1,7 @@
 package generative.components;
 
 import java.util.ArrayList;
+import processing.core.PVector;
 
 public class Spring{
 	
@@ -115,10 +116,10 @@ public class Spring{
 	 * Finds the mid point between the two ends of a spring
 	 * @return midpoint in PVector format
 	 */
-	public OVector getMidpoint() {
+	public PVector getMidpoint() {
 		float dx = this.ep.loc.x - this.sp.loc.x;
 		float dy = this.ep.loc.y - this.sp.loc.y;
-		OVector mp = new OVector(sp.loc.x + (dx/2), sp.loc.y + (dy/2));
+		PVector mp = new PVector(sp.loc.x + (dx/2), sp.loc.y + (dy/2));
 		return mp;
 	}
 	
@@ -127,11 +128,11 @@ public class Spring{
 	 * to the spring)
 	 * @return normalised PVector perpendicular to spring
 	 */
-	public OVector getNormal() {
+	public PVector getNormal() {
 		float dx = this.ep.loc.x - this.sp.loc.x;
 		float dy = this.ep.loc.y - this.sp.loc.y;
 		
-		OVector normal = new OVector(dy, -dx);
+		PVector normal = new PVector(dy, -dx);
 		
 		return normal.normalize();
 	}
@@ -142,14 +143,14 @@ public class Spring{
 	 * @param ls (Location vector of light source)
 	 * @return dot product
 	 */
-	public float getDot(OVector ls) {
-		OVector mp = this.getMidpoint();
-		OVector pointer = OVector.sub(ls, mp);
+	public float getDot(PVector ls) {
+		PVector mp = this.getMidpoint();
+		PVector pointer = PVector.sub(ls, mp);
 		pointer.normalize();
 		
-		OVector normal = this.getNormal();
+		PVector normal = this.getNormal();
 		
-		return OVector.dot(normal, pointer);
+		return PVector.dot(normal, pointer);
 	}
 	
 	/**
@@ -157,7 +158,7 @@ public class Spring{
 	 * @param other (Spring)
 	 * @return intersection point PVector
 	 */
-	public OVector getIntersectionPoint(Spring other) {
+	public PVector getIntersectionPoint(Spring other) {
 	    float x1 = other.sp.loc.x;
 	    float y1 = other.sp.loc.y;
 	    float x2 = other.ep.loc.x;
@@ -179,7 +180,7 @@ public class Spring{
 	    float x = x1 + (t*(x2-x1));
 	    float y = y1 + (t*(y2-y1));
 
-	    return new OVector(x,y);
+	    return new PVector(x,y);
 	}
 
 	public void update() {
@@ -190,19 +191,19 @@ public class Spring{
 	    if (this.getLen() > this.restLen) {
 			// contract spring
 	    	// pull in ep
-			OVector spToEp = OVector.sub(this.sp.loc, this.ep.loc);
+			PVector spToEp = PVector.sub(this.sp.loc, this.ep.loc);
 			this.ep.applyForce(spToEp.mult((float)this.sprCoef));
 			// pull in sp
-			OVector epToSp = OVector.sub(this.ep.loc, this.sp.loc);
+			PVector epToSp = PVector.sub(this.ep.loc, this.sp.loc);
 			this.sp.applyForce(epToSp.mult((float)this.sprCoef));
 	    } else {
 	    	// expand spring
 	    	// push ep
-			OVector spToEp = OVector.sub(this.ep.loc, this.sp.loc);
+			PVector spToEp = PVector.sub(this.ep.loc, this.sp.loc);
 			this.ep.applyForce(spToEp.mult((float)this.sprCoef));
 			
 			//push sp
-			OVector epToSp = OVector.sub(this.sp.loc, this.ep.loc);
+			PVector epToSp = PVector.sub(this.sp.loc, this.ep.loc);
 			this.sp.applyForce(epToSp.mult((float)this.sprCoef));
 		}
 	}

@@ -6,10 +6,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import java.lang.Math;
+import processing.core.PVector;
 
 public class Colony implements Serializable {
 	public ArrayList<Organism> organisms;
-	public ArrayList<ArrayList<ArrayList<OVector>>> pointCloud;
+	public ArrayList<ArrayList<ArrayList<PVector>>> pointCloud;
 
 	Chromosome chromosome;
 
@@ -49,8 +50,8 @@ public class Colony implements Serializable {
 	    this.e = _e;
 
 	    this.organisms = new ArrayList<Organism>();
-	    // this.pointCloud = new ArrayList<ArrayList<ArrayList<OVector>>>();
-	    Organism firstOrg = new Organism(this.chromosome, new OVector(this.e.width/2, this.e.height/2), 50, 100);
+	    // this.pointCloud = new ArrayList<ArrayList<ArrayList<PVector>>>();
+	    Organism firstOrg = new Organism(this.chromosome, new PVector(this.e.width/2, this.e.height/2), 50, 100);
 	    this.organisms.add(firstOrg);
 	}
 
@@ -59,7 +60,7 @@ public class Colony implements Serializable {
 	    Generates colony in specific environment.
 	    */
 	    this.organisms = _orgs;
-	    this.pointCloud = new ArrayList<ArrayList<ArrayList<OVector>>>();
+	    this.pointCloud = new ArrayList<ArrayList<ArrayList<PVector>>>();
 	    this.e = _e;
 	}
 
@@ -67,13 +68,13 @@ public class Colony implements Serializable {
 	    this.organisms = new ArrayList<Organism>();
 	    this.organisms.add(o);
 	    this.chromosome = o.getChromosome();
-	    this.pointCloud = new ArrayList<ArrayList<ArrayList<OVector>>>();
+	    this.pointCloud = new ArrayList<ArrayList<ArrayList<PVector>>>();
 	    
 	}
 
 	public Colony(ArrayList<Organism> orgs) {
 	    this.organisms = orgs;
-	    this.pointCloud = new ArrayList<ArrayList<ArrayList<OVector>>>();
+	    this.pointCloud = new ArrayList<ArrayList<ArrayList<PVector>>>();
 	  }
 	
 	// COPY CONSTRUCTOR
@@ -251,10 +252,10 @@ public class Colony implements Serializable {
 		  }
 		  
 		  // Initialise attraction forces between splitting cells
-		  OVector force_to_first = OVector.sub(o.cells.get(first_cell).loc, o.cells.get(last_cell).loc);
+		  PVector force_to_first = PVector.sub(o.cells.get(first_cell).loc, o.cells.get(last_cell).loc);
 		  force_to_first.normalize().mult(100);
 
-		  OVector force_to_last = OVector.sub(o.cells.get(last_cell).loc, o.cells.get(first_cell).loc);
+		  PVector force_to_last = PVector.sub(o.cells.get(last_cell).loc, o.cells.get(first_cell).loc);
 		  force_to_last.normalize().mult(100);
 
 		  float split_pts_dist = o.cells.get(first_cell).loc.dist(o.cells.get(last_cell).loc);
@@ -307,8 +308,8 @@ public class Colony implements Serializable {
 			  float x2 = o.cells.get(last_cell).loc.x;
 			  float y2 = o.cells.get(last_cell).loc.y;
 
-			  OVector normal1 = OVector.getNormal(x1, y1, x2, y2);
-			  OVector normal2 = OVector.getNormal(x2, y2, x1, y1);
+			  PVector normal1 = VectorOps.getNormal(x1, y1, x2, y2);
+			  PVector normal2 = VectorOps.getNormal(x2, y2, x1, y1);
 
 			  normal1.mult(15);
 			  normal2.mult(15);
@@ -338,7 +339,7 @@ public class Colony implements Serializable {
 				  } else {
 					  cwNeighbour = first_cell + i;
 				  }
-				  OVector f = force_to_last.mult((cells_to_keep/2-i)/(cells_to_keep/2));
+				  PVector f = force_to_last.mult((cells_to_keep/2-i)/(cells_to_keep/2));
 				  o.cells.get(cwNeighbour).applyForce(f);
 			  }
 			  //counterclockwise
@@ -349,7 +350,7 @@ public class Colony implements Serializable {
 				  } else {
 					  ccwNeighbour = first_cell - i;
 				  }
-				  OVector f = force_to_last.mult((cells_to_remove/2-i)/(cells_to_remove/2));
+				  PVector f = force_to_last.mult((cells_to_remove/2-i)/(cells_to_remove/2));
 				  o.cells.get(ccwNeighbour).applyForce(f);
 			  }
 
@@ -363,7 +364,7 @@ public class Colony implements Serializable {
 				  } else {
 					  cwNeighbour = last_cell + i;
 				  }
-				  OVector f = force_to_first.mult((cells_to_remove/2-i)/(cells_to_remove/2));
+				  PVector f = force_to_first.mult((cells_to_remove/2-i)/(cells_to_remove/2));
 				  o.cells.get(cwNeighbour).applyForce(f);
 			  }
 			  //counterclockwise
@@ -374,7 +375,7 @@ public class Colony implements Serializable {
 				  } else {
 					  ccwNeighbour = last_cell - i;
 				  }
-				  OVector f = force_to_first.mult((cells_to_keep/2-i)/(cells_to_keep/2));
+				  PVector f = force_to_first.mult((cells_to_keep/2-i)/(cells_to_keep/2));
 				  o.cells.get(ccwNeighbour).applyForce(f);
 			  }
 
@@ -399,7 +400,7 @@ public class Colony implements Serializable {
 		  o.splitting = "self";
 
 		  //Point of intersection
-		  OVector intPoint = o.selfIntPoint;
+		  PVector intPoint = o.selfIntPoint;
 
 		  //Intersecting springs
 		  int selfInt1 = o.intersectingSprings[0];
@@ -515,7 +516,7 @@ public class Colony implements Serializable {
 //					  int index_first_o = o.springs.indexOf(first_o);
 //					  Spring last_other = intersections.get(0).b;
 //					  int index_last_other = other.springs.indexOf(last_other);
-//					  OVector firstInt = first_o.getIntersectionPoint(last_other);
+//					  PVector firstInt = first_o.getIntersectionPoint(last_other);
 //
 //					  o.splitSpring(index_first_o, firstInt);
 //					  //other.splitSpring(index_last_other, firstInt);
@@ -524,7 +525,7 @@ public class Colony implements Serializable {
 //					  int index_last_o = o.springs.indexOf(last_o);
 //					  Spring first_other = intersections.get(intersections.size() - 1).b;
 //					  int index_first_other = other.springs.indexOf(first_other);
-//					  OVector lastInt = last_o.getIntersectionPoint(first_other);
+//					  PVector lastInt = last_o.getIntersectionPoint(first_other);
 //
 //					  o.splitSpring(index_last_o, lastInt);
 //					  other.splitSpring(index_first_other, lastInt);
