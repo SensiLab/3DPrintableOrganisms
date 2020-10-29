@@ -1,9 +1,9 @@
 package generative.components;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+//import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
+//import java.util.Comparator;
 
 //import fr.inria.optimization.cmaes.IntDouble;
 import processing.core.PVector;
@@ -357,7 +357,7 @@ public class Simulation {
 	 * @return
 	 */
 	public static float minDiameter(ArrayList<PVector> organism){
-		  // println("minDiameter called");
+		  // println(" called");
 		  ArrayList<PVector[]> edges = new ArrayList<PVector[]>();
 		  for(int i = 0; i < organism.size() - 1; i++) {
 			  PVector[] edge = {organism.get(i), organism.get(i+1)};
@@ -447,32 +447,6 @@ public class Simulation {
 	
 		
 		  //=======DISPERSION RATE OF CONSECUTIVE ANGLES========
-//		  float dispersionRateAngles(){
-//		    ArrayList<Float> angleDifference = new ArrayList<Float>();
-//		    //for every layer
-//		    for(int i = 0; i < this.pointCloud.size(); i++){
-//		      ArrayList<ArrayList<PVector[]>> layer = this.pointCloud.get(i);
-//		      //for every organism
-//		      for (int j = 0; j < layer.size(); j++){
-//		        ArrayList<PVector[]> org = layer.get(j);
-//		        for (int k = 0; k < org.size()-1; k++){
-//		          PVector[] spring = org.get(k);
-//		          PVector[] nextSpring = org.get(k+1);
-//		          float magOfSum = spring[0].dist(nextSpring[1]); //distance from sp1 to ep2
-//		          float sumOfMags = spring[0].dist(spring[1]) + nextSpring[0].dist(nextSpring[1]); //distance from sp1 to ep2 via ep1
-//
-//		          // println("Layer "+i+" Edges "+k+"-"+(k+1)+" direct dist: "+magOfSum+" | length of edges: "+sumOfMags);
-//
-//		          float change = 1 - (magOfSum/sumOfMags);
-//		          angleDifference.add(change);
-//
-//		        }
-//		      }
-//		    }
-//		    // println("Angle Variance: " + Math.variance(angleDifference) + " Angle diff avg: "+Math.average(angleDifference));
-//		    // println(millis());
-//		    return Math.variance(angleDifference);
-//		  } //dispersion rate angles
 
 		public ArrayList<Float> getAngles(){
 		    ArrayList<Float> angles = new ArrayList<Float>();
@@ -497,8 +471,6 @@ public class Simulation {
 		        }
 		      }
 		    }
-		    // println("Angle Variance: " + Math.variance(angleDifference) + " Angle diff avg: "+Math.average(angleDifference));
-		    // println(millis());
 		    return angles;
 		  }
 		
@@ -523,92 +495,30 @@ public class Simulation {
 		}
 			
 		  public float angleDispersionCoefficient(){
-//		    ArrayList<Float> a = this.getAngles();
 			  ArrayList<Float> a = this.getRealAngles();
-		    Collections.sort(a, null);
-		    float q1 = a.get((int)(a.size()/4));
-		    float q3 = a.get((int)(3 * (a.size()/4)));
-		    return (q3-q1)/(q3+q1);
+			  if(a.size() < 1) return 0f;
+			  Collections.sort(a, null);
+			  float q1 = a.get((int)(a.size()/4));
+			  float q3 = a.get((int)(3 * (a.size()/4)));
+			  return (q3-q1)/(q3+q1);
+		  } //angle dispersion coefficient
+		  
+		  public float complexity() {
+			  float complexity = 0;
+			  
+			  // get convexity
+			  // low is good
+			  float convexity = this.convexity();
+			  complexity+=(1 - convexity);
+			  
+			  // get angle dispersion coefficient
+			  // high is good
+			  float angleDispersion = this.angleDispersionCoefficient();
+			  complexity += angleDispersion;
+			  
+			  return complexity/2;
 		  }
-//
-//		  int[] angleFrqDistro(int buckets){
-//		    int[] f = new int[buckets];
-//		    ArrayList<Float> a = this.getAngles();
-//		    for(int i = 0; i < a.size(); i++){
-//		      int b = int(a.get(i)/(1.0/buckets));
-//		      if(b==buckets) b-=1;
-//		      f[b]++;
-//		    }
-//		    //initialise buckets
-//		    return f;
-//		  }
 
-
-//		  
-//
-//		  //Solidity
-//		  float getSolidtyRatio(ArrayList<PVector[]> organism){
-//		    ArrayList<PVector[]> convexHull = getConvexHull(organism);
-//		    float totalArea = organismArea(organism);
-//		    float convexArea = organismArea(convexHull);
-//
-//		    return totalArea/convexArea;
-//		  }
-//
-//		  float solidityMedian(){
-//		      ArrayList<Float> solidityRatios = new ArrayList<Float>();
-//		    //for every layer
-//		    for(ArrayList<ArrayList<PVector[]>> layer : this.pointCloud){
-//		      // for every organism
-//		      for(ArrayList<PVector[]> org : layer){
-//		        solidityRatios.add(getSolidtyRatio(org));
-//		      }
-//		    }
-//		    Collections.sort(solidityRatios, null);
-//		    return solidityRatios.get(solidityRatios.size()/2);
-//		  }
-//
-//		  //===================CIRCULAR VARIANCE=============
-//		  ArrayList<Float> getRadii(ArrayList<ArrayList<ArrayList<PVector[]>>> pointCloud){
-//		  ArrayList<Float> radii = new ArrayList<Float>();
-//		  for(ArrayList<ArrayList<PVector[]>> layer:pointCloud){
-//		    for(ArrayList<PVector[]> org:layer){
-//		      PVector centroid = getCentroid(org);
-//		      for(PVector[] l : org){
-//		        radii.add(l[0].dist(centroid));
-//		      }
-//		    }
-//		  }
-//		  return radii;
-//		}
-//
-//		float getCircularVariance(){
-//		  ArrayList<Float> radii = getRadii(this.pointCloud);
-//		  return Math.variance(radii);
-//		}
-//
-//		  //==//	public void printColony() {
-//			// Initialise GCode
-//			GCode gc = new GCode();
-//			
-//			// Set gcode parameters (to be added later)
-//			
-//			// scale 3D colony
-//			Colony3D scaled = this.
-//			
-//			
-//		}==================TOTAL FITNESS=================
-//		  float getFitness() {
-//		    //use sigma function to add printability score
-//		    //The values used for the fuction are: m = 1.0, mp = 0.7, k = 15
-//		    // if(this.pointCloud.size() < 1) return 0;
-//		    if(this.lifeSpan() <= .1) return 0;
-//		    float p = Math.sigmoid(this.printability, 1.0, 0.7, 15)/4;
-//		    float c = this.angleDispersionCoefficient()/4;
-//		    float l = this.edgeLenDispersionCoefficient()/4;
-//		    float a = this.areaDispersionCoefficient()/4;
-//		    return (p + c + l + a);
-//		  }
 		  public void setCostOfLiving(float cost) {
 			  this.c.setCostOfLiving(cost);
 		  }

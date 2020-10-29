@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import java.util.Collections;
 
-import java.lang.Math;
+//import java.lang.Math;
 import processing.core.PVector;
 
 public class Colony implements Serializable {
@@ -13,6 +13,8 @@ public class Colony implements Serializable {
 	public ArrayList<ArrayList<ArrayList<PVector>>> pointCloud;
 
 	Chromosome chromosome;
+	
+	float splitRatio;
 
 	//input parameters
 	//organism
@@ -46,12 +48,14 @@ public class Colony implements Serializable {
 	    Organism is initalised using values in chromosome chr.
 	    */
 	    this.chromosome = chr;
+	    
+	    this.splitRatio = 0.2f + ((float) this.chromosome.get(4) * 0.3f);
 
 	    this.e = _e;
 
 	    this.organisms = new ArrayList<Organism>();
 	    // this.pointCloud = new ArrayList<ArrayList<ArrayList<PVector>>>();
-	    Organism firstOrg = new Organism(this.chromosome, new PVector(this.e.width/2, this.e.height/2), 50, 100);
+	    Organism firstOrg = new Organism(this.chromosome, new PVector(this.e.width/2, this.e.height/2), 100);
 	    this.organisms.add(firstOrg);
 	}
 
@@ -175,7 +179,7 @@ public class Colony implements Serializable {
 		for (int i = 0; i< this.organisms.size(); i++) {
 			Organism o = this.organisms.get(i);
 			if (o.splitting == "false") {
-				o.update(e.width, e.height);
+				o.update(e);
 			} else if (o.splitting == "energy") {
 				this.splitOrganism(i);
 			} else if (o.splitting == "self") {
@@ -207,16 +211,24 @@ public class Colony implements Serializable {
 	  void killOrganisms() {
 		  for (int i = 0; i < this.organisms.size(); i++) {
 			  Organism o = this.organisms.get(i);
-			  if (o.cells.size() < 3) this.organisms.remove(o);
+			  if (o.cells.size() < 3) {
+				  this.organisms.remove(i);
+				  continue;
+			  }
 			  if (o.getTotalEnergy() <= 1) this.organisms.remove(o);
 		  }
 	  }
 
 
 	  void splitOrganism(int org) {
+		  		  
 		  Organism o = this.organisms.get(org);
 		  //o.splitting = "energy";
-
+		  
+		//check self intersection
+		  o.selfIntersection();
+		  if(o.splitting == "self") return;
+		  
 		  //get first point of division
 		  int first_cell = o.getHottestCell();
 
@@ -227,7 +239,7 @@ public class Colony implements Serializable {
 		  float split_energy = o.cells.get(first_cell).energy;
 		  int dist_counter = 0;
 		  for (int i = 0; i < o.cells.size(); i++) {
-			  if (split_energy < (o.getTotalEnergy()/2)) {
+			  if (split_energy < (o.getTotalEnergy() * this.splitRatio)) {
 				  if (next_cell == o.cells.size() - 1) {
 					  next_cell = 0;
 				  } else {
@@ -253,29 +265,34 @@ public class Colony implements Serializable {
 		  
 		  // Initialise attraction forces between splitting cells
 		  PVector force_to_first = PVector.sub(o.cells.get(first_cell).loc, o.cells.get(last_cell).loc);
-		  force_to_first.normalize().mult(100);
+		  force_to_first.mult(100f);
 
 		  PVector force_to_last = PVector.sub(o.cells.get(last_cell).loc, o.cells.get(first_cell).loc);
-		  force_to_last.normalize().mult(100);
+		  force_to_last.mult(100f);
 
+		  // measure distance between split points
 		  float split_pts_dist = o.cells.get(first_cell).loc.dist(o.cells.get(last_cell).loc);
+		  
+		  // count cells to keep
 		  int cells_to_keep;
 		  if (first_cell < last_cell) {
 			  cells_to_keep = last_cell - first_cell + 1;
 		  } else {
 			  cells_to_keep = last_cell + (o.cells.size() - first_cell) + 1;
 		  }
-
+		  
+		  // determine number of cells to remove
 		  int cells_to_remove = o.cells.size() - cells_to_keep;
 		  int next_to_remove;
 		  
 		  // split if the distance between split points is equal to or smaller than 2*repulsionRadius
 		  if (split_pts_dist <= 2*o.cells.get(first_cell).getRepRadius()) {
 			  int new_first = first_cell;
+			  
+			  // Initialise new organism
 			  Organism new_o = new Organism(this.chromosome);
-//			  ArrayList<Cell> newOrgCells = new ArrayList<Cell>();
 			  new_o.splitting = "energy";
-
+			  			  
 			  for (int i = 0; i < cells_to_remove; i++) {
 				  if (new_first == 0) {
 					  next_to_remove = o.cells.size() - 1;
@@ -284,20 +301,17 @@ public class Colony implements Serializable {
 					  new_first--;
 				  }
 				  Cell new_c = new Cell(o.cells.get(next_to_remove));
-//				  newOrgCells.add(new_c);
 				  new_o.cells.add(new_c);
 				  o.killCell(next_to_remove);
 			  }
 			  o.splitting = "false";
 
-//			  Collections.reverse(newOrgCells);
+
 			  Collections.reverse(new_o.cells);
-//			  Organism new_o = new Organism(newOrgCells);
 			  new_o.connectCells();
-//			  new_o.setSplitThreshold();
-			  new_o.setSpringCoef(0.5f);
+//			  new_o.setSpringCoef(0.5f);
 			  new_o.splitting = "false";
-			  o.setSpringCoef(0.5f);
+//			  o.setSpringCoef(0.5f);
 			  o.resetInitEnergy();
 			  new_o.resetInitEnergy();
 			  this.organisms.add(new_o);
@@ -311,8 +325,8 @@ public class Colony implements Serializable {
 			  PVector normal1 = VectorOps.getNormal(x1, y1, x2, y2);
 			  PVector normal2 = VectorOps.getNormal(x2, y2, x1, y1);
 
-			  normal1.mult(15);
-			  normal2.mult(15);
+			  normal1.mult(15f);
+			  normal2.mult(15f);
 
 			  for (int k = 0; k < o.cells.size(); k++) {
 				  Cell c = o.cells.get(k);
@@ -329,7 +343,7 @@ public class Colony implements Serializable {
 				  }
 			  }
 
-			  o.cells.get(first_cell).applyForce(force_to_last);
+			  o.cells.get(first_cell).applyForce2(force_to_last);
 			  //apply force_to_last to first_cell's neighbours
 			  //clockwise
 			  for (int i = 1; i <= cells_to_keep/2; i++) {
@@ -339,7 +353,8 @@ public class Colony implements Serializable {
 				  } else {
 					  cwNeighbour = first_cell + i;
 				  }
-				  PVector f = force_to_last.mult((cells_to_keep/2-i)/(cells_to_keep/2));
+				  PVector f = new PVector(force_to_last.x, force_to_last.y);
+				  f.mult((cells_to_keep/2-i)/(cells_to_keep/2));
 				  o.cells.get(cwNeighbour).applyForce(f);
 			  }
 			  //counterclockwise
@@ -350,11 +365,12 @@ public class Colony implements Serializable {
 				  } else {
 					  ccwNeighbour = first_cell - i;
 				  }
-				  PVector f = force_to_last.mult((cells_to_remove/2-i)/(cells_to_remove/2));
+				  PVector f = new PVector(force_to_last.x,force_to_last.y);
+				  f.mult((cells_to_remove/2-i)/(cells_to_remove/2));
 				  o.cells.get(ccwNeighbour).applyForce(f);
 			  }
 
-			  o.cells.get(last_cell).applyForce(force_to_first);
+			  o.cells.get(last_cell).applyForce2(force_to_first);
 			  //apply force_to_last to first_cell's neighbours
 			  //clockwise
 			  for (int i = 1; i <= cells_to_remove/2; i++) {
@@ -364,7 +380,8 @@ public class Colony implements Serializable {
 				  } else {
 					  cwNeighbour = last_cell + i;
 				  }
-				  PVector f = force_to_first.mult((cells_to_remove/2-i)/(cells_to_remove/2));
+				  PVector f = new PVector(force_to_first.x,force_to_first.y);
+				  f.mult((cells_to_remove/2-i)/(cells_to_remove/2));
 				  o.cells.get(cwNeighbour).applyForce(f);
 			  }
 			  //counterclockwise
@@ -375,12 +392,13 @@ public class Colony implements Serializable {
 				  } else {
 					  ccwNeighbour = last_cell - i;
 				  }
-				  PVector f = force_to_first.mult((cells_to_keep/2-i)/(cells_to_keep/2));
+				  PVector f = new PVector(force_to_first.x,force_to_first.y);
+				  f.mult((cells_to_keep/2-i)/(cells_to_keep/2));
 				  o.cells.get(ccwNeighbour).applyForce(f);
 			  }
 
 			  o.applyRepulsion();
-			  o.applyAttraction();
+//			  o.applyAttraction();
 		  }
 
 		  for (Cell c : o.cells) {
@@ -389,7 +407,7 @@ public class Colony implements Serializable {
 		  for (Spring s : o.springs) {
 			  s.update();
 		  }
-	  }
+	  } //splitOrganism
 
 	  void splitSelfIntersect(int org) {
 		  if (this.organisms.get(org).cells.size() <= 4){

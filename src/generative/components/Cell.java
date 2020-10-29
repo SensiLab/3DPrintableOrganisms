@@ -16,33 +16,27 @@ public class Cell{
 	public Chromosome chromosome;
 	
 	public float energy = 5f;
-	float maxEMin = 6f;
-	float maxEMax = 20f;
-	
-	float maxEnergy;
+
+	// genetically determined attributes
+	double metabolicRate; // ratio of the acquired nutrients that becomes energy
+	float maxVel; // represents a drag coefficient: high means 
+	float maxEnergy; // this variable is determined by genetic information and it is a proxy for limit mass/surface_area of the cell
+
+
+	//CONSTANTS
 	float costOfLiving = 0.001f;
-
-//	float splitThreshold = 0.5f;	// defines the ratio of the total energy at which a connected spring can split
-
-//	float maxForce = 2;
-	float maxVel;
-	float maxVMin = 0.1f;
-	float maxVMax = 2f;
-//	public float orgMaxVel;
-	float minVel = 0.2f;
-
+	int seekDist = 3;
 	public float attrRad = 150f;
 	float attrForce = 0.005f;
 	float repRad = 5f;
 	float minRepRad = 3f;
-	float repForce = 50f;
-
-	int seekDist = 3;
-
-	double metabolicRate;
-
-	float r = 5f;
-	
+	float repForce = 0.1f;
+	// velocity
+	float maxVMin = 0.2f;
+	float maxVMax = 2f;
+	// energy
+	float maxEMin = 6f;
+	float maxEMax = 20f;
 	
 	//-----------CONSTUCTORS
 	public Cell(float x, float y, Chromosome _chr) {
@@ -53,8 +47,8 @@ public class Cell{
 		this.chromosome = _chr;
 		
 		this.metabolicRate = this.chromosome.get(0);
-		this.maxVel = (float) MathLib.mapDouble(this.chromosome.get(1), 0f, 1f, this.maxVMin, this.maxVMax);
-//		this.orgMaxVel = this.maxVel;
+//		this.maxVel = (float) MathLib.mapDouble(this.chromosome.get(1), 0f, 1f, this.maxVMin, this.maxVMax);
+		this.maxVel = (float)this.chromosome.get(1);
 		this.maxEnergy = (float) MathLib.mapDouble(this.chromosome.get(2), 0f, 1f, this.maxEMin, this.maxEMax);
 	}
 
@@ -66,8 +60,8 @@ public class Cell{
 	    this.chromosome = _chr;
 
 	    this.metabolicRate = this.chromosome.get(0);
-	    this.maxVel = (float) MathLib.mapDouble(this.chromosome.get(1), 0f, 1f, 1f, 5f);
-//	    this.orgMaxVel = this.maxVel;
+//	    this.maxVel = (float) MathLib.mapDouble(this.chromosome.get(1), 0f, 1f, this.maxVMin, this.maxVMax);
+	    this.maxVel = (float) this.chromosome.get(1);
 	    this.maxEnergy = (float) this.chromosome.get(2);
 	}
 
@@ -80,8 +74,7 @@ public class Cell{
 	    this.attrRad = _attrRad;
 	    this.attrForce = _attrForce;
 	    this.repRad = _repRad;
-	    this.repForce = _repForce;
-	    
+	    this.repForce = _repForce;	    
 	    
 	}
 	
@@ -118,7 +111,7 @@ public class Cell{
 		
 		// update velocity
 		this.vel.add(this.acc);
-		this.vel.limit(this.maxVel);
+//		this.vel.limit(this.maxVel);
 
 	    //update location
 	    this.loc.add(this.vel);
@@ -128,18 +121,19 @@ public class Cell{
 
 	    //update velocity based on weight
 	    if(this.vel.mag() > 0) {
-	    	//reduce velocity for next timestep.
-	    	this.vel.mult(1 - this.energy * 0.0001f);
+	    	//reduce velocity for next time step: depends on current energy.
+	    	this.vel.mult(1 - this.energy * 0.0005f);
 	    }
+	    
 //	    float currentVel = Math.max(this.vel.mag(), 0.001f);
 	    float currentVel = this.vel.mag();
-	    float currentE = Math.max(MathLib.sigmoid(this.energy, 1f, 0.3f, 10f), 0.001f);
 //	    this.energy-=(this.costOfLiving * this.maxEnergy * this.metabolicRate * currentVel * currentE); // Original formula
 	    
 //	    this.energy-=((this.costOfLiving) + (this.metabolicRate * 0.01f) + (((this.maxEnergy-this.maxEMin)/(this.maxEMax-this.maxEMin))*0.01f) + (currentVel * 0.01f)); // * (this.maxEMax) * this.metabolicRate * currentVel * currentE);
 	    
 //	    this.energy-=((this.costOfLiving) + (((this.metabolicRate) * (this.maxEnergy/this.maxEMax)) + ((currentVel/this.maxVMax)*this.costOfLiving)));
-	    this.energy-=(this.costOfLiving + (((this.metabolicRate * (this.maxEnergy/this.maxEMax)) + (currentVel/this.maxVMax)) * this.costOfLiving));
+//	    this.energy-=(this.costOfLiving + ((this.metabolicRate * this.chromosome.get(2) * (currentVel/1)) * (this.costOfLiving * this.costOfLiving)));
+	    this.energy-=this.costOfLiving + (this.metabolicRate + ((currentVel/this.maxVMax)/(this.maxVel*this.maxVel)))*this.costOfLiving;
 	    //update split ratio
 //	    this.splitThreshold = Math.max((MathLib.sigmoid((this.energy/this.maxEnergy), 1.0f, 0.75f, -15f) * this.maxEnergy), 0.01f);
 	} //update
@@ -159,6 +153,11 @@ public class Cell{
 		
 		//reset acceleration
 		this.acc.mult(0);
+		
+	    if(this.vel.mag() > 0) {
+	    	//reduce velocity for next time step: depends on current energy.
+	    	this.vel.mult(1 - this.energy * 0.0001f);
+	    }
 	} //update2
 	
 	public void update3() {
@@ -204,12 +203,36 @@ public class Cell{
 		this.maxVel = (float) MathLib.mapDouble(this.chromosome.get(1), 0f, 1f, this.maxVMin, this.maxVMax);
 	}
 	
+//	public void applyForce(PVector force) {
+////		force.mult(1/(this.maxEnergy/this.maxEMax));
+////		force.mult(1 - ((this.maxEnergy - this.maxEMin)/(this.maxEMax - this.maxEMin)));
+////		force.mult(1/this.maxEnergy);
+//		
+//		float forceMag = force.mag();
+//		
+//		force.normalize();
+//		force.mult((forceMag * this.maxVel));
+////		force.mult((forceMag * this.maxVel)/this.maxEnergy);
+//		
+//		this.acc.add(force);
+//	}
+	
+//	public void applyForce(Cell other, PVector force) {
+//		//
+//	}
+	
 	public void applyForce(PVector force) {
-//		force.mult(1/(this.maxEnergy/this.maxEMax));
-//		force.mult(1 - ((this.maxEnergy - this.maxEMin)/(this.maxEMax - this.maxEMin)));
-//		force.mult(1/this.maxEnergy);
+		// copy force
+		PVector f = new PVector(force.x, force.y);
+		// dissipate part of the force received because of the drag coefficient
+		f.mult(1 - (this.maxVel * (this.maxEnergy/this.maxEMax)));
 		
-		this.acc.add(force);
+		this.acc.add(f);
+	}
+	
+	public void applyForce2(PVector force) {
+		PVector f = new PVector(force.x, force.y);
+		this.acc.add(f);
 	}
 
 	//attract
@@ -222,17 +245,17 @@ public class Cell{
 
 	//repel
 	public void repel(Cell other) {
-		float attrMag = this.repForce/(this.loc.dist(other.loc)+0.001f);
-	    PVector attr = PVector.sub(other.loc, this.loc);
-	    attr.setMag(attrMag);
-	    other.applyForce(attr);
+		float repMag = this.repForce/(float) Math.max((double) this.loc.dist(other.loc)/this.repRad, 0.01);
+	    PVector rep = PVector.sub(other.loc, this.loc);
+	    rep.setMag(repMag);
+	    other.applyForce(rep);
 	}
 
-	  //check drag
-	  void addDrag(Environment e) {
-	    float drag = e.drag;
-	    this.vel.mult(1 - (drag * drag));
-	  }
+	//check drag
+	void addDrag(Environment e) {
+		float drag = e.drag;
+		this.vel.mult(1 - (drag * drag));
+	}
 
 //	  //check nutrients
 	 public void eat(Environment e) {
@@ -309,7 +332,7 @@ public class Cell{
 	    foodTarget.normalize();
 
 	    //a cell will be more capable of moving toward a food source the higher its energy and food metabolism
-	    foodTarget.mult(this.energy * (float) this.metabolicRate);
+	    foodTarget.mult(this.energy * (float) this.metabolicRate * 0.1f);
 	    this.applyForce(foodTarget);
 	    
 	    //subtract energy proportional to the magnitude of the force

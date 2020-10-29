@@ -2,6 +2,8 @@ package generative.components;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Collections;
 import java.lang.Math;
 import processing.core.PVector;
 
@@ -26,6 +28,8 @@ public class Organism implements Serializable{
 	
 	float newOrgEnergy;
 	float orgInitEnergy;
+	
+	// CONSTANTS
 	float diffusionRate = 0.1f; //This is currently set as a constant
 	float energyLoss = 0.05f;
 	int maxSize = 150; 			//The max number of cells 
@@ -43,6 +47,24 @@ public class Organism implements Serializable{
 		this.initialLocation = _loc;
 
 		this.initSubdivs = subdivs;
+		this.initRadius = rad;
+
+		this.splitting = "false";
+
+		this.newOrgEnergy = 1f;//(float) MathLib.mapDouble(this.chromosome.get(4), 0f, 1f, 0.5f, 1f);
+
+		this.init();
+	}
+	
+	public Organism(Chromosome chr, PVector _loc, float rad) {
+		this.chromosome = chr;
+		this.cells = new ArrayList<Cell>();
+		this.springs = new ArrayList<Spring>();
+
+		this.initialLocation = _loc;
+		
+		
+		this.initSubdivs = (int) ((2 * rad * Math.PI) / (2 * 5));	//calculate based on energy per cell and perimeter based on total radius
 		this.initRadius = rad;
 
 		this.splitting = "false";
@@ -110,8 +132,8 @@ public class Organism implements Serializable{
 				float posY = this.initRadius * (float) Math.sin(angle * i) + this.initialLocation.y;
 					
 				Cell new_cell = new Cell(posX, posY, this.chromosome);
-				float _repRad = this.initRadius * (float) Math.sin(angle/2);
-				new_cell.repRad = _repRad;
+//				float _repRad = this.initRadius * (float) Math.sin(angle/2);
+//				new_cell.repRad = _repRad;
 				this.cells.add(new_cell);
 				}
 //			this.connectCells();
@@ -122,8 +144,8 @@ public class Organism implements Serializable{
 				Cell c = this.cells.get(i);
 				for (int j = i+1; j < this.cells.size(); j++) {
 					Cell other = this.cells.get(j);
-					float d = c.loc.dist(other.loc);
-					c.repRad = d/2;
+//					float d = c.loc.dist(other.loc);
+//					c.repRad = d/2;
 				}
 			}
 //			this.connectCells();
@@ -244,7 +266,7 @@ public class Organism implements Serializable{
 	 * This method populates the selfIntPoint and intersectingSprings fields
 	 * It may require rewriting for simplification (perhaps return a PVector point?)
 	 */
-	void selfIntersection() {
+	public void selfIntersection() {
 	    if (this.splitting == "self") return;
 	    PVector intersection;
 	    //check every spring against all other springs
@@ -643,6 +665,18 @@ public class Organism implements Serializable{
 		ArrayList<PVector> ptsCopy = new ArrayList<PVector>();
 		for (PVector p : pts) ptsCopy.add(new PVector(p.x, p.y));
 		// ArrayList<PVector> points = removeDuplicates(ptsCopy);
+		// Remove duplicates
+		for (int i =0; i < ptsCopy.size()-1;i++) {
+			float ix = ptsCopy.get(i).x;
+			float iy = ptsCopy.get(i).y;
+			for (int j = i+1; j < ptsCopy.size(); j++) {
+				float jx = ptsCopy.get(j).x;
+				float jy = ptsCopy.get(j).y;
+				if(ix == jx && iy == jy) {
+					ptsCopy.remove(j);
+				}
+			}
+		}
 		//initialise sorted array
 		ArrayList<PVector> sorted = new ArrayList<PVector>();
 
@@ -688,6 +722,42 @@ public class Organism implements Serializable{
 		}
 		return sorted;
 	}
+	
+//	public static ArrayList<PVector> polarSort(ArrayList<PVector> pts){
+//		//make a copy of pts array
+//		ArrayList<PVector> ptsCopy = new ArrayList<PVector>();
+//		for (PVector p : pts) ptsCopy.add(new PVector(p.x, p.y));
+//		// remove duplicates
+//		for(int i = 0; i < ptsCopy.size()-1; i++) {
+//			float ix = ptsCopy.get(i).x;
+//			float iy = ptsCopy.get(i).y;
+//			for(int j = i+1; j < ptsCopy.size(); j++) {
+//				float jx = ptsCopy.get(j).x;
+//				float jy = ptsCopy.get(j).y;
+//				if(ix == jx && iy ==jy) {
+//					ptsCopy.remove(j);
+//				}
+//			}
+//		}
+//		// ArrayList<PVector> points = removeDuplicates(ptsCopy);
+//		//initialise sorted array
+////		ArrayList<PVector> sorted = new ArrayList<PVector>();
+//
+//		//get bottomMost
+//		PVector bm = bottomMost(ptsCopy);
+//
+////		//add bm to sorted
+////		sorted.add(bm);
+//
+//		//remove bm from pts copy
+//		ptsCopy.remove(bm);
+//		List<PVector> sortedPts = ptsCopy;
+//		for(PVector a : sortedPts) {
+//		Collections.sort(sortedPts, (a,b) -> {
+//			
+//		};
+//		}
+//	}
 	
 	public ArrayList<PVector> getConvexHull() {
 		// Get all points in organism
@@ -759,7 +829,9 @@ public class Organism implements Serializable{
 	/**
 	 * Update method for organism
 	 */
-	public void update(int maxX, int maxY) {
+	public void update(Environment _e) {
+		int maxX = _e.width;
+		int maxY = _e.height;
 		//check self intersection
 		this.selfIntersection();
 		//check splitting by energy excess
@@ -767,7 +839,7 @@ public class Organism implements Serializable{
 		//check overlapping cells
 		this.overlappingCells();
 		//apply attraction and repulsion
-		this.applyAttraction();
+//		this.applyAttraction();
 		this.applyRepulsion();
 		//update split threshold
 		this.splitThreshold = this.getMaxEnergy() * this.splitEnergyMult;
@@ -805,14 +877,11 @@ public class Organism implements Serializable{
 //				c.borders(maxY, maxY);
 		        
 				//the maxVel of c is updated based on the size of the organism using a sigmoid function
-				float newMaxVel = Math.min(Math.max(MathLib.sigmoid(this.cells.size(), c.maxVel, this.maxSize, -0.1f), c.minVel), c.maxVel);
-		        c.setMaxVel(newMaxVel);
+//				float newMaxVel = Math.min(Math.max(MathLib.sigmoid(this.cells.size(), c.maxVel, this.maxSize, -0.1f), c.minVel), c.maxVel);
+//		        c.setMaxVel(newMaxVel);
+				c.addDrag(_e);
 		        c.update(maxX, maxY);
 			}
 		}
-		
-
-		
-
-	}
+	} //update
 }

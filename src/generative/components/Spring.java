@@ -1,6 +1,6 @@
 package generative.components;
 
-import java.util.ArrayList;
+//import java.util.ArrayList;
 import processing.core.PVector;
 
 public class Spring{
@@ -11,7 +11,7 @@ public class Spring{
 	public Cell ep;
 	
 	private float restLen;
-	private float energyMult = 2.5f;
+	private float energyMult = 1f;
 	public float lenCoef = 0.1f;
 	private double sprCoef;
 	public float minRestLen;
@@ -29,7 +29,7 @@ public class Spring{
 	    this.minRestLen = this.sp.repRad + this.ep.repRad;
 
 	    this.restLen = 20;
-	    this.sprCoef = this.chromosome.get(3);
+	    this.sprCoef = 1 + Math.pow(this.chromosome.get(3), 2);
 
 	    this.newSpringLenMult = 0.6f;	    
 	}
@@ -192,18 +192,22 @@ public class Spring{
 			// contract spring
 	    	// pull in ep
 			PVector spToEp = PVector.sub(this.sp.loc, this.ep.loc);
-			this.ep.applyForce(spToEp.mult((float)this.sprCoef));
+			spToEp.normalize();
+			this.ep.applyForce(spToEp.mult((float) this.sprCoef));
 			// pull in sp
 			PVector epToSp = PVector.sub(this.ep.loc, this.sp.loc);
+			epToSp.normalize();
 			this.sp.applyForce(epToSp.mult((float)this.sprCoef));
 	    } else {
 	    	// expand spring
 	    	// push ep
 			PVector spToEp = PVector.sub(this.ep.loc, this.sp.loc);
+			spToEp.normalize();
 			this.ep.applyForce(spToEp.mult((float)this.sprCoef));
 			
 			//push sp
 			PVector epToSp = PVector.sub(this.sp.loc, this.ep.loc);
+			epToSp.normalize();
 			this.sp.applyForce(epToSp.mult((float)this.sprCoef));
 		}
 	}
