@@ -234,6 +234,9 @@ public class GCode {
 					//println("From:  ", sp);
 					//println("To:    ", ep);
 					gCommand("G1 X" + origin.x + " Y" + origin.y + " E" + extrusion);
+					
+					// lift nozzle to avoid hitting other parts
+					gCommand("G1 Z" + (z + 0.4));
 				}
 
 				//write the layer transition stuff

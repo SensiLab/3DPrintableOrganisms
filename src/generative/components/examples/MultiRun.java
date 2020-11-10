@@ -65,20 +65,74 @@ public class MultiRun {
 		//Instantiate the manager
 		CMAESManager cma = new CMAESManager();
 		
+		//Set fitness function
+		cma.setFitFun(1);
+		
+		//set fitness function target (for printability)
+		cma.setFitnessTarget(0.95);
+		
+		cma.setObjectSize(500);
+		
+		cma.setObjectWarmup(20);
+		
+		// set environment random seed
+		long envSeed = envSeeds[0];
+		
+		//set environment
+		Environment e = new Environment(600, 600, 15, 0.3f, 5, 5, 10, 10, 0.2f, envSeed);
+		
+		cma.setEnvironment(e);
+		
+		
+		
+		
+		// parameters for evolve from parent
+						
+		// define parent
+		double[] parent = {0.9981469087156556, 0.9234891616280703, 0.61189524355323, 0.3746596492759553, 0.5079931545386839};
+		
+		// initial stDev
+		double stDev = 1e-4;
+		
+		// gens
+		int maxIter = 400;
+		
+		// lambda
+		int lambda = 20;
+		
+		// mu
+		int mu = 2;
+		
+		//step size
+		double stepSize = 1e-6;
+		
+		//set destination folder and file prefix
+		String folderPath = "../out/evo_output/Ind_Refinement_001/";
+						
+		//set file prefix
+		String filePrefix = "IndRefinement003";
+		
+		//call evolve from parent
+		cma.evolveFromParent(parent, stDev, maxIter, -1, lambda, mu, 1, stepSize, folderPath, filePrefix);
+		
+		
+
+
+		
 		//Set parameters for cma
 		//Environment (This environment will be used for all 
 //		Environment e = new Environment(600, 600, 20, 0.3f, 5, 30, 60, 20, -1);	//Environment with randomisation
 //		Environment e = new Environment(600, 600, 15, 0.3f, 5, 5, 10, 10, 0.2f, -1);	//Environment with randomisation
 //		cma.setEnvironment(e);
 		
-		String destFolder = "../out/evo_output/Complexity_010/";
+//		String destFolder = "../out/evo_output/Complexity_010/";
 		
 		// call multirun
-		int[] popSizes = {10, 20, 40, 80};
-		int[] mus = {0, 1, 2, 4};
-		int[] rTypes = {0,1,2};
-		
-		Environment runEnv = new Environment(600, 600, 15, 0.3f, 5, 5, 10, 10, 0.2f, 8141159607898132170L);
+//		int[] popSizes = {10, 20, 40, 80};
+//		int[] mus = {0, 1, 2, 4};
+//		int[] rTypes = {0,1,2};
+
+//		Environment runEnv = new Environment(600, 600, 15, 0.3f, 5, 5, 10, 10, 0.2f, 8141159607898132170L);
 		
 //		for(int popSize : popSizes) {
 //			for(int mu : mus) {
@@ -96,31 +150,31 @@ public class MultiRun {
 //		
 		//run complexity
 //		long[] envSeedsC = Arrays.copyOfRange(envSeeds, 8, 10);
-		String complexityFolder = "../out/CMA_Testing/Complexity_018/";
+//		String complexityFolder = "../out/CMA_Testing/Complexity_018/";
 //		cma.evolveMultiple(envSeeds, 250, 2, 40, complexityFolder);
 //		cma.evolve(10, 1e-6, 1, e, destFolder);	
-		int totalChunks = 5;
-		int chunkSize = 50;
-		for(int seedIndex = 0; seedIndex < envSeeds.length; seedIndex++) {
-			String filePrefix = String.format("%03d", seedIndex);
-			CMAESManager manager = new CMAESManager();
-			long seed = envSeeds[seedIndex];
-			Environment e = new Environment(600, 600, 15, 0.3f, 5, 5, 10, 10, 0.2f, seed);
-			for(int chunks = 0; chunks < totalChunks;chunks++) {
-				double[] parent = new double[5];
-				if(chunks == 0) {
-					for(int i = 0; i < parent.length; i++) {
-						parent[i] = new Random().nextDouble();
-					}
-				}else {
-					parent = manager.getCurrentBest();
-				}
-				
-				manager.evolveFromParent(2, 0.1, e, parent, chunkSize, -1, 40, 2, 1, 0.001, complexityFolder, filePrefix);
-				//this.evolve(_fitfunType, runEnv, _gens, -1, _popSize, 2, 1, 0.001, _savePath, filePrefix);
-			}
-			
-		}
+//		int totalChunks = 5;
+//		int chunkSize = 50;
+//		for(int seedIndex = 0; seedIndex < envSeeds.length; seedIndex++) {
+//			String filePrefix = String.format("%03d", seedIndex);
+//			CMAESManager manager = new CMAESManager();
+//			long seed = envSeeds[seedIndex];
+//			Environment e = new Environment(600, 600, 15, 0.3f, 5, 5, 10, 10, 0.2f, seed);
+//			for(int chunks = 0; chunks < totalChunks;chunks++) {
+//				double[] parent = new double[5];
+//				if(chunks == 0) {
+//					for(int i = 0; i < parent.length; i++) {
+//						parent[i] = new Random().nextDouble();
+//					}
+//				}else {
+//					parent = manager.getCurrentBest();
+//				}
+//				
+////				manager.evolveFromParent(2, 0.1, e, parent, chunkSize, -1, 40, 2, 1, 0.001, complexityFolder, filePrefix);
+//				//this.evolve(_fitfunType, runEnv, _gens, -1, _popSize, 2, 1, 0.001, _savePath, filePrefix);
+//			}
+//			
+//		}
 		
 	}
 }
