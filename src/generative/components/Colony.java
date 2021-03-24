@@ -1,6 +1,5 @@
 package generative.components;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 import java.util.Collections;
@@ -8,7 +7,7 @@ import java.util.Collections;
 //import java.lang.Math;
 import processing.core.PVector;
 
-public class Colony implements Serializable {
+public class Colony {
 	public ArrayList<Organism> organisms;
 	public ArrayList<ArrayList<ArrayList<PVector>>> pointCloud;
 
@@ -26,6 +25,8 @@ public class Colony implements Serializable {
 	float springCoef;  //spring coefficient
 	float maxLen;      //maximum spring length (what will it do? create a new cell?)
 	float orgRepRadius = 15;
+	
+	int splits;
 
 	Environment e;
 
@@ -39,6 +40,7 @@ public class Colony implements Serializable {
 		Generates empty colony
 		*/
 		this.organisms = new ArrayList<Organism>();
+		this.splits = 0;
 		
 	}
 
@@ -57,6 +59,30 @@ public class Colony implements Serializable {
 	    // this.pointCloud = new ArrayList<ArrayList<ArrayList<PVector>>>();
 	    Organism firstOrg = new Organism(this.chromosome, new PVector(this.e.width/2, this.e.height/2), 100);
 	    this.organisms.add(firstOrg);
+	    
+	    this.splits = 0;
+	}
+	
+	public Colony(Chromosome chr, Environment _e, ArrayList<PVector> _locations) {
+		/*
+	    Generates colony with organisms located at every point in _locations in environment _e;
+	    Organisms are initalised using values in chromosome chr.
+	    */
+	    this.chromosome = chr;
+	    
+	    this.splitRatio = 0.2f + ((float) this.chromosome.get(4) * 0.3f);
+
+	    this.e = _e;
+
+	    this.organisms = new ArrayList<Organism>();
+	    
+	    for(PVector loc : _locations) {
+	    // this.pointCloud = new ArrayList<ArrayList<ArrayList<PVector>>>();
+	    	Organism org = new Organism(this.chromosome, loc, 50);
+	    	this.organisms.add(org);
+	    }
+	    
+	    this.splits = 0;
 	}
 
 	public Colony(Environment _e, ArrayList<Organism> _orgs) {
@@ -66,6 +92,8 @@ public class Colony implements Serializable {
 	    this.organisms = _orgs;
 	    this.pointCloud = new ArrayList<ArrayList<ArrayList<PVector>>>();
 	    this.e = _e;
+	    
+	    this.splits = 0;
 	}
 
 	public Colony(Organism o) {
@@ -74,11 +102,14 @@ public class Colony implements Serializable {
 	    this.chromosome = o.getChromosome();
 	    this.pointCloud = new ArrayList<ArrayList<ArrayList<PVector>>>();
 	    
+	    this.splits = 0;
+	    
 	}
 
 	public Colony(ArrayList<Organism> orgs) {
 	    this.organisms = orgs;
 	    this.pointCloud = new ArrayList<ArrayList<ArrayList<PVector>>>();
+	    this.splits = 0;
 	  }
 	
 	// COPY CONSTRUCTOR
@@ -94,10 +125,14 @@ public class Colony implements Serializable {
 			Organism newO = new Organism(o);
 			this.organisms.add(newO);
 		}
-		
+		this.splits = _c.getSplits();
 	}
 		
 	// METHODS
+	public int getSplits() {
+		return this.splits;
+	}
+	
 	public void setEnvironment(Environment _e) {
 		this.e = _e;
 	}
@@ -149,26 +184,20 @@ public class Colony implements Serializable {
 	 */
 	public void update() {
 		
-//		System.out.println("Pre eat");
 		this.eat();
 		
-//		System.out.println("Post eat, pre repulsion");
 		this.applyOrgRepulsion();
 
-//		System.out.println("Post repulsion, pre kill");
 		//check if ant organism is smaller than 3 cells and kill it
 		this.killOrganisms();
 
-//		System.out.println("Post kill, pre overlaps");
 	    this.checkFullOverlaps();
 
 	    //this.joinOverlapping(); //This function is to be implemented in the future
 	    
-//	    System.out.println("Post overlaps, pre update");
 	    //update organisms
 	    this.updateOrganisms();
 	    
-//	    System.out.println("Post update");
 	} //update colony
 
 
@@ -315,6 +344,7 @@ public class Colony implements Serializable {
 			  o.resetInitEnergy();
 			  new_o.resetInitEnergy();
 			  this.organisms.add(new_o);
+			  this.splits++;
 		  } else {
 			  //get line between start and end
 			  float x1 = o.cells.get(first_cell).loc.x;
@@ -473,6 +503,8 @@ public class Colony implements Serializable {
 		  if(o.getArea() < new_o.getArea() / 100) this.organisms.remove(o);
 
 		  o.splitting = "false";
+		  
+		  this.splits++;
 	  }
 
 	  //======================OVERLAP FUNCTIONS====================
@@ -577,21 +609,6 @@ public class Colony implements Serializable {
 			  }
 		  }
 		  return foundIntersections;
-	  }
-
-	  void applyAttraction() {
-	    ArrayList<Cell> allCells = new ArrayList<Cell>();
-	    for (Organism o : this.organisms) {
-	      allCells.addAll(o.cells);
-	    }
-	    for (int i = 0; i < allCells.size() - 1; i++) {
-	      Cell c = allCells.get(i);
-	      for (int j = i+1; j < allCells.size(); j++) {
-	        Cell other = allCells.get(j);
-	        if (c.loc.dist(other.loc) < c.attrRad) c.attract(other);
-	        if (other.loc.dist(c.loc) < other.attrRad) other.attract(c);
-	      }
-	    }
 	  }
 
 	  void applyRepulsion() {

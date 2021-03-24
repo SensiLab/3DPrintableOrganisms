@@ -3,6 +3,8 @@ package generative.components;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Random;
+
 //import java.math.*;
 //import java.util.*;
 import processing.core.PVector;
@@ -39,10 +41,16 @@ public class GCode {
 
 	int total_layers = 0;
 	int layer = 0;
-
+	
+	//CONSTRUCTOR
 	public GCode(){
 		this.gCode = ";GCODE STARTS HERE\n";
 		this.startPrint();
+	}
+	
+	public void setOutputSize(float _os) {
+		this.print_output_x = _os;
+		this.print_output_y = _os;
 	}
 	
 	public void setMultiplier(float m) {
@@ -127,6 +135,7 @@ public class GCode {
 		gCommand("G21 ; set units to millimeters");
 		gCommand("G90 ; use absolute coordinates");
 		gCommand("M83 ; use relative distances for extrusion");
+		gCommand("G1 E-1.400 ; retract after test line");
 		gCommand("");
 		gCommand(";==========================================");
 		gCommand(";END OF PREAMBLE");
@@ -170,31 +179,52 @@ public class GCode {
 		
 	    gCommand(" ");
 	    gCommand(";-----------------");
-	    gCommand("; LAYER " + (layerNumber) + " STARTS HERE");
+	    gCommand("; LAYER " + (int)(layerNumber) + " STARTS HERE");
 	    gCommand(";-----------------");
 	    gCommand(" ");
 	    
 	    
 		
-		float width = layer.getEnvironment().width;
-		float height = layer.getEnvironment().height;
+		float width = layer.getEnvironment().getWidth();
+		float height = layer.getEnvironment().getHeight();
 		
 		float z = this.layer_height * (layerNumber + 1);
 		
+		if(layerNumber<5) {
+			this.setMultiplier(1.25f);
+		}else {
+			this.setMultiplier(1.0f);
+		}
+		
+		
 		gCommand("G92 E0.0");
 
-		gCommand("G1 E-0.80000 F2100.00000");
+		
 		gCommand("G1 Z" + (z + 0.4) + " F10800.000");
 
-		setSpeed(2500);
+//		setSpeed(1200);
 		PVector origin = new PVector();
 		//--------------traverse all organisms
 		for (Organism org : layer.organisms) {
-			//-------------traverse all edges
-			for (Spring s : org.springs) {
-				int j = org.springs.indexOf(s);
+			int orgIndex = layer.organisms.indexOf(org);
+//			System.out.println("==========Layer #: "+layerNumber+" Organism: "+orgIndex+"==========");
+			//-------------traverse all edges starting from random edge
+			int max = org.size();
+			Random r = new Random();
+			int newStart = r.nextInt(max);
+			
+			//for every edge
+			for (int j = newStart; j < (newStart + max); j++) {
+				int index;
+				if(j < max){
+						index = j;
+					}else {
+						index = (j - max);
+					}
+				Spring s = org.springs.get(index);
 				//Get edge
 				PVector[] l = {s.sp.loc, s.ep.loc};
+				
 				//get start point
 				float spX = ((l[0].x) * print_output_x) / (width);
 				float spY = ((l[0].y) * print_output_y) / (height);
@@ -207,36 +237,53 @@ public class GCode {
 				PVector ep = new PVector(epX, epY);
 
 
-				float extrusion = extrude(sp, ep);
-				if (j == 0) {
+				float extrusion;
+				if(layerNumber >= 5) {
+					extrusion = extrude(sp, ep);
+				}else {
+					extrusion = extrude(sp, ep) * 1.25f;
+				}
+				
+//				System.out.println("Segment = "+j+" sp: ["+sp.x+", "+sp.y+"]"+" ep: ["+ep.x+", "+ep.y+"]"+" Dist = "+sp.dist(ep)+" Extrusion = "+extrusion);
+				if (j == newStart) {
 					origin = sp;
 
-
+//					setSpeed(7200);
 					// go to starting point
 					gCommand("G1 X" + sp.x + " Y" + sp.y + " ;This is the initial point");
-
+					
+					setSpeed(1200);
 					// get layer height
 					gCommand("G1 Z"+ z +" ; position nozzle at layer height");
 
-					gCommand("G1 E0.80000 F2100.00000");
+//					if(orgIndex==0) {
+//						gCommand("G1 E1.5000 F2100.00000");
+//					}else {
+//						gCommand("G1 E1.00000 F2100.00000");						
+//					}
 
-					setSpeed(print_speed);
+//					setSpeed(print_speed);
 
 
 					// go to next point
-					gCommand("G1 X" +ep.x + " Y" + ep.y + " E" + extrusion+ " ;This is the second point");
-				} else if (j < org.springs.size() -1) {
-					gCommand("G1 X" + ep.x + " Y" + ep.y + " E" + extrusion);
-				} else {
+					gCommand("G1 X" +ep.x + " Y" + ep.y + " E" + (extrusion * 1.0) + " ;This is the second point");
+//				} else if (j == org.springs.size() -1) {
+//				} else if (j == (newStart + max -1)%max) {
+					
+					
 					//extrusion = extrude(sp,origin,_ext_mult);
 					//println("Closing the cell");
 					//println("Extrusion: ", extrusion);
 					//println("From:  ", sp);
 					//println("To:    ", ep);
-					gCommand("G1 X" + origin.x + " Y" + origin.y + " E" + extrusion);
+//					gCommand("G1 X" + origin.x + " Y" + origin.y + " E" + extrusion);
+//					if(orgIndex==0) gCommand("G1 X" + origin.x + " Y" + origin.y + " E" + extrusion);	
 					
 					// lift nozzle to avoid hitting other parts
-					gCommand("G1 Z" + (z + 0.4));
+//					gCommand("G1 Z" + (z + 0.8) + " E-0.800000");
+					
+				} else {
+					gCommand("G1 X" + ep.x + " Y" + ep.y + " E" + extrusion);
 				}
 
 				//write the layer transition stuff
@@ -244,7 +291,52 @@ public class GCode {
 
 				//final_point = ep;
 			}
-		}
+			
+			// Start wipe
+			gCommand(";START WIPE");
+			setSpeed(7200);
+			float wipeDist = 0;
+			
+			// keep going for three more segments
+			for (int j = newStart; j < (newStart + max); j++) {
+				if(wipeDist >= 12) break;
+				int index;
+				if(j < max){
+						index = j;
+					}else {
+						index = (j - max);
+					}
+				Spring s = org.springs.get(index);
+				//Get edge
+				PVector[] l = {s.sp.loc, s.ep.loc};
+				
+				//get start point
+				float spX = ((l[0].x) * print_output_x) / (width);
+				float spY = ((l[0].y) * print_output_y) / (height);
+		      
+				PVector sp = new PVector(spX, spY);
+
+				float epX = ((l[1].x) * print_output_x) / (width);
+				float epY = ((l[1].y) * print_output_y) / (height);
+
+				PVector ep = new PVector(epX, epY);
+				
+				
+				float extrusion = extrude(sp, ep) * -1.2f;
+				
+				gCommand("G1 X" + ep.x + " Y" + ep.y + " E" + extrusion);
+				
+				wipeDist+=sp.dist(ep);
+				
+			}
+			// Finish Wipe
+			gCommand(";END WIPE");
+			// set transition speed
+			setSpeed(7200);
+			//lift nozzle so it doesen't hit other parts
+			gCommand("G1 Z" + (z + 0.8));
+			
+		}//organism
 
 	} // write layer
 	

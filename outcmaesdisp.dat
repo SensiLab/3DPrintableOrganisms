@@ -970,3 +970,317 @@ Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min S
 Terminated due to
   TolFunHist: history of function value changes below stopTolFunHist=1.0E-13 (iter=309,eval=6180)
 best function value 4.959106445268091E-6 at evaluation 5230
+(2,40)-CMA-ES(mu_eff=1.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606190169484 (Tue Nov 24 14:56:09 AEDT 2020)
+(2,40)-CMA-ES(mu_eff=1.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606190414480 (Tue Nov 24 15:00:14 AEDT 2020)
+(2,40)-CMA-ES(mu_eff=1.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606190862080 (Tue Nov 24 15:07:42 AEDT 2020)
+(2,40)-CMA-ES(mu_eff=1.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606190915111 (Tue Nov 24 15:08:35 AEDT 2020)
+(2,40)-CMA-ES(mu_eff=1.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606191286772 (Tue Nov 24 15:14:46 AEDT 2020)
+(2,40)-CMA-ES(mu_eff=1.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606196100346 (Tue Nov 24 16:35:00 AEDT 2020)
+(2,40)-CMA-ES(mu_eff=1.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606196281144 (Tue Nov 24 16:38:01 AEDT 2020)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 5.5137865990400310e-01 (+0e+00,4e-01) |  3: 8.9e-02  2: 8.9e-02 | 8.9e-02 8.9e-02   1.00   | 15.9  0.0 
+(2,40)-CMA-ES(mu_eff=1.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606196330288 (Tue Nov 24 16:38:50 AEDT 2020)
+(2,40)-CMA-ES(mu_eff=1.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606196399213 (Tue Nov 24 16:39:59 AEDT 2020)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 5.5018139878908800e-01 (+0e+00,7e-02) |  0: 1.3e-01  1: 1.3e-01 | 1.3e-01 1.3e-01   1.00   | 89.4  0.0 
+   10(40),    401: 4.7714959084987640e-01 (-1e-02,2e-01) |  0: 1.3e-01  3: 1.3e-01 | 1.3e-01 1.3e-01   1.00   | 250.4  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=10,eval=400)
+best function value 0.4642267574866613 at evaluation 350
+(2,40)-CMA-ES(mu_eff=1.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606196649604 (Tue Nov 24 16:44:09 AEDT 2020)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 5.3877696394920350e-01 (+0e+00,8e-02) |  3: 1.1e-01  0: 1.1e-01 | 1.1e-01 1.1e-01   1.00   | 42.8  0.0 
+(2,40)-CMA-ES(mu_eff=1.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606196776553 (Tue Nov 24 16:46:16 AEDT 2020)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 5.6903619319200520e-01 (+0e+00,5e-02) |  1: 9.0e-02  3: 9.0e-02 | 9.0e-02 9.0e-02   1.00   | 64.6  0.0 
+   10(40),    401: 4.8179894685745240e-01 (+0e+00,1e-01) |  0: 1.3e-01  3: 1.3e-01 | 1.3e-01 1.3e-01   1.00   | 297.4  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=10,eval=400)
+best function value 0.4817989468574524 at evaluation 371
+(2,40)-CMA-ES(mu_eff=1.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606197073950 (Tue Nov 24 16:51:13 AEDT 2020)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 5.7479373427728820e-01 (+0e+00,4e-01) |  1: 8.6e-02  2: 8.6e-02 | 8.6e-02 8.6e-02   1.00   | 19.6  0.0 
+   10(40),    401: 5.5781319985787080e-01 (-3e-03,7e-02) |  2: 5.3e-02  3: 5.3e-02 | 5.3e-02 5.3e-02   1.00   | 332.1  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=10,eval=400)
+best function value 0.5552742270131905 at evaluation 332
+(2,40)-CMA-ES(mu_eff=1.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606197406090 (Tue Nov 24 16:56:46 AEDT 2020)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 6.0790160919229200e-01 (+0e+00,9e-03) |  3: 1.2e-01  0: 1.2e-01 | 1.2e-01 1.2e-01   1.00   | 56.7  0.0 
+   10(40),    401: 4.7273704409599304e-01 (-4e-02,2e-01) |  2: 1.8e-01  0: 1.8e-01 | 1.8e-01 1.8e-01   1.00   | 319.2  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=10,eval=400)
+best function value 0.4282567501068115 at evaluation 356
+(2,40)-CMA-ES(mu_eff=1.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606197725318 (Tue Nov 24 17:02:05 AEDT 2020)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 5.3839702780048060e-01 (+0e+00,1e-01) |  4: 9.9e-02  1: 9.9e-02 | 9.9e-02 9.9e-02   1.00   | 39.0  0.0 
+   10(40),    401: 5.2089591821034740e-01 (-5e-02,9e-02) |  4: 1.4e-01  0: 1.4e-01 | 1.4e-01 1.4e-01   1.00   | 374.4  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=10,eval=400)
+best function value 0.4724861184755961 at evaluation 264
+(2,40)-CMA-ES(mu_eff=1.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606198099685 (Tue Nov 24 17:08:19 AEDT 2020)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 5.9995310753583910e-01 (+0e+00,2e-02) |  0: 1.1e-01  2: 1.1e-01 | 1.1e-01 1.1e-01   1.00   | 82.7  0.0 
+   10(40),    401: 5.6729634106159210e-01 (-4e-02,6e-02) |  0: 1.8e-01  1: 1.8e-01 | 1.8e-01 1.8e-01   1.00   | 540.6  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=10,eval=400)
+best function value 0.530569814145565 at evaluation 309
+(2,40)-CMA-ES(mu_eff=1.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606198640280 (Tue Nov 24 17:17:20 AEDT 2020)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 5.7374713756144050e-01 (+0e+00,7e-02) |  3: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   | 68.0  0.0 
+   10(40),    401: 5.6131992737452200e-01 (+0e+00,7e-02) |  0: 4.4e-02  1: 4.4e-02 | 4.4e-02 4.4e-02   1.00   | 405.8  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=10,eval=400)
+best function value 0.561319927374522 at evaluation 371
+(2,40)-CMA-ES(mu_eff=1.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606259042290 (Wed Nov 25 10:04:02 AEDT 2020)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 4.6943318843841550e-01 (+0e+00,2e-01) |  0: 8.4e-02  1: 8.4e-02 | 8.4e-02 8.4e-02   1.00   | 28.4  0.0 
+(4,25)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606259910852 (Wed Nov 25 10:18:30 AEDT 2020)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(25),     25: 4.8412344853083290e-01 (+0e+00,2e-01) |  3: 1.2e-01  1: 1.2e-01 | 1.2e-01 1.2e-01   1.00   | 13.8  0.0 
+   10(25),    251: 4.1227353115876520e-01 (-1e-01,4e-01) |  3: 2.4e-01  1: 2.3e-01 | 2.4e-01 2.4e-01   1.00   | 199.0  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=10,eval=250)
+best function value 0.29515166083971656 at evaluation 209
+(4,25)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1606447069487 (Fri Nov 27 14:17:49 AEDT 2020)
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1612421512480 (Thu Feb 04 17:51:52 AEDT 2021)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 3.4802658855915070e-01 (+0e+00,3e-01) |  2: 1.2e-01  1: 1.2e-01 | 1.2e-01 1.2e-01   1.00   |  7.2  0.0 
+    3(40),    121: 3.5241325199604034e-01 (-4e-03,3e-01) |  3: 1.9e-01  0: 1.9e-01 | 1.9e-01 1.9e-01   1.00   | 19.9  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=3,eval=120)
+best function value 0.3480265885591507 at evaluation 15
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1612421682619 (Thu Feb 04 17:54:42 AEDT 2021)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 3.5237698256969450e-01 (+0e+00,3e-01) |  4: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  5.0  0.0 
+    3(40),    121: 2.2038742899894714e-01 (+0e+00,5e-01) |  3: 1.3e-01  0: 1.3e-01 | 1.3e-01 1.3e-01   1.00   | 13.2  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=3,eval=120)
+best function value 0.22038742899894714 at evaluation 115
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1612421748725 (Thu Feb 04 17:55:48 AEDT 2021)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 2.9879324138164520e-01 (+0e+00,2e-01) |  1: 7.6e-02  0: 7.6e-02 | 7.6e-02 7.6e-02   1.00   |  6.8  0.0 
+    3(40),    121: 2.3884072899818420e-01 (-2e-02,2e-01) |  1: 6.9e-02  3: 6.8e-02 | 6.8e-02 6.8e-02   1.00   | 18.9  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=3,eval=120)
+best function value 0.22017008066177368 at evaluation 45
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1612421895777 (Thu Feb 04 17:58:15 AEDT 2021)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 3.6140285432338715e-01 (+0e+00,6e-01) |  4: 1.2e-01  3: 1.2e-01 | 1.2e-01 1.2e-01   1.00   |  3.5  0.0 
+    3(40),    121: 3.4766767919063570e-01 (+0e+00,7e-01) |  2: 1.5e-01  0: 1.5e-01 | 1.5e-01 1.5e-01   1.00   | 12.3  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=3,eval=120)
+best function value 0.3476676791906357 at evaluation 100
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1612421908092 (Thu Feb 04 17:58:28 AEDT 2021)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 3.6858050525188446e-01 (+0e+00,6e-01) |  1: 1.5e-01  0: 1.4e-01 | 1.5e-01 1.5e-01   1.00   |  1.8  0.0 
+    3(40),    121: 3.3764714002609253e-01 (+0e+00,7e-01) |  0: 2.2e-01  3: 2.2e-01 | 2.2e-01 2.2e-01   1.00   | 11.2  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=3,eval=120)
+best function value 0.33764714002609253 at evaluation 81
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394073121 (Mon Mar 22 17:21:13 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.6  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7384614124894142 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394073679 (Mon Mar 22 17:21:13 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.3  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.745888669975102 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394074030 (Mon Mar 22 17:21:14 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.3  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7412489391863346 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394074295 (Mon Mar 22 17:21:14 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.2  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.741857080720365 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394074528 (Mon Mar 22 17:21:14 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.2  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.6987552009522915 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394074710 (Mon Mar 22 17:21:14 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.2  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.719397809356451 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394226149 (Mon Mar 22 17:23:46 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.6  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7430116757750511 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394226786 (Mon Mar 22 17:23:46 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+8e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.3  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7617651773616672 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394227045 (Mon Mar 22 17:23:47 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.2  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7494459971785545 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394227242 (Mon Mar 22 17:23:47 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.3  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7451768098399043 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394227501 (Mon Mar 22 17:23:47 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.2  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7388830650597811 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394227658 (Mon Mar 22 17:23:47 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.2  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7382922191172838 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394244521 (Mon Mar 22 17:24:04 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.6  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.748216942884028 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394245136 (Mon Mar 22 17:24:05 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+8e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.2  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7510992987081409 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394245374 (Mon Mar 22 17:24:05 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.2  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7324908226728439 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394245549 (Mon Mar 22 17:24:05 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+8e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.2  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7593116462230682 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394245732 (Mon Mar 22 17:24:05 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.1  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7351492550224066 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394245879 (Mon Mar 22 17:24:05 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.1  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7368636727333069 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394257488 (Mon Mar 22 17:24:17 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.7  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7418275745585561 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394258149 (Mon Mar 22 17:24:18 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+8e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.2  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7531681647524238 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394258382 (Mon Mar 22 17:24:18 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.2  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7425205558538437 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394258563 (Mon Mar 22 17:24:18 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.2  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7496558949351311 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394258749 (Mon Mar 22 17:24:18 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+8e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.1  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7544442666694522 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394258893 (Mon Mar 22 17:24:18 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+7e-01,0e+00) |  0: 1.0e-01  0: 1.0e-01 | 1.0e-01 1.0e-01   1.00   |  0.1  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.7367844823747873 at evaluation 1
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394310211 (Mon Mar 22 17:25:10 AEDT 2021)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 7.1111816912889480e-01 (+0e+00,2e-01) |  3: 1.6e-01  1: 1.6e-01 | 1.6e-01 1.6e-01   1.00   |  5.5  0.0 
+   10(40),    401: 6.6213063895702360e-01 (+0e+00,3e-01) |  1: 1.3e-01  0: 1.3e-01 | 1.3e-01 1.3e-01   1.00   | 40.8  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=10,eval=400)
+best function value 0.6621306389570236 at evaluation 397
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394351036 (Mon Mar 22 17:25:51 AEDT 2021)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 7.3626192379742860e-01 (+0e+00,1e-01) |  3: 1.1e-01  1: 1.1e-01 | 1.1e-01 1.1e-01   1.00   |  4.3  0.0 
+   10(40),    401: 6.8919876217842100e-01 (-6e-02,3e-01) |  3: 1.6e-01  0: 1.6e-01 | 1.6e-01 1.6e-01   1.00   | 40.0  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=10,eval=400)
+best function value 0.6259489059448242 at evaluation 153
+(4,40)-CMA-ES(mu_eff=3.3), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616394391065 (Mon Mar 22 17:26:31 AEDT 2021)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 7.2886901907622810e-01 (+0e+00,2e-01) |  1: 1.1e-01  2: 1.1e-01 | 1.1e-01 1.1e-01   1.00   |  4.4  0.0 
+(4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616468746773 (Tue Mar 23 14:05:46 AEDT 2021)
+    0( 1),      1: 0.0000000000000000e+00 (+0e+00,0e+00) |  0: 1.0e-04  0: 1.0e-04 | 1.0e-04 1.0e-04   1.00   |  0.1  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=0,eval=0)
+best function value 0.0 at evaluation 1
+(4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616468795877 (Tue Mar 23 14:06:35 AEDT 2021)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 8.9727103710174560e-01 (+0e+00,6e-02) |  0: 9.3e-05  2: 9.3e-05 | 9.3e-05 9.3e-05   1.00   |  6.6  0.0 
+   11(40),    440: 8.8642686605453490e-01 (-1e-02,7e-02) |  1: 1.5e-04  0: 1.5e-04 | 1.5e-04 1.5e-04   1.00   | 52.6  0.0 
+   20(40),    801: 8.6578530073165890e-01 (-4e-03,7e-02) |  1: 1.7e-04  0: 1.7e-04 | 1.7e-04 1.7e-04   1.00   | 132.6  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=20,eval=800)
+best function value 0.8619967103004456 at evaluation 730
+(4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616468978622 (Tue Mar 23 14:09:38 AEDT 2021)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 4.5623481273651120e-02 (+0e+00,5e-02) |  2: 1.3e-04  3: 1.3e-04 | 1.3e-04 1.3e-04   1.00   |  6.2  0.0 
+   11(40),    440: 4.0352106094360350e-02 (-8e-04,8e-02) |  2: 9.4e-05  0: 9.4e-05 | 9.4e-05 9.4e-05   1.00   | 53.6  0.0 
+   20(40),    801: 3.7180185317993164e-02 (+0e+00,7e-02) |  2: 2.8e-05  0: 2.8e-05 | 2.8e-05 2.8e-05   1.00   | 88.0  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=20,eval=800)
+best function value 0.037180185317993164 at evaluation 798
+(4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616469431279 (Tue Mar 23 14:17:11 AEDT 2021)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 1.5535950660705566e-03 (+0e+00,1e-01) |  1: 1.1e-02  0: 1.1e-02 | 1.1e-02 1.1e-02   1.00   | 35.4  0.0 
+ CMA-ES warning: flat fitness landscape, consider reformulation of fitness, step-size increased
+ CMA-ES warning: flat fitness landscape, consider reformulation of fitness, step-size increased
+ CMA-ES warning: flat fitness landscape, consider reformulation of fitness, step-size increased
+   11(40),    440: 0.0000000000000000e+00 (+0e+00,5e-01) |  1: 2.3e-01  2: 2.3e-01 | 2.3e-01 2.3e-01   1.00   | 440.6  0.0 
+ CMA-ES warning: flat fitness landscape, consider reformulation of fitness, step-size increased
+   16(40),    641: 0.0000000000000000e+00 (+0e+00,6e-01) |  1: 2.8e-01  2: 2.8e-01 | 2.8e-01 2.8e-01   1.00   | 587.1  0.0 
+Terminated due to
+  TolFunHist: history of function value changes below stopTolFunHist=1.0E-13 (iter=16,eval=640)
+best function value 0.0 at evaluation 152
+(4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616479001747 (Tue Mar 23 16:56:41 AEDT 2021)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 5.4007768630981450e-04 (+0e+00,2e-01) |  2: 1.1e-02  0: 1.1e-02 | 1.1e-02 1.1e-02   1.00   | 42.7  0.0 
+   11(40),    440: 0.0000000000000000e+00 (+0e+00,2e-03) |  1: 2.5e-02  2: 2.5e-02 | 2.5e-02 2.5e-02   1.00   | 482.5  0.0 
+ CMA-ES warning: flat fitness landscape, consider reformulation of fitness, step-size increased
+ CMA-ES warning: flat fitness landscape, consider reformulation of fitness, step-size increased
+ CMA-ES warning: flat fitness landscape, consider reformulation of fitness, step-size increased
+ CMA-ES warning: flat fitness landscape, consider reformulation of fitness, step-size increased
+ CMA-ES warning: flat fitness landscape, consider reformulation of fitness, step-size increased
+ CMA-ES warning: flat fitness landscape, consider reformulation of fitness, step-size increased
+   18(40),    721: 0.0000000000000000e+00 (+0e+00,7e-01) |  3: 5.2e-01  2: 5.2e-01 | 5.2e-01 5.2e-01   1.00   | 2766.9  0.0 
+Terminated due to
+  TolFunHist: history of function value changes below stopTolFunHist=1.0E-13 (iter=18,eval=720)
+best function value 0.0 at evaluation 213
+(4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616483633673 (Tue Mar 23 18:13:53 AEDT 2021)
+(4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616484078766 (Tue Mar 23 18:21:18 AEDT 2021)
+(4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616484098720 (Tue Mar 23 18:21:38 AEDT 2021)
+(4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616484239456 (Tue Mar 23 18:23:59 AEDT 2021)
+(4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616484690316 (Tue Mar 23 18:31:30 AEDT 2021)
+(4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616484751845 (Tue Mar 23 18:32:31 AEDT 2021)
+(4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616484781944 (Tue Mar 23 18:33:01 AEDT 2021)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 7.1030855178833010e-04 (+0e+00,2e-01) |  1: 8.1e-03  0: 8.1e-03 | 8.1e-03 8.1e-03   1.00   | 172.7  0.0 
+(4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616485052126 (Tue Mar 23 18:37:32 AEDT 2021)
+(4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616485085022 (Tue Mar 23 18:38:05 AEDT 2021)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 1.6491293907165527e-02 (+0e+00,1e-01) |  4: 1.1e-02  1: 1.1e-02 | 1.1e-02 1.1e-02   1.00   | 285.3  0.0 
+   10(40),    401: 6.1708688735961910e-03 (+0e+00,2e-01) |  4: 2.6e-02  0: 2.6e-02 | 2.6e-02 2.6e-02   1.00   | 8085.4  0.0 
+Terminated due to
+  MaxIter: maximum number of iterations reached (iter=10,eval=400)
+best function value 0.006170868873596191 at evaluation 384
+(4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616493651689 (Tue Mar 23 21:00:51 AEDT 2021)
+(4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616493724350 (Tue Mar 23 21:02:04 AEDT 2021)
+(4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616500076219 (Tue Mar 23 22:47:56 AEDT 2021)
+Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
+    1(40),     40: 2.0040035247802734e-02 (+0e+00,1e-01) |  4: 9.5e-03  0: 9.5e-03 | 9.5e-03 9.5e-03   1.00   | 324.0  0.0 

@@ -1,6 +1,5 @@
 package generative.components;
 
-//import java.util.ArrayList;
 import processing.core.PVector;
 
 public class Spring{
@@ -19,6 +18,10 @@ public class Spring{
 	public float newSpringLenMult;
 	
 	float splitThreshold = 3f;
+	
+	//EVALUATION
+	float printabilityThreshold = 0.2f;
+	float printabilityScore = 1;
 	
 	public Spring(Cell _sp, Cell _ep) {
 		this.chromosome = _sp.chromosome;
@@ -182,33 +185,54 @@ public class Spring{
 
 	    return new PVector(x,y);
 	}
-
+	
+	/**
+	 * Applies forces to end point cells based on spring properties.
+	 */
+//	public void update() {
+//		// set rest length to the sum of the energies contained in connected cells
+//	    float rl = (this.sp.energy + this.ep.energy) * this.energyMult;
+//	    this.restLen = rl;
+//	    
+//	    PVector spToEp;
+//	    PVector epToSp;
+//	    
+//	    if (this.getLen() > this.restLen) {
+//			// contract spring
+//	    	// pull in ep
+//			spToEp = PVector.sub(this.sp.loc, this.ep.loc);
+//			
+//			// pull in sp
+//			epToSp = PVector.sub(this.ep.loc, this.sp.loc);
+//			
+//	    } else {
+//	    	// expand spring
+//	    	// push ep
+//			spToEp = PVector.sub(this.ep.loc, this.sp.loc);
+//			
+//			//push sp
+//			epToSp = PVector.sub(this.sp.loc, this.ep.loc);
+//
+//		}
+//	    spToEp.normalize();
+//		this.ep.applyForce(spToEp.mult((float) this.sprCoef));
+//		epToSp.normalize();
+//		this.sp.applyForce(epToSp.mult((float)this.sprCoef));
+//	}
 	public void update() {
 		// set rest length to the sum of the energies contained in connected cells
 	    float rl = (this.sp.energy + this.ep.energy) * this.energyMult;
 	    this.restLen = rl;
 	    
-	    if (this.getLen() > this.restLen) {
-			// contract spring
-	    	// pull in ep
-			PVector spToEp = PVector.sub(this.sp.loc, this.ep.loc);
-			spToEp.normalize();
-			this.ep.applyForce(spToEp.mult((float) this.sprCoef));
-			// pull in sp
-			PVector epToSp = PVector.sub(this.ep.loc, this.sp.loc);
-			epToSp.normalize();
-			this.sp.applyForce(epToSp.mult((float)this.sprCoef));
-	    } else {
-	    	// expand spring
-	    	// push ep
-			PVector spToEp = PVector.sub(this.ep.loc, this.sp.loc);
-			spToEp.normalize();
-			this.ep.applyForce(spToEp.mult((float)this.sprCoef));
-			
-			//push sp
-			PVector epToSp = PVector.sub(this.sp.loc, this.ep.loc);
-			epToSp.normalize();
-			this.sp.applyForce(epToSp.mult((float)this.sprCoef));
-		}
+	    float extension = this.getLen() - this.restLen;
+	    
+	    PVector force = PVector.sub(this.sp.loc, this.ep.loc);
+	    force.normalize();
+	    force.mult(extension * (float)this.sprCoef);
+	    this.ep.applyForce(force);
+	    force.mult(-1);
+	    this.sp.applyForce(force);
+	    
+	    
 	}
 }

@@ -1,11 +1,10 @@
 package generative.components;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 import processing.core.PVector;
 
-public class Environment implements Serializable{
+public class Environment{
 
 	long randSeed;
 	Random generator;
@@ -20,7 +19,7 @@ public class Environment implements Serializable{
 	float drag;
 	float[][] nutrientField;
 	int cols, rows;
-	static int width, height;
+	int width, height;
 	int resolution; //the size of the tiles
 	
 //	Colony colony;
@@ -35,7 +34,7 @@ public class Environment implements Serializable{
 	int numOfFoodSources = 5;
 	int foodSourceSizeMin;
 	int foodSourceSizeMax;
-	int totEnergyOfFoodSources = 50;
+//	int totEnergyOfFoodSources = 50;
 	float foodGrowthRate = 10;
 	float foodDecayRate = 0.05f;
 	
@@ -97,11 +96,13 @@ public Environment(int _width, int _height, int res, float _drag, int _numOfFs, 
 	//========COPY CONSTRUCTOR========
 	public Environment(Environment _e){
 		this.randSeed = _e.randSeedOut;
+		this.width = _e.width;
+		this.height = _e.height;
 		//    this.noiseSeed = _e.noiseSeed;
 
 		this.resolution = _e.resolution;
-		this.cols = width/this.resolution;
-		this.rows = height/this.resolution;
+		this.cols = this.width/this.resolution;
+		this.rows = this.height/this.resolution;
     
 		this.drag = _e.drag;
 
@@ -123,6 +124,13 @@ public Environment(int _width, int _height, int res, float _drag, int _numOfFs, 
 
   
 	// METHODS
+	public int getWidth() {
+		return this.width;
+	}
+	
+	public int getHeight() {
+		return this.height;
+	}
 	
 	public int getRows() {
 		return this.rows;
@@ -149,7 +157,27 @@ public Environment(int _width, int _height, int res, float _drag, int _numOfFs, 
 		return this.randSeedOut;
 	}
 	
+	public void setRandomSeed(long _rs) {
+		this.randSeed = _rs;
+		this.init();
+	}
+	
+	public String getParams() {
+		String size = "EnvSize=("+this.width+";"+this.height+")"+"\n";
+		String res = "EnvRes="+this.resolution+"\n";
+		String d = "EnvDrag="+this.drag+"\n";
+		String fss = "EnvFoodSources="+this.numOfFoodSources+"\n";
+		String fsSizeMin = "EnvFoodSourcesMin="+this.foodSourceSizeMin+"\n";
+		String fsSizeMax = "EnvFoodSourcesMax="+this.foodSourceSizeMax+"\n";
+		String fsGR = "EnvFoodSourceGR="+this.foodGrowthRate+"\n";
+		String fsDR = "EnvFoodSourcesDR="+this.foodDecayRate+"\n";
+		return size+res+d+fss+fsSizeMin+fsSizeMax+fsGR+fsDR;
+	}
+	
 	void init() {
+		if(this.width != this.height){
+			throw new ArithmeticException("width and height MUST be the same");
+		}
 		this.generator = new Random();
 		if(this.randSeed == -1){
 			long seed = this.generator.nextLong();
@@ -164,13 +192,13 @@ public Environment(int _width, int _height, int res, float _drag, int _numOfFs, 
     //define position of food sources.
 		if (this.initFS.size() == 0) {
 			for (int i = 0; i< this.numOfFoodSources; i++) {
-				FoodSource fs = new FoodSource(this.generator.nextInt(cols), this.generator.nextInt(rows), this.generator.nextInt(this.foodSourceSizeMax) + this.foodSourceSizeMin);
+				FoodSource fs = new FoodSource(this.generator.nextInt(cols), this.generator.nextInt(rows), this.generator.nextInt(this.foodSourceSizeMax - this.foodSourceSizeMin) + this.foodSourceSizeMin);
 				this.initFS.add(fs);
 			}
 		}
 		this.foodSources = initFS;
 		this.timestep = 0;
-	}
+	}//init
 	
 	public void setfoodDecayRate(float rate) {
 		this.foodDecayRate = rate;
@@ -190,10 +218,10 @@ public Environment(int _width, int _height, int res, float _drag, int _numOfFs, 
 			FoodSource fs = this.foodSources.get(i);
 			int col = fs.col;
 			int row = fs.row;
-			if (this.timestep % this.foodGrowthRate == 0 && fs.totalEnergy > 0) {
-				newNutrientField[col][row] += 1f;
-//				this.nutrientField[col][row] += 1f;
-				fs.totalEnergy--;
+
+			if (fs.totalEnergy > 0) {
+				newNutrientField[col][row] += 1f/this.foodGrowthRate;
+				fs.totalEnergy-=(1f/this.foodGrowthRate);
 			}
 			
 			if (fs.totalEnergy <=0) {
@@ -201,13 +229,7 @@ public Environment(int _width, int _height, int res, float _drag, int _numOfFs, 
 				this.foodSources.remove(i);
 				
 				// Create a new food source
-				FoodSource newFs = new FoodSource(this.generator.nextInt(cols), this.generator.nextInt(rows), totEnergyOfFoodSources);
-//				for (Organism o : c.organisms) {
-//					while (newFs.inOrganism(o, this.resolution)) {
-//						newFs.col = this.generator.nextInt(cols);
-//						newFs.row = this.generator.nextInt(rows);
-//					}
-//				}
+				FoodSource newFs = new FoodSource(this.generator.nextInt(cols), this.generator.nextInt(rows), this.generator.nextInt(this.foodSourceSizeMax - this.foodSourceSizeMin) + this.foodSourceSizeMin);
 
 				this.foodSources.add(newFs);
 			}

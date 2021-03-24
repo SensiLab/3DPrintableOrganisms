@@ -1,7 +1,5 @@
 package generative.components;
 
-//import java.io.Serializable;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -89,7 +87,6 @@ public class Colony3D{
 //			outputWriter.write("All layers should follow here!!\n");
 			outputWriter.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		// make every organism a string
@@ -115,23 +112,7 @@ public class Colony3D{
 	    for(int i = 0; i < allOrgs.size(); i++){
 	      stringsOut[i] = allOrgs.get(i);
 	    }
-	    
-//	    // println(stringsOut);
-//	    saveStrings(fileName, stringsOut);
-		
+	    		
 	}
-	
-
-//	public void printColony() {
-//		// Initialise GCode
-//		GCode gc = new GCode();
-//		
-//		// Set gcode parameters (to be added later)
-//		
-//		// scale 3D colony
-//		Colony3D scaled = this.
-//		
-//		
-//	}
 	
 }

@@ -29,6 +29,10 @@ public class Organism implements Serializable{
 	float newOrgEnergy;
 	float orgInitEnergy;
 	
+	//EVALUATION
+	float diameterFactor = 1;
+	float minPrintDiameter = 5f;
+	
 	// CONSTANTS
 	float diffusionRate = 0.1f; //This is currently set as a constant
 	float energyLoss = 0.05f;
@@ -120,6 +124,10 @@ public class Organism implements Serializable{
 		this.cells.add(position, c);
 	}
 	
+	public int size() {
+		return this.cells.size();
+	}
+	
 	void init() {
 		if (this.cells.size() < 1) {
 			// If the new organism is initialised from scratch
@@ -182,7 +190,8 @@ public class Organism implements Serializable{
 		Spring last_s = new Spring(last, first);
 		last_s.setRestLen(last.loc.dist(first.loc));
 		this.springs.add(last_s);
-	}
+	}//connectCells
+	
 	
 	public Chromosome getChromosome() {
 		return this.chromosome;
@@ -225,7 +234,6 @@ public class Organism implements Serializable{
 	public ArrayList<Spring> getSprings(){
 		return this.springs;
 	}
-	
 	
 	/**
 	 * Removes cell and its adjacent springs.
@@ -407,20 +415,6 @@ public class Organism implements Serializable{
 	    	  current_cell--;
 	      }
 	    }
-	}
-	
-	/**
-	 * apply attraction force to all the cells in the organism
-	 */
-	public void applyAttraction() {
-		for (int i = 0; i < this.cells.size() - 1; i++) {
-			Cell c = this.cells.get(i);
-			for (int j = i+1; j < this.cells.size(); j++) {
-				Cell other = this.cells.get(j);
-				if (c.loc.dist(other.loc) < c.attrRad) c.attract(other);
-				if (other.loc.dist(c.loc) < other.attrRad) other.attract(c);
-			}
-		}
 	}
 	
 	/**
@@ -722,42 +716,7 @@ public class Organism implements Serializable{
 		}
 		return sorted;
 	}
-	
-//	public static ArrayList<PVector> polarSort(ArrayList<PVector> pts){
-//		//make a copy of pts array
-//		ArrayList<PVector> ptsCopy = new ArrayList<PVector>();
-//		for (PVector p : pts) ptsCopy.add(new PVector(p.x, p.y));
-//		// remove duplicates
-//		for(int i = 0; i < ptsCopy.size()-1; i++) {
-//			float ix = ptsCopy.get(i).x;
-//			float iy = ptsCopy.get(i).y;
-//			for(int j = i+1; j < ptsCopy.size(); j++) {
-//				float jx = ptsCopy.get(j).x;
-//				float jy = ptsCopy.get(j).y;
-//				if(ix == jx && iy ==jy) {
-//					ptsCopy.remove(j);
-//				}
-//			}
-//		}
-//		// ArrayList<PVector> points = removeDuplicates(ptsCopy);
-//		//initialise sorted array
-////		ArrayList<PVector> sorted = new ArrayList<PVector>();
-//
-//		//get bottomMost
-//		PVector bm = bottomMost(ptsCopy);
-//
-////		//add bm to sorted
-////		sorted.add(bm);
-//
-//		//remove bm from pts copy
-//		ptsCopy.remove(bm);
-//		List<PVector> sortedPts = ptsCopy;
-//		for(PVector a : sortedPts) {
-//		Collections.sort(sortedPts, (a,b) -> {
-//			
-//		};
-//		}
-//	}
+
 	
 	public ArrayList<PVector> getConvexHull() {
 		// Get all points in organism
@@ -808,6 +767,7 @@ public class Organism implements Serializable{
 		return hull;
 	}
 	
+	
 	public float getConvexHullPerimeter() {
 		ArrayList<PVector> convexHull = this.getConvexHull();
 		float perimeter = 0f;
@@ -820,11 +780,60 @@ public class Organism implements Serializable{
 		return perimeter;
 	}
 	
+	
+	public PVector getHullCentroid() {
+		ArrayList<PVector> convexHull = this.getConvexHull();
+		float x = 0;
+		float y = 0;
+		for(PVector p : convexHull) {
+			x+=p.x;
+			y+=p.y;
+		}
+		x/=convexHull.size();
+		y/=convexHull.size();
+		return new PVector(x,y);
+	}
+	
+	
+	
 	public void addEnergy(float e) {
 		for (Cell c : this.cells) {
 			c.energy+=e/this.cells.size();
 		}
 	}
+	
+	public float minDiameter(){
+		ArrayList<PVector> hull = this.getConvexHull();
+		  // println(" called");
+		ArrayList<PVector[]> edges = new ArrayList<PVector[]>();
+		for(int i = 0; i < hull.size() - 1; i++) {
+			PVector[] edge = {hull.get(i), hull.get(i+1)};
+			edges.add(edge);
+		}
+		PVector[] lastEdge = {hull.get(hull.size() - 1), hull.get(0)};
+		edges.add(lastEdge);
+		  
+		ArrayList<Float> diameters = new ArrayList<Float>();
+		for(PVector[] l : edges){
+			float d = Simulation.maxLinePointDist(l,hull);
+			diameters.add(d);
+		}
+		Collections.sort(diameters, null);
+		return diameters.get(0);
+
+	}
+	
+	
+	void updateDiameterFactor() {
+		float d = this.minDiameter();
+		if(d >= this.minPrintDiameter) {
+			this.diameterFactor = 1;
+		} else {
+			this.diameterFactor =  1/this.minPrintDiameter;
+		}
+
+	}
+	
 	
 	/**
 	 * Update method for organism
@@ -858,9 +867,10 @@ public class Organism implements Serializable{
 	        if (s.getLen() >= (s.sp.maxEnergy + s.ep.maxEnergy) * s.splitThreshold)
 	        	this.splitSpring(i);
 		}
+		
+		
 
 		for (Spring s : this.springs) {
-	        //s.absorbLight(e);
 			s.update();
 		}
 		
@@ -880,7 +890,7 @@ public class Organism implements Serializable{
 //				float newMaxVel = Math.min(Math.max(MathLib.sigmoid(this.cells.size(), c.maxVel, this.maxSize, -0.1f), c.minVel), c.maxVel);
 //		        c.setMaxVel(newMaxVel);
 				c.addDrag(_e);
-		        c.update(maxX, maxY);
+		        c.update(_e);
 			}
 		}
 	} //update

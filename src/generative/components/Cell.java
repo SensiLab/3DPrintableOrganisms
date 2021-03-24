@@ -26,7 +26,7 @@ public class Cell{
 	//CONSTANTS
 	float costOfLiving = 0.001f;
 	int seekDist = 3;
-	public float attrRad = 150f;
+//	public float attrRad = 150f;
 	float attrForce = 0.005f;
 	float repRad = 5f;
 	float minRepRad = 3f;
@@ -71,7 +71,7 @@ public class Cell{
 	    this.vel = new PVector(0, 0);
 	    this.loc = new PVector(x, y);
 
-	    this.attrRad = _attrRad;
+//	    this.attrRad = _attrRad;
 	    this.attrForce = _attrForce;
 	    this.repRad = _repRad;
 	    this.repForce = _repForce;	    
@@ -87,7 +87,7 @@ public class Cell{
 	    float z = c.loc.z;
 	    this.loc = new PVector(x,y,z);
 
-	    this.attrRad = c.attrRad;
+//	    this.attrRad = c.attrRad;
 	    this.attrForce = c.attrForce;
 	    this.repRad = c.repRad;
 	    this.repForce = c.repForce;
@@ -105,9 +105,9 @@ public class Cell{
 	//------------METHODS
 
 	//update
-	public void update(int maxX, int maxY) {
+	public void update(Environment _e) {
 		//check borders
-		this.borders(maxX,  maxY);
+		this.borders(_e.width,  _e.height);
 		
 		// update velocity
 		this.vel.add(this.acc);
@@ -180,9 +180,9 @@ public class Cell{
 		this.costOfLiving = c;
 	}
 	
-	public void setAttrRadius(float r) {
-		this.attrRad = r;
-	}
+//	public void setAttrRadius(float r) {
+//		this.attrRad = r;
+//	}
 	
 	public void setRepForce(float f) {
 		this.repForce = f;
@@ -414,5 +414,9 @@ public class Cell{
 	      this.vel.y *= -1;
 	    }
 	  } // borders
+	  
+	  public void noAccess(Environment e) {
+		  
+	  }
 
 }

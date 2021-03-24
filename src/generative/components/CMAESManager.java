@@ -5,399 +5,22 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 //import java.util.ArrayList;
 //import java.util.Arrays;
-import java.util.Date;
+//import java.util.Date;
 import java.util.Random;
+
+import generative.components.fitness.*;
+//import generative.components.fitness.FitnessFunctionTemplate;
 
 import fr.inria.optimization.cmaes.CMAEvolutionStrategy;
 import fr.inria.optimization.cmaes.CMAParameters;
 import fr.inria.optimization.cmaes.fitness.IObjectiveFunction;
 //import generative.components.examples.Printability;
+import processing.core.PVector;
 
-/*
- * Extends the IObjectiveFunction interface to provide readable output
- * for partial fitness metrics
- */
-interface FitnessFunction extends IObjectiveFunction{
-	public long envRandomSeed();
-	public void setTarget(double _t);
-	public void setEnvironment(Environment _e);
-	public void setObjectSize(int _s);
-	public void setObjectWarmup(int _w);
-	public double getTarget();
-	
-}
-
-class FitnessFunctionTemplate{
-	int objectSize;
-	int objectWarmup;
-	Environment e;
-	double target;
-	
-	public void setObjectSize(int _size) {
-		this.objectSize = _size;
-	}
-	
-	public void setObjectWarmup(int _warmup) {
-		this.objectWarmup = _warmup;
-	}
-	
-	public void setEnvironment(Environment _e) {
-		this.e = _e;
-	}
-	
-	public long envRandomSeed() {
-		return this.e.getRandomSeed();
-	}
-	
-	public void setTarget(double _t) {
-		this.target = _t;
-	}
-	
-	public double getTarget() {
-		return this.target;
-	}
-}
-
-/*
- * Measures fitness based on Printability and Complexity, weighted equally
- */
-class FullFitness extends FitnessFunctionTemplate implements FitnessFunction{
-	
-//	Environment e;
-//	int objectSize;
-//	int objectWarmup;
-//	public float printability;
-//	FullFitness(Environment _e, int _size, int _warmup) {
-//		this.e = _e;
-//		this.objectSize = _size;
-//		this.objectWarmup = _warmup;
-//	}
-//	
-//	FullFitness() {
-//		
-//	}
-	
-//	public void setEnv(Environment _e) {
-//		this.e = _e;
-//	}
-	
-//	public long envRandomSeed(Environment _e) {
-//		return this.e.getRandomSeed();
-//	}
-	
-	public double valueOf (double[] x) {
-		
-		// Initialise result variable
-		double res = 0;		
-		
-		try{			
-			// create chromosome from x
-			Environment env = new Environment(this.e);
-			Chromosome c = new Chromosome(x);
-			
-			// Initialise simulation
-			Simulation s = new Simulation(c, env, this.objectSize,this.objectWarmup);
-			// Generate object
-			s.generate();
-			
-			// Calculate printability
-			// High is good
-			float printability = s.printability();
-			
-			// add printability to overall results
-			res+=(double)(printability);
-			
-			// calculate complexity
-			// High is good
-			float complexity = s.complexity();
-			
-			//add complexity to overall results
-			res+=(double)(complexity);
-			
-			// average the score
-			res/=2;
-			
-			// incorporate the rate of completion
-			res = res * s.isComplete();	
-			
-		}
-		catch(Exception e){
-			System.out.println("Evironment, object size and object warmup values need to be set!");			
-		}
-		return 1 - res;
-	}
-	
-	public boolean isFeasible(double[] x) {
-		for(int i = 0; i < x.length; i++) {
-			if(x[i] < 0 || x[i] > 1) return false;
-		}
-		return true;
-	}
-}
-
-class Convexity extends FitnessFunctionTemplate implements FitnessFunction{
-	
-//	Environment e;
-//	int objectSize;
-//	int objectWarmup;
-//	Convexity(Environment _e, int _size, int _warmup) {
-//		this.e = _e;
-//		this.objectSize = _size;
-//		this.objectWarmup = _warmup;
-//	}
-//	
-//	Convexity(){
-//		
-//	}
-//	
-//	public void setEnv(Environment _e) {
-//		this.e = _e;
-//	}
-	
-//	public long envRandomSeed(Environment _e) {
-//		return this.e.getRandomSeed();
-//	}
-	
-	public double valueOf (double[] x) {
-		
-		// Initialise result variable
-		double res = 0;
-		Simulation s;
-		
-		try {
-		
-			// create chromosome from x
-			Environment env = new Environment(this.e);
-			Chromosome c = new Chromosome(x);
-	//		
-			// Initialise simulation
-			s = new Simulation(c, env, this.objectSize,this.objectWarmup);
-			
-			// Generate object
-			s.generate();
-			
-			// calculate convexity
-			//Low is good
-			res += s.convexity();
-		}
-		catch(Exception e) {
-			System.out.println("Evironment, object size and object warmup values need to be set!");
-		}
-		
-		return res;
-		
-		
-		
-	}
-	
-	public boolean isFeasible(double[] x) {
-		for(int i = 0; i < x.length; i++) {
-			if(x[i] < 0 || x[i] > 1) return false;
-		}
-		return true;
-	}
-}
-
-class AngleDispersion extends FitnessFunctionTemplate implements FitnessFunction{
-	
-//	Environment e;
-//	int objectSize;
-//	int objectWarmup;
-//	AngleDispersion(Environment _e, int _size, int _warmup) {
-//		this.e = _e;
-//		this.objectSize = _size;
-//		this.objectWarmup = _warmup;
-//	}
-//	
-//	AngleDispersion(){
-//		
-//	}
-//	
-//	public void setEnv(Environment _e) {
-//		this.e = _e;
-//	}
-	
-//	public long envRandomSeed(Environment _e) {
-//		return this.e.getRandomSeed();
-//	}
-	
-	public double valueOf (double[] x) {
-		
-		// Initialise result variable
-		double res = 0;
-		
-		try {
-		
-			// create chromosome from x
-			Environment env = new Environment(this.e);
-			Chromosome c = new Chromosome(x);
-			
-			// Initialise simulation
-			Simulation s = new Simulation(c, env, this.objectSize,this.objectWarmup);
-			
-			// Generate object
-			s.generate();
-			
-			// Add angle dispersion to overall result
-			// High is good
-			res+=s.angleDispersionCoefficient();
-		}
-		catch(Exception e) {
-			System.out.println("Evironment, object size and object warmup values need to be set!");
-		}
-		
-		return (1 - res);
-		
-	}
-	
-	public boolean isFeasible(double[] x) {
-		for(int i = 0; i < x.length; i++) {
-			if(x[i] < 0 || x[i] > 1) return false;
-		}
-		return true;
-	}
-}
-
-/*
- * Measures Printability
- */
-class Printability extends FitnessFunctionTemplate implements FitnessFunction{
-	
-//	Environment e;
-//	int objectSize;
-//	int objectWarmup;
-//	double target;
-//	public float printability;
-//	Printability(Environment _e, int _size, int _warmup) {
-//		this.e = _e;
-//		this.objectSize = _size;
-//		this.objectWarmup = _warmup;
-//		this.target = 1;
-//		
-//	}
-//	
-//	Printability(Environment _e, int _size, int _warmup, double _target){
-//		this.e = _e;
-//		this.objectSize = _size;
-//		this.objectWarmup = _warmup;
-//		this.target = _target;
-//	}
-//	
-//	Printability(){
-//		
-//	}
-	
-//	public void setEnv(Environment _e) {
-//		this.e = _e;
-//	}
-	
-	public void setTarget(double _t) {
-		this.target = _t;
-	}
-	
-//	public long envRandomSeed() {
-//		return this.e.getRandomSeed();
-//	}
-	
-	
-	public double valueOf (double[] x) {
-		
-		// Initialise result variable
-		double res = 0;
-		
-		try {
-			// create chromosome from x
-			Environment env = new Environment(this.e);
-			Chromosome c = new Chromosome(x);
-//		
-			// Initialise simulation
-			Simulation s = new Simulation(c, env, this.objectSize,this.objectWarmup);
-		
-			// Generate object
-			s.generate();
-		
-			// Calculate printability
-			//High is good so 1 - print is added to result
-			float printability = s.printability();
-		
-			// add printability to overall results
-			res+=printability;
-		}
-		catch(Exception e) {
-			System.out.println("Evironment, object size and object warmup values need to be set!");
-		}
-		
-		return Math.abs(this.target - res);
-	}
-	
-	public boolean isFeasible(double[] x) {
-		for(int i = 0; i < x.length; i++) {
-			if(x[i] < 0 || x[i] > 1) return false;
-		}
-		return true;
-	}
-}
-
-/*
- * Complexity measure, based on convexity and angle dispersion
- */
-class Complexity extends FitnessFunctionTemplate implements FitnessFunction{
-	
-//	Environment e;
-//	int objectSize;
-//	int objectWarmup;
-//	Complexity(Environment _e, int _size, int _warmup) {
-//		this.e = _e;
-//		this.objectSize = _size;
-//		this.objectWarmup = _warmup;
-//	}
-//	
-//	Complexity(){
-//		
-//	}
-//	
-//	public void setEnv(Environment _e) {
-//		this.e = _e;
-//	}
-	
-//	public long envRandomSeed(Environment _e) {
-//		return this.e.getRandomSeed();
-//	}
-	
-	public double valueOf (double[] x) {
-		
-		double res = 0;
-		
-		try {
-		// create chromosome from x
-		Environment env = new Environment(this.e);
-		Chromosome c = new Chromosome(x);
-//		
-		// Initialise simulation
-		Simulation s = new Simulation(c, env, this.objectSize,this.objectWarmup);
-		
-		// Generate object
-		s.generate();
-		
-		res+=(double) s.complexity();
-		}
-		catch(Exception e) {
-			System.out.println("Evironment, object size and object warmup values need to be set!");
-		}
-		
-		return 1 - res;
-	}
-	
-	public boolean isFeasible(double[] x) {
-		for(int i = 0; i < x.length; i++) {
-			if(x[i] < 0 || x[i] > 1) return false;
-		}
-		return true;
-	}
-}
 
 public class CMAESManager {
 	
@@ -412,7 +35,7 @@ public class CMAESManager {
 	int objectSize = 500;
 	int objectWarmup = 20;
 	
-	FitnessFunction fitfun; //0 = Full fit fun, 1 = printability, 2 = complexity
+	public FitnessFunction fitfun; //0 = Full fit fun, 1 = printability, 2 = complexity
 	
 	double[] currentBest;
 	
@@ -467,6 +90,12 @@ public class CMAESManager {
 		case 4:
 			this.fitfun =  new AngleDispersion();
 			break;
+		case 5:
+			this.fitfun =  new Coverage();
+			break;
+		case 6:
+			this.fitfun =  new RefinePrint();
+			break;
 		default:
 			System.out.println("The value selected for Fitness Function is out of range...\n"
 					+ "Select one of the following:\n"
@@ -475,10 +104,28 @@ public class CMAESManager {
 					+ "2.- Complexity\n"
 					+ "3.- Convexity\n"
 					+ "4.- Angle Dispersion\n"
+					+ "5.- Coverage\n"
+					+ "6.- RefinePrint\n"
 					+ "FullFitness is returned as default");
 			this.fitfun = new FullFitness();
 			
 		}
+		
+	}
+	
+	public void setSimLocations(ArrayList<PVector> _locations) {
+		this.fitfun.setObjectLocations(_locations);
+	}
+	
+	public void getFitnessFunction() {
+		Class ff = this.fitfun.getClass();
+		System.out.println("Fitness Function type is "+ff.getName());
+	}
+	
+	public void setFitFunWeights(double pw) {
+		Class ff = this.fitfun.getClass();
+		if (!ff.getName().contains("Full")) return;
+		this.fitfun.setPrintWeight(pw);
 		
 	}
 
@@ -493,14 +140,14 @@ public class CMAESManager {
 	 * @param _popSize: (a.k.a. Lambda) int size of the population per generation
 	 * @param _mu: int number of parents for recombination
 	 * @param _rT: int recombination type default: superlinear (0: equal, 1: linear, 2: superlinear)
-	 * @param +ccov: double learning rate
+	 * @param _ccov: double learning rate
 	 * @param destinationFolder
 	 * @param _filePrefix
 	 */
 	public void evolveFromParent(double[] _parent, double _stDev, int _mI, double _sF, int _popSize,int _mu, int _rT, double _ccov, String destinationFolder, String _filePrefix) {
 		
 //		fitfun = selectFitnessFunction(_fitfun, _e);
-		
+		this.getFitnessFunction();
 		// new a CMA-ES and set some initial values
 		CMAEvolutionStrategy cma = new CMAEvolutionStrategy();
 		cma.readProperties(); // read options, see file CMAEvolutionStrategy.properties
@@ -526,6 +173,7 @@ public class CMAESManager {
 		default:
 			recType = CMAParameters.RecombinationType.superlinear;
 		}
+		// _mu sets the number of parents.
 		cma.parameters.setRecombination(_mu, recType);
 		cma.parameters.setCcov(_ccov);
 //		cma.options.stopTolFun = 0.01;
@@ -539,22 +187,31 @@ public class CMAESManager {
 		LocalDateTime now = LocalDateTime.now();
 		String date = dtf.format(now);
 		String path = destinationFolder;
-		String fitnessDataFile = _filePrefix + "_" + date+ "_FitnessData";
-		String genesDataFile =  _filePrefix + "_" + date + "_GenesData_";
+		String paramLogFile = _filePrefix + "_" + date + "_ParamLog";
+		String fitnessDataFile = _filePrefix + "_" + date + "_FitnessData";
+		String genesDataFile =  _filePrefix + "_" + date + "_GenesData";
 		Long envRandSeed = this.fitfun.envRandomSeed();
-						
+			
+		// Initialise paramLog
+		String paramLog = "parent=" + Arrays.toString(_parent)+"\n"
+				+ "CMARandomSeed="+cma.getSeed()+"\n"
+				+ "init_st_dev=" + _stDev+"\n"
+				+ "step_size=" + _ccov+"\n"
+				+ "fitness_target="+ this.fitfun.getTarget() +"\n"
+				+ "ENVRandomSeed=" + envRandSeed
+				+ e.getParams(); 
 		// Initialise output data (fitness)
-		String fitnessData = "parent=" + Arrays.toString(_parent) + ", init_st_dev=" + _stDev + ", step_size=" + _ccov + ", fitness_target="+ this.fitfun.getTarget() +"\n";
+//		String fitnessData = "parent=" + Arrays.toString(_parent) + ",init_st_dev=" + _stDev + ",step_size=" + _ccov + ",fitness_target="+ this.fitfun.getTarget() +"\n";
 
-		fitnessData+="(CMARandomSeed=" + cma.getSeed() + ", ENVRandomSeed=" + envRandSeed + ", "+ new Date().toString() + ")\n";
+//		fitnessData+="(CMARandomSeed="+cma.getSeed() + ",ENVRandomSeed=" + envRandSeed + "," + new Date().toString() + ")\n";
 		// Add header
-		fitnessData+="iteration, evaluations, sigma, axisratio, bestever_fitness, best_fitness, median_fitness, worst_fitness, mindii, "
-				+ "idxmaxSD, maxSD, idxminSD, minSD \n";
+		String fitnessData ="iteration,evaluations,sigma,axisratio,bestever_fitness,best_fitness,median_fitness,worst_fitness,mindii,"
+				+ "idxmaxSD,maxSD,idxminSD,minSD\n";
 				
 		// Initialise output data (genetic information)
-		String genesData = "(randomSeed=" + cma.getSeed() + ", ENVRandomSeed=" + envRandSeed + ", " + new Date().toString() + ")\n";
+//		String genesData = "(randomSeed=" + cma.getSeed() + ",ENVRandomSeed=" + envRandSeed + "," + new Date().toString() + ")\n";
 		// Add header
-		genesData+="iteration, evaluations, sigma, void, fitness_of_recent_best, x_of_recent_best(1...dimension) \n";
+		String genesData ="iteration,evaluations,sigma,void,fitness_of_recent_best,x_of_recent_best(1...dimension)\n";
 
 				
 		// iteration loop
@@ -595,6 +252,7 @@ public class CMAESManager {
 
 		// final output		
 		// write data strings to output file
+		saveData(path, paramLogFile, paramLog);
 		saveData(path, fitnessDataFile, fitnessData);
 		saveData(path, genesDataFile, genesData);
 
@@ -616,21 +274,25 @@ public class CMAESManager {
 	 * @param _popSize: (a.k.a. Lambda) int size of the population per generation
 	 * @param _mu: int number of parents for recombination
 	 * @param _rT: int recombination type default: superlinear (0: equal, 1: linear, 2: superlinear)
-	 * @param _ccov: double learning rate
+	 * @param _ccov: double learning rate (Small _ccov = slow evolution)
 	 * @param destinationFolder
 	 * @param _filePrefix
 	 */
-	public void evolve(int _fitfun, Environment _e, int _mI, double _sF,  int _popSize, int _mu, int _rT, double _ccov, String destinationFolder, String _filePrefix) {
-//		IObjectiveFunction fitfun = this.fitfun;
+	public void evolve(int _fitfun, Environment _e, double _istd, int _mI, double _sF,  int _popSize, int _mu, int _rT, double _ccov, String destinationFolder, String _filePrefix) {
+		IObjectiveFunction fitfun = this.fitfun;
 		
 //		fitfun = selectFitnessFunction(_fitfun, _e); 
 		
 		double[] initialX = new double[5];
+		
 		for(int i = 0; i < initialX.length; i++) {
-			initialX[i] = new Random().nextDouble();
+			double parentMin = 0.45;
+			double parentMax = 0.55;
+			
+			initialX[i] = parentMin + (parentMax-parentMin) * new Random().nextDouble();
 		}
 		
-		this.evolveFromParent(initialX, 0.1, _mI, _sF, _popSize, _mu, _rT, _ccov, destinationFolder, _filePrefix);
+		this.evolveFromParent(initialX, _istd, _mI, _sF, _popSize, _mu, _rT, _ccov, destinationFolder, _filePrefix);
 
 	} //evolve
 	
@@ -654,43 +316,93 @@ public class CMAESManager {
 	
 	
 	
-	public void evolveMultiple(int _runs, int _gens, int _fitfunType, int _popSize, String _savePath) {
-		System.out.println("evolveMultiple has been called to run for "+_runs+" cycles");
-		
-		for(int i = 0; i < _runs; i++){			
-			
-			//Set environment
-			Environment runEnv = new Environment(600, 600, 15, 0.3f, 5, 5, 10, 10, 0.2f, -1);
-			
-			//Set file prefix
-			String filePrefix = String.format("%03d", i);
-			
-			//call evolve
-			this.evolve(_fitfunType, runEnv, _gens, -1, 50, 2, 1, 0.001, _savePath, filePrefix);
-		}
-		
-		
-	}
+//	public void evolveMultiple(int _runs, int _gens, int _fitfunType, int _popSize, String _savePath) {
+//		System.out.println("evolveMultiple has been called to run for "+_runs+" cycles");
+//		
+//		for(int i = 0; i < _runs; i++){			
+//			
+//			//Set environment
+//			Environment runEnv = new Environment(600, 600, 15, 0.3f, 5, 2, 7, 10, 0.1f, -1);
+//			
+//			//Set file prefix
+//			String filePrefix = String.format("%03d", i);
+//			
+//			//call evolve
+//			this.evolve(_fitfunType, runEnv, _gens, -1, _popSize, 4, 1, 0.001, _savePath, filePrefix);
+//		}
+//		
+//		
+//	}
 	
-	public void evolveMultiple(long[] envSeeds, int _gens, int _fitfunType, int _popSize, String _savePath) {
+//	public void evolveMultiple(long[] envSeeds, int _gens, int _fitfunType, int _popSize, String _savePath) {
+////		if(envSeeds.length != _runs) {
+////			System.out.println("Please make sure that the number of environment seeds ("+envSeeds.length+")\n matches the number of runs ("+_runs+")");
+////			return;
+////		}
+////		
+////		System.out.println("evolveMultiple has been called to run for "+_runs+" cycles");
+//		
+//		
+//		for(int i = 0; i < envSeeds.length; i++){			
+//			
+//			//Set environment
+//			Environment runEnv = new Environment(600, 600, 15, 0.3f, 5, 2, 7, 10, 0.1f, envSeeds[i]);
+//			
+//			this.setEnvironment(runEnv);
+//			
+//			ArrayList<PVector> locations = new ArrayList<PVector>();
+//			
+////			locations.add(new PVector(runEnv.getWidth() * .33f, runEnv.getHeight() * .33f));
+////			locations.add(new PVector(runEnv.getWidth() * .66f, runEnv.getHeight() * .33f));
+////			locations.add(new PVector(runEnv.getWidth() * .66f, runEnv.getHeight() * .66f));
+////			locations.add(new PVector(runEnv.getWidth() * .33f, runEnv.getHeight() * .66f));
+////			
+////			this.setSimLocations(locations);
+//			
+//			//Set file prefix
+//			String filePrefix = String.format("%03d", i);
+//			
+//			//call evolve
+//			this.evolve(_fitfunType, runEnv, _gens, -1, _popSize, 4, 1, 0.001, _savePath, filePrefix);
+////			this.evolve(_fitfunType, runEnv, _gens, -1, _popSize, 2, 1, 0.0001, _savePath, filePrefix);
+//			
+//			
+//			
+//		}
+//		
+//		
+//	}//evolve multiple with environment seeds
+	
+	public void evolveMultiple(long[] envSeeds, int firstSeed, int seeds, int _gens, int _fitfunType, int _popSize, int _mu,double _istd, double _ccov, String _savePath) {
 //		if(envSeeds.length != _runs) {
 //			System.out.println("Please make sure that the number of environment seeds ("+envSeeds.length+")\n matches the number of runs ("+_runs+")");
 //			return;
 //		}
 //		
 //		System.out.println("evolveMultiple has been called to run for "+_runs+" cycles");
+		Environment runEnv = this.e;
 		
-		
-		for(int i = 0; i < envSeeds.length; i++){			
+		for(int i = firstSeed; i < (firstSeed + seeds); i++){			
 			
 			//Set environment
-			Environment runEnv = new Environment(600, 600, 15, 0.3f, 5, 5, 10, 10, 0.2f, envSeeds[i]);
+//			Environment runEnv = new Environment(600, 600, 15, 0.3f, 5, 2, 7, 10, 0.1f, envSeeds[i]);
+			runEnv.setRandomSeed(envSeeds[i]);
+			this.setEnvironment(runEnv);
+			
+			ArrayList<PVector> locations = new ArrayList<PVector>();
+			
+//			locations.add(new PVector(runEnv.getWidth() * .33f, runEnv.getHeight() * .33f));
+//			locations.add(new PVector(runEnv.getWidth() * .66f, runEnv.getHeight() * .33f));
+//			locations.add(new PVector(runEnv.getWidth() * .66f, runEnv.getHeight() * .66f));
+//			locations.add(new PVector(runEnv.getWidth() * .33f, runEnv.getHeight() * .66f));
+//			
+//			this.setSimLocations(locations);
 			
 			//Set file prefix
 			String filePrefix = String.format("%03d", i);
 			
 			//call evolve
-			this.evolve(_fitfunType, runEnv, _gens, -1, _popSize, 2, 1, 0.001, _savePath, filePrefix);
+			this.evolve(_fitfunType, runEnv,_istd, _gens, -1, _popSize, _mu, 1, _ccov, _savePath, filePrefix);
 //			this.evolve(_fitfunType, runEnv, _gens, -1, _popSize, 2, 1, 0.0001, _savePath, filePrefix);
 			
 			

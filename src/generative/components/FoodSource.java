@@ -14,6 +14,10 @@ public class FoodSource implements Serializable{
 		this.row = _row;
 
 	    this.totalEnergy = _totalEnergy;
+	    
+//	    System.out.println("New food source:");
+//	    System.out.println("Loc: ["+this.col+", "+this.row+"]");
+//	    System.out.println("Total energy: "+this.totalEnergy);
 	}
 	
 	public float getTotalEnergy() {
