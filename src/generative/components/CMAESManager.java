@@ -13,6 +13,13 @@ import java.util.Arrays;
 import java.util.Random;
 
 import generative.components.fitness.*;
+//import generative.components.fitness.AngleDispersion;
+//import generative.components.fitness.Complexity;
+//import generative.components.fitness.Convexity;
+//import generative.components.fitness.Coverage;
+//import generative.components.fitness.FullFitness;
+//import generative.components.fitness.Printability;
+//import generative.components.fitness.RefinePrint;
 //import generative.components.fitness.FitnessFunctionTemplate;
 
 import fr.inria.optimization.cmaes.CMAEvolutionStrategy;
@@ -118,15 +125,14 @@ public class CMAESManager {
 	}
 	
 	public void getFitnessFunction() {
-		Class ff = this.fitfun.getClass();
-		System.out.println("Fitness Function type is "+ff.getName());
+//		Class ff = this.fitfun.getClass();
+		System.out.println("Fitness Function type is "+this.fitfun.getClass().getName());
 	}
 	
 	public void setFitFunWeights(double pw) {
-		Class ff = this.fitfun.getClass();
-		if (!ff.getName().contains("Full")) return;
-		this.fitfun.setPrintWeight(pw);
-		
+//		Class ff = this.fitfun.getClass();
+		if (!this.fitfun.getClass().getName().contains("Full")) return;
+		this.fitfun.setPrintWeight(pw);		
 	}
 
 
@@ -307,71 +313,12 @@ public class CMAESManager {
 			outputWriter.write(data);
 			outputWriter.close();
 		}catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 		
 	} // save data
-	
-	
-	
-//	public void evolveMultiple(int _runs, int _gens, int _fitfunType, int _popSize, String _savePath) {
-//		System.out.println("evolveMultiple has been called to run for "+_runs+" cycles");
-//		
-//		for(int i = 0; i < _runs; i++){			
-//			
-//			//Set environment
-//			Environment runEnv = new Environment(600, 600, 15, 0.3f, 5, 2, 7, 10, 0.1f, -1);
-//			
-//			//Set file prefix
-//			String filePrefix = String.format("%03d", i);
-//			
-//			//call evolve
-//			this.evolve(_fitfunType, runEnv, _gens, -1, _popSize, 4, 1, 0.001, _savePath, filePrefix);
-//		}
-//		
-//		
-//	}
-	
-//	public void evolveMultiple(long[] envSeeds, int _gens, int _fitfunType, int _popSize, String _savePath) {
-////		if(envSeeds.length != _runs) {
-////			System.out.println("Please make sure that the number of environment seeds ("+envSeeds.length+")\n matches the number of runs ("+_runs+")");
-////			return;
-////		}
-////		
-////		System.out.println("evolveMultiple has been called to run for "+_runs+" cycles");
-//		
-//		
-//		for(int i = 0; i < envSeeds.length; i++){			
-//			
-//			//Set environment
-//			Environment runEnv = new Environment(600, 600, 15, 0.3f, 5, 2, 7, 10, 0.1f, envSeeds[i]);
-//			
-//			this.setEnvironment(runEnv);
-//			
-//			ArrayList<PVector> locations = new ArrayList<PVector>();
-//			
-////			locations.add(new PVector(runEnv.getWidth() * .33f, runEnv.getHeight() * .33f));
-////			locations.add(new PVector(runEnv.getWidth() * .66f, runEnv.getHeight() * .33f));
-////			locations.add(new PVector(runEnv.getWidth() * .66f, runEnv.getHeight() * .66f));
-////			locations.add(new PVector(runEnv.getWidth() * .33f, runEnv.getHeight() * .66f));
-////			
-////			this.setSimLocations(locations);
-//			
-//			//Set file prefix
-//			String filePrefix = String.format("%03d", i);
-//			
-//			//call evolve
-//			this.evolve(_fitfunType, runEnv, _gens, -1, _popSize, 4, 1, 0.001, _savePath, filePrefix);
-////			this.evolve(_fitfunType, runEnv, _gens, -1, _popSize, 2, 1, 0.0001, _savePath, filePrefix);
-//			
-//			
-//			
-//		}
-//		
-//		
-//	}//evolve multiple with environment seeds
+
 	
 	public void evolveMultiple(long[] envSeeds, int firstSeed, int seeds, int _gens, int _fitfunType, int _popSize, int _mu,double _istd, double _ccov, String _savePath) {
 //		if(envSeeds.length != _runs) {
@@ -412,13 +359,5 @@ public class CMAESManager {
 		
 	}//evolve multiple with environment seeds
 	
-	public void refineParent(int _fitfun, Long _envSeed, double[] _parent, int _mI, double _sF, int _popSize,int _mu, int _rT, double _ccov, String destinationFolder, String _filePrefix){
-		// check fitness function
-		
-		//set small stdev as starting point
-		
-		//set target printability
-		
-	} //refine parent
 	
 }//class

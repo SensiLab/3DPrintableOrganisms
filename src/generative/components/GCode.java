@@ -32,8 +32,8 @@ public class GCode {
 	float flow_increments = 0.2f;
 	float print_speed;
 	float fan_speed;
-	float extruder_temp = 230f; //215 for PLA, 230 for PET
-	float bed_temp = 85f;  //60 for PLA, 85 for PET
+	float extruder_temp = 220f; //215 for PLA, 230 for PET
+	float bed_temp = 80f;  //60 for PLA, 85 for PET
 	
 	float print_output_x = 120;
 	float print_output_y = 120;
@@ -41,6 +41,8 @@ public class GCode {
 
 	int total_layers = 0;
 	int layer = 0;
+	
+	boolean timeLapse = false;
 	
 	//CONSTRUCTOR
 	public GCode(){
@@ -94,6 +96,10 @@ public class GCode {
 		}
 	}
 	
+	public void setTimeLapse(boolean tl) {
+		this.timeLapse = tl;
+	}
+	
 	void startPrint() {
 		gCommand(";START SIMULATION INFO");
 		gCommand(";=========================================");
@@ -124,7 +130,7 @@ public class GCode {
 		gCommand("M190 S"+bed_temp+" ; wait for bed temp");
 		gCommand("M109 S"+extruder_temp+" ; wait for extruder temp");
 		gCommand("G28 W ; home all without mesh bed level");
-		gCommand("G80 ; mesh bed leveling");
+		gCommand("G29 ; mesh bed leveling");
 		gCommand("G1 Y-3.0 F1000.0 ; go outside print area");
 		gCommand("G92 E0.0");
 		gCommand("G1 X60.0 E9.0 F1000.0 ; intro line");
@@ -141,6 +147,7 @@ public class GCode {
 		gCommand(";END OF PREAMBLE");
 		gCommand(";==========================================");
 		gCommand("");
+		
 
 	} //startPrint()
 	
@@ -177,6 +184,8 @@ public class GCode {
 	
 	void writeGcodeLayer(float layerNumber, Colony layer) {
 		
+		
+		
 	    gCommand(" ");
 	    gCommand(";-----------------");
 	    gCommand("; LAYER " + (int)(layerNumber) + " STARTS HERE");
@@ -187,8 +196,14 @@ public class GCode {
 		
 		float width = layer.getEnvironment().getWidth();
 		float height = layer.getEnvironment().getHeight();
+		float z;
 		
-		float z = this.layer_height * (layerNumber + 1);
+		if((int)(layerNumber) == 0) {
+			z = 0.15f;
+		} else {
+			z = this.layer_height * (layerNumber + 1);	
+		}
+		
 		
 		if(layerNumber<5) {
 			this.setMultiplier(1.25f);
@@ -206,6 +221,8 @@ public class GCode {
 		PVector origin = new PVector();
 		//--------------traverse all organisms
 		for (Organism org : layer.organisms) {
+			// PRIME NOZZLE
+			
 			int orgIndex = layer.organisms.indexOf(org);
 //			System.out.println("==========Layer #: "+layerNumber+" Organism: "+orgIndex+"==========");
 			//-------------traverse all edges starting from random edge
@@ -239,9 +256,9 @@ public class GCode {
 
 				float extrusion;
 				if(layerNumber >= 5) {
-					extrusion = extrude(sp, ep);
+					extrusion = extrude(sp, ep) * 1.15f;
 				}else {
-					extrusion = extrude(sp, ep) * 1.25f;
+					extrusion = extrude(sp, ep) * 1.3f;
 				}
 				
 //				System.out.println("Segment = "+j+" sp: ["+sp.x+", "+sp.y+"]"+" ep: ["+ep.x+", "+ep.y+"]"+" Dist = "+sp.dist(ep)+" Extrusion = "+extrusion);
@@ -252,46 +269,30 @@ public class GCode {
 					// go to starting point
 					gCommand("G1 X" + sp.x + " Y" + sp.y + " ;This is the initial point");
 					
-					setSpeed(1200);
+					setSpeed(800);
 					// get layer height
 					gCommand("G1 Z"+ z +" ; position nozzle at layer height");
-
-//					if(orgIndex==0) {
-//						gCommand("G1 E1.5000 F2100.00000");
-//					}else {
-//						gCommand("G1 E1.00000 F2100.00000");						
-//					}
-
-//					setSpeed(print_speed);
-
+					
+					if(this.timeLapse && layerNumber > 0) {
+						// prime
+						gCommand("G1 E6.0 F1500	;prime nozzle post timelapse snap");
+						//wait for move to finish
+						gCommand("G4 S0");
+					}
+					
+					// priming
+					gCommand("G1 E3.0 F1500	;prime the nozzle");
 
 					// go to next point
 					gCommand("G1 X" +ep.x + " Y" + ep.y + " E" + (extrusion * 1.0) + " ;This is the second point");
-//				} else if (j == org.springs.size() -1) {
-//				} else if (j == (newStart + max -1)%max) {
-					
-					
-					//extrusion = extrude(sp,origin,_ext_mult);
-					//println("Closing the cell");
-					//println("Extrusion: ", extrusion);
-					//println("From:  ", sp);
-					//println("To:    ", ep);
-//					gCommand("G1 X" + origin.x + " Y" + origin.y + " E" + extrusion);
-//					if(orgIndex==0) gCommand("G1 X" + origin.x + " Y" + origin.y + " E" + extrusion);	
-					
-					// lift nozzle to avoid hitting other parts
-//					gCommand("G1 Z" + (z + 0.8) + " E-0.800000");
 					
 				} else {
 					gCommand("G1 X" + ep.x + " Y" + ep.y + " E" + extrusion);
 				}
 
-				//write the layer transition stuff
-
-
-				//final_point = ep;
 			}
-			
+			// retraction
+			gCommand("G1 E-2.6 F2400");
 			// Start wipe
 			gCommand(";START WIPE");
 			setSpeed(7200);
@@ -299,7 +300,7 @@ public class GCode {
 			
 			// keep going for three more segments
 			for (int j = newStart; j < (newStart + max); j++) {
-				if(wipeDist >= 12) break;
+				if(wipeDist >= 2) break;
 				int index;
 				if(j < max){
 						index = j;
@@ -322,7 +323,7 @@ public class GCode {
 				PVector ep = new PVector(epX, epY);
 				
 				
-				float extrusion = extrude(sp, ep) * -1.2f;
+				float extrusion = extrude(sp, ep) * -2f;
 				
 				gCommand("G1 X" + ep.x + " Y" + ep.y + " E" + extrusion);
 				
@@ -331,12 +332,44 @@ public class GCode {
 			}
 			// Finish Wipe
 			gCommand(";END WIPE");
+			
+			
 			// set transition speed
 			setSpeed(7200);
 			//lift nozzle so it doesen't hit other parts
 			gCommand("G1 Z" + (z + 0.8));
 			
 		}//organism
+		
+		
+		if(this.timeLapse) {
+			
+			gCommand(";timelapse move starts here");
+			// retract filament
+			gCommand("G1 E-6.0 F2400");
+			//wait for move to finish
+			gCommand("G4 S0");
+			//set fast speed
+			setSpeed(10800.000f);
+			// home build plate
+			gCommand("G1 X7 Y205");
+			//wait for move to finish
+			gCommand("G4 S0");
+			//wait for 500ms
+			gCommand("G4 P500");
+			// snap picture by homing print head
+//			gCommand("M42 S255 P73");
+			gCommand("G1 X0");
+			//wait for 200ms
+			gCommand("G4 P200");
+			// untrigger
+//			gCommand("M42 S0 P73");
+			gCommand("G1 X10");
+			
+			//wait for 500ms
+			gCommand("G4 P500");
+			gCommand(";timelapse move ends here here");
+		}
 
 	} // write layer
 	

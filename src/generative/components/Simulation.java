@@ -165,12 +165,14 @@ public class Simulation {
 	//====================OUTPUT METHODS==================
 	
 	// generate gcode to 3D print a colony	
-	public void printColony(String fileName) {
+	public void printColony(boolean _timelapse, String fileName) {
 		if(this.colony3d.layers.size() < 1) return;
 //		Colony3D scaledColony3d = this.colony3d.scale(this.outputSize, this.outputLayerHeight, this.e);
 		
 		// initialise gCode
 		GCode gCode = new GCode();
+		
+		gCode.setTimeLapse(_timelapse);
 		
 		gCode.setOutputSize(this.outputSize);
 		
@@ -194,6 +196,8 @@ public class Simulation {
 	
 	// Save colony as .xyz pointcloud
 	public void saveColony3D(String fileName) {
+		int res = 3;	// resolution of the mesh
+		System.out.println("saveColony3D called");
 		// Create file
 		File output = new File(fileName+".xyz");
 		
@@ -203,13 +207,41 @@ public class Simulation {
 		// Add points to string
 		// for every layer
 		for(Colony col : this.colony3d.layers) {
+			int layerNumber = this.colony3d.layers.indexOf(col);
+//			System.out.println("Colony "+layerNumber+" being processed");
 			// for every organism
 			for(Organism o : col.organisms) {
+				int orgIndex = col.organisms.indexOf(o);
+//				System.out.println("Organism "+layerNumber+"-"+orgIndex+" being processed");
 				// for every cell
-				for(Cell c : o.getCells()) {
-					pc+=(c.loc.x+";"+c.loc.y+";"+c.loc.z+"\n");
+//				for(Cell c : o.getCells()) {
+				for(int i=0; i < o.cells.size(); i++) {
+//					System.out.println("Cell "+i+"/"+o.cells.size()+" being processed");
+					Cell c = o.cells.get(i);
+					Cell next;
+					if(i == o.cells.size() - 1) {
+						next = o.cells.get(0);
+					}else {
+						next = o.cells.get(i+1);
+					}
+					// get normals
+					PVector pointer = PVector.sub(next.loc, c.loc);
+					PVector normal = new PVector(pointer.x, pointer.y).normalize().rotate((float)-Math.PI/2);
+					
+					pc+=(c.loc.x+" "+c.loc.y+" "+c.loc.z+" "+"128"+" "+"128"+" "+"128"+" "+normal.x+" "+normal.y+" "+normal.z+"\n");
+					
+					// add intermediate points
+					float len = c.loc.dist(next.loc);
+					PVector increment = PVector.div(pointer, res);
+					for(int j = 1; j < res; j++) {
+						PVector additional = PVector.mult(increment, j);
+						PVector np = PVector.add(c.loc,  additional);
+						pc+=(np.x+" "+np.y+" "+np.z+" "+"128"+" "+"128"+" "+"128"+" "+normal.x+" "+normal.y+" "+normal.z+"\n");
+					}
+					
 				}
 			}
+			System.out.println("Layer "+layerNumber+" added");
 		}	
 		
 		// Write to file

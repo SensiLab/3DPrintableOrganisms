@@ -1284,3 +1284,4 @@ best function value 0.006170868873596191 at evaluation 384
 (4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616500076219 (Tue Mar 23 22:47:56 AEDT 2021)
 Iteration,#Fevals: rb Function Value Delta( best ,worst) |idx: Max SD idx: Min SD  | minsigD  sigma Axisratio | time, in eig
     1(40),     40: 2.0040035247802734e-02 (+0e+00,1e-01) |  4: 9.5e-03  0: 9.5e-03 | 9.5e-03 9.5e-03   1.00   | 324.0  0.0 
+(4,40)-CMA-ES(mu_eff=2.8), Ver="0.99.40", dimension=5, 0 diagonal iter., randomSeed=1616558444472 (Wed Mar 24 15:00:44 AEDT 2021)

@@ -56,7 +56,7 @@ public class Colony3D{
 			scaledColony.addLayer(scaledLayer);
 		}
 		return scaledColony;
-	}
+	}// Scaled 3D Colony
 	
 	public void saveColony(String filePath, String fileName) {
 		

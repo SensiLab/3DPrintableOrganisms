@@ -5,6 +5,7 @@ import generative.components.fitness.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class SingleRun {
 		double initStDev = 1e-2;
 		double ccov = 1e-6; //step size
 		int firstSeed = 25;
-		String destFolder = "../out/evo_output/IEEE_Refine_014/";
+		String destFolder = "../out/evo_output/IEEE_Refine_015/";
 		
 		int objectSize = 500;
 		int objectWarmup = 20;
@@ -174,9 +175,10 @@ public class SingleRun {
 		
 //		// set environment random seed
 //		long envSeed = envSeeds[0];
+//		long envSeed = CommonConsts.getEnvSeed(firstSeed);
 //		
 		//set environment
-		Environment e = new Environment(envX, envY, envR, envD, envFS, envFsSizeMin, envFsSizeMax, envFsGrowthRate, envFsDecayRate,envSeeds[firstSeed]);
+		Environment e = new Environment(envX, envY, envR, envD, envFS, envFsSizeMin, envFsSizeMax, envFsGrowthRate, envFsDecayRate,CommonConsts.getEnvSeed(firstSeed));
 		cma.setEnvironment(e);
 		
 		//Get reference value for complexity
@@ -187,6 +189,7 @@ public class SingleRun {
 		Simulation s = new Simulation(c, e, objectSize, objectWarmup);
 		s.generate();
 		
+		
 		cma.fitfun.setReference(s.complexity());
 		cma.fitfun.setTolerance(0.075);
 		cma.fitfun.setMaxAttempts(1000);
@@ -194,6 +197,11 @@ public class SingleRun {
 		
 		String fitnessFolder = destFolder+"/";
 		String filePrefix = String.format("%03d", firstSeed);
+		if(!new File(fitnessFolder).isDirectory()) {
+			System.out.println("The target directory does not exist");
+			return;
+		}
+		System.out.println("The target directory is ok");
 		cma.evolveFromParent(parent, initStDev, gens, -1, populationSize, mu, 2, ccov, fitnessFolder, filePrefix);
 	}
 }
