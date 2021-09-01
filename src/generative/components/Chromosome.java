@@ -6,9 +6,7 @@ import java.util.*;
 
 public class Chromosome {
 	
-	// myParent is a reference to the parent sketch
-//	PApplet myParent;
-	 //ArrayList<Float> genes;
+
 	double metabolicRate;
 	double maxVel;
 	double maxEnergy;
@@ -71,7 +69,7 @@ public class Chromosome {
 	      chr.add(Double.toString(g));
 	    }
 
-	    return String.join("_", chr);
+	    return String.join(", ", chr);
 
 	  }
 

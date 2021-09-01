@@ -1,6 +1,10 @@
 package generative.components;
 
+import java.util.Random;
+
 public class CommonConsts {
+	
+	static Random generator;
 	
 	// Dimensions
 	double width = 180;			//the width of the environment in mms
@@ -20,6 +24,13 @@ public class CommonConsts {
 			3045732330329506990L, 4597571254417314837L, 5927936720052420491L, -1593416348006868653L, 3027521254663839597L};
 	
 	public static long getEnvSeed(int _seed) {
+		return envSeeds[_seed];
+	}
+	
+	public static long getRandomSeed() {
+		generator = new Random();
+		
+		int _seed = generator.nextInt(envSeeds.length);
 		return envSeeds[_seed];
 	}
 }

@@ -1,41 +1,150 @@
 package generative.components;
 
 import generative.components.CommonConsts;
+import java.util.Random;
 import processing.core.PApplet;
 import processing.core.PVector;
+import processing.data.Table;
+import processing.data.TableRow;
+import peasy.*;
 
 public class Visualisation2D extends PApplet {
 	
-	long envSeed = CommonConsts.getEnvSeed(25);
+	PeasyCam camera;
 	
-	double[] genes = {0.7971354411267045,0.679551696552745,0.43895084203454265,0.7669021860943841,0.5715081078078987};
-	Chromosome chr = new Chromosome(genes);
+	Random generator;
+	
+//	long envSeed = CommonConsts.getEnvSeed(25);
+	
+	double[] genes;
+	Chromosome chr;
 	// Environment size set in millimeters
 	Environment e;
 	Colony c;
-//	Simulation s = new Simulation(chr,e,100,0);
-//	Colony3D col;
+	Simulation s;
+	Colony3D col;
 	int counter = 0;
 	
 	public void settings() {
-		size(600,600, P2D);
-		e = new Environment(600, 600, 15, 0.4f, 5, 2, 5, 5, 0.2f, envSeed);
-		c = new Colony(chr, e);
+		size(600,600, P3D);
+	
+
 		
-		PVector v1 = new PVector(30,60);
-		v1.div(3);
-		println(v1);
+		
 //		s.generate();
 //		col = s.colony3d;
-			
-		}
+//		noLoop();
+	}
 	
 //	@Override
-//	public void setup() {
-//		col.setPApplet(this);
-//		background(220);
-//		
-//	}
+	public void setup() {
+//		camera = new PeasyCam(this, 300, -300, 0, 675);
+		camera = new PeasyCam(this, 300, 300, 0, 900);
+	    camera.rotateZ(PI/4);
+	    camera.rotateX(-PI/4);
+	    camera.pan(0,-225);
+	    
+	    this.generator = new Random();
+	    
+//	    for(int i = 0; i < 520; i++) {
+//	    	e.updateNutrientField(c);
+//	    	c.update();
+//	    	if(i >=20) {
+//	    		col.addLayer(c);
+//	    	}
+//	    }
+	    
+	    String folderPath = "../out/evo_output/IEEE_Model-Alternatives_001/";
+	    String alt = "02_No-Physics";
+	    /*
+	     * Alternatives consist in:
+	     * 01 - Full model -> no modification to the original model
+	     * 02 - No physics -> comment out Organism 877, 899, 916, 917 and Colony 196
+	     * 02 - No energy consumption -> comment out Cell 137 and Organism 885
+	     * 03 - No organism division -> comment out Colony 235-246, uncomment Colony 248-253
+	     * 04 - No metabolic system -> comment out Colony 194
+	     */
+	    
+	    // initialise table
+	    Table dataOut = new Table();
+        dataOut.addColumn("iteration");
+        dataOut.addColumn("envrandseed");
+        dataOut.addColumn("genes");
+        dataOut.addColumn("printability");
+        dataOut.addColumn("complexity");
+        dataOut.addColumn("area_mean");
+        dataOut.addColumn("area_dev");
+	    
+	    // repeat 100 times
+	    for(int i = 0; i < 100; i++){
+			e = new Environment();
+			e.setRandomSeed(CommonConsts.getRandomSeed());
+	    	
+	    	
+	    	// Generate random genes
+	    	double[] genes = new double[5];
+	    	for(int g = 0; g < genes.length; g++) {
+	    		genes[g] = generator.nextDouble();
+	    	}
+	    	
+	    	chr = new Chromosome(genes);
+	    	s = new Simulation(chr, e, 500, 20);	    	
+	    	
+	    	
+	    	// generate individual
+	    	s.generate();
+	    	
+	    	// evaluate individual
+	    	
+	    	// complexity
+	    	float complexity = s.complexity();
+//	    	// printability
+	    	float printability = s.printability();
+	    	//area mean
+	    	float areamean = s.areaMean();
+//	    	// areadev
+	    	float areadev = s.areaStandardDev();
+//	    	
+	    	println("Complexity:\t"+complexity+"\n"+
+	    			"Printability:\t"+printability+"\n"+
+	    			"Area mean:\t"+areamean+"\n"+
+	    			"Area deviation:\t"+areadev+"\n");
+//	    	
+	    	// store data in table
+	    	TableRow newRow = dataOut.addRow();
+            newRow.setInt("iteration",(i+1));
+            newRow.setLong("envrandseed", e.getRandomSeed());
+            newRow.setString("genes",chr.chrToString());
+            newRow.setFloat("printability", printability);
+            newRow.setFloat("complexity", complexity);
+	    	newRow.setFloat("area_mean", areamean);
+            newRow.setFloat("area_dev", areadev);
+	    	
+	    	// store image
+          //======RENDER=======
+            stroke(30, 150);
+            strokeWeight(0.5f);
+            Colony3D col = s.getColony3D();
+            Colony topC = col.getLayer(col.size() - 1);
+            for(int j = 0; j < col.size(); j+=3){
+                Colony c = col.getLayer(j);
+                displayColony(c, j);
+
+            }
+            saveFrame(folderPath+"imgs/"+alt+"/iteration_"+String.format("%04d", i)+".png");
+
+//             reset background
+            background(220);
+            
+            println("Full Model, iteration: "+i);
+//             break;
+	    	
+	    }
+	    
+	    //save table
+	    saveTable(dataOut, folderPath+"data/"+alt+".csv");	    
+		exit();
+	}
 	
 //	public void draw() {
 //		if(counter > 520) {
@@ -44,51 +153,58 @@ public class Visualisation2D extends PApplet {
 //			text("Env Size:\t"+e.getWidth(),10,30); 
 //			noLoop();
 //		}
-////		background(220);
+//		background(220);
 //        stroke(20,50);
 //        strokeWeight(1f);
-//        displayColony(c);
-////        displayEnvironment(e);
+//        for(int i = 0; i < col.getLayers().size();i++) {
+//        	if(i%3==0) {
+//        	Colony cc = col.getLayer(i);
+//        	displayColony(cc, i);
+//        	}
+//        }
+//        displayEnvironment(e);
 //        e.updateNutrientField(this.c);
 ////        for (int i = 0; i < this.colonyLayers + this.colonyWarmupLayers; i++) {
 //			
 //		      
 //		this.c.update();
 //		counter++;
-//
-//	}
-//	
-//	public void displayColony(Colony _c){
-//		// Scale colony based on drawing size
-//		
-//	    for(Organism o : _c.organisms){
-//	        for(Spring s : o.getSprings()){
-//	        	float spX = s.sp.loc.x * width/_c.e.width;
-//	        	float spY = s.sp.loc.y * height/_c.e.height;
-//	        	float epX = s.ep.loc.x * width/_c.e.width;
-//	        	float epY = s.ep.loc.y * height/_c.e.height;
-//	            line(spX,spY,epX,epY);
-////	            ellipse(spX, spY, width * .01f, height * .01f);
-//	        }
-//	        
-//	    }
+
 //	}
 	
-//	public void displayColony(Colony _c){
-//		// Scale colony based on drawing size
-//		
-//	    for(Organism o : _c.organisms){
-//	        for(Spring s : o.getSprings()){
-//	        	float spX = s.sp.loc.x * width/_c.e.width;
-//	        	float spY = s.sp.loc.y * height/_c.e.height;
-//	        	float epX = s.ep.loc.x * width/_c.e.width;
-//	        	float epY = s.ep.loc.y * height/_c.e.height;
-//	            line(spX,spY,epX,epY);
-////	            ellipse(spX, spY, width * .01f, height * .01f);
-//	        }
-//	        
-//	    }
-//	}
+	public void displayColony(Colony _c){
+		// Scale colony based on drawing size
+		
+	    for(Organism o : _c.organisms){
+	        for(Spring s : o.getSprings()){
+	        	float spX = s.sp.loc.x * width/_c.e.width;
+	        	float spY = s.sp.loc.y * height/_c.e.height;
+	        	float epX = s.ep.loc.x * width/_c.e.width;
+	        	float epY = s.ep.loc.y * height/_c.e.height;
+	            line(spX,spY,epX,epY);
+//	            ellipse(spX, spY, width * .01f, height * .01f);
+	        }
+	        
+	    }
+	}
+	
+	public void displayColony(Colony _c, float layerZ){
+		// Scale colony based on drawing size
+		
+	    for(Organism o : _c.organisms){
+	        for(Spring s : o.getSprings()){
+	        	float spX = s.sp.loc.x * width/_c.e.width;
+	        	float spY = s.sp.loc.y * height/_c.e.height;
+	        	float spZ = layerZ;
+	        	float epX = s.ep.loc.x * width/_c.e.width;
+	        	float epY = s.ep.loc.y * height/_c.e.height;
+	        	float epZ = layerZ;
+	            line(spX, spY, spZ, epX, epY, epZ);
+//	            ellipse(spX, spY, width * .01f, height * .01f);
+	        }
+	        
+	    }
+	}
 	
 	public void displayEnvironment(Environment e) {
 		float gridSize = width/e.cols;

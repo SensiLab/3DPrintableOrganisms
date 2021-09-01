@@ -178,7 +178,8 @@ public class SingleRun {
 //		long envSeed = CommonConsts.getEnvSeed(firstSeed);
 //		
 		//set environment
-		Environment e = new Environment(envX, envY, envR, envD, envFS, envFsSizeMin, envFsSizeMax, envFsGrowthRate, envFsDecayRate,CommonConsts.getEnvSeed(firstSeed));
+		Environment e = new Environment();
+		e.setRandomSeed(CommonConsts.getEnvSeed(firstSeed));
 		cma.setEnvironment(e);
 		
 		//Get reference value for complexity

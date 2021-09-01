@@ -16,7 +16,9 @@ public class Colony3D{
 	}
 	
 	public void addLayer(Colony layer) {
-		this.layers.add(layer);
+		Colony newLayer = new Colony(layer);
+//		newLayer.setEnvironment(layer.e);
+		this.layers.add(newLayer);
 	}
 	
 	public void clear() {
@@ -40,6 +42,8 @@ public class Colony3D{
 		
 		for(Colony layer : this.layers) {
 			Colony scaledLayer = new Colony();
+			scaledLayer.setEnvironment(e);
+			scaledLayer.setChromosome(layer.getChromosome());
 			for(Organism org : layer.organisms) {
 				Organism scaledOrg = new Organism();
 				for (Cell c : org.getCells()) {

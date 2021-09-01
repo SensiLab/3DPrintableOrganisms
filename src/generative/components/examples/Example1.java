@@ -22,7 +22,7 @@ class TotalFitness implements IObjectiveFunction{
 	public Environment e;
 	int numOfUses;
 	TotalFitness() {
-		this.e = new Environment(600, 600, 20, 0.3f, 5, 30, 60, 20, 12345);
+		this.e = new Environment();
 		this.numOfUses = 0;
 	}
 	
@@ -85,7 +85,7 @@ class Printability implements IObjectiveFunction{
 	int numOfUses;
 	float target;
 	Printability(float _target) {
-		this.e = new Environment(600, 600, 20, 0.3f, 5, 30, 60, 20, -1);
+		this.e = new Environment();
 		this.numOfUses = 0;
 		this.target = _target;
 	}

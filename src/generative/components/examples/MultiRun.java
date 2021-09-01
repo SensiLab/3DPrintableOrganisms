@@ -180,7 +180,7 @@ public class MultiRun {
 //		long envSeed = envSeeds[0];
 //		
 		//set environment
-		Environment e = new Environment(envX, envY, envR, envD, envFS, envFsSizeMin, envFsSizeMax, envFsGrowthRate, envFsDecayRate,-1);
+		Environment e = new Environment();
 		
 		cma.setEnvironment(e);
 		

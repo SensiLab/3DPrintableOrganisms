@@ -3,16 +3,18 @@ package generative.components;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
 import java.util.Collections;
 import java.lang.Math;
 import processing.core.PVector;
 
-public class Organism implements Serializable{
+public class Organism{
 	
 	Chromosome chromosome;
 	
 	ArrayList<Cell> cells;
-	ArrayList<Spring> springs;
+	public ArrayList<Spring> springs;
 	
 	PVector initialLocation;
 	
@@ -32,6 +34,13 @@ public class Organism implements Serializable{
 	//EVALUATION
 	float diameterFactor = 1;
 	float minPrintDiameter = 5f;
+	double supportedPerimeter = 1;
+	float perimeter;
+	float hullPerimeter;
+	float area;
+	
+	//OTHER STUFF
+	int indexInColony = 0;
 	
 	// CONSTANTS
 	float diffusionRate = 0.1f; //This is currently set as a constant
@@ -41,6 +50,7 @@ public class Organism implements Serializable{
 	public Organism() {
 		this.cells = new ArrayList<Cell>();
 		this.springs = new ArrayList<Spring>();
+		this.splitting = "false";
 	}
 	
 	public Organism(Chromosome chr, PVector _loc, int subdivs, float rad) {
@@ -117,6 +127,9 @@ public class Organism implements Serializable{
 	
 	//=======================METHODS==================
 	public void addCell(Cell c) {
+		if(this.cells.size() < 1) {
+			this.chromosome = c.chromosome;
+		}
 		this.cells.add(c);
 	}
 	
@@ -140,9 +153,11 @@ public class Organism implements Serializable{
 				float posY = this.initRadius * (float) Math.sin(angle * i) + this.initialLocation.y;
 					
 				Cell new_cell = new Cell(posX, posY, this.chromosome);
+//				new_cell.setID(i);
 //				float _repRad = this.initRadius * (float) Math.sin(angle/2);
 //				new_cell.repRad = _repRad;
 				this.cells.add(new_cell);
+				
 				}
 //			this.connectCells();
 		} else {
@@ -158,6 +173,16 @@ public class Organism implements Serializable{
 			}
 //			this.connectCells();
 		}
+		
+		if(this.cells.size() > 0) {
+			
+			Random gen = new Random();
+//			System.out.println("Total Cells: "+this.cells.size());
+			int shift = gen.nextInt(this.cells.size());
+//		System.out.println("Total Cells: "+this.cells.size());
+			this.shiftCells(shift);
+		}
+		
 		if (this.springs.size() < this.cells.size()) {
 			this.springs.clear();
 			this.connectCells();
@@ -197,6 +222,11 @@ public class Organism implements Serializable{
 		return this.chromosome;
 	}
 	
+	public void setChromosome(Chromosome _chr) {
+		this.chromosome = _chr;
+		this.init();
+	}
+	
 	public void setCostOfLiving(float c) {
 		for (Cell cell : this.cells) {
 			cell.setCostOfLiving(c);
@@ -217,6 +247,14 @@ public class Organism implements Serializable{
 		float e = 0;
 		for(Cell c : this.cells)e+=c.getMaxEnergy();
 		return e;
+	}
+	
+	public ArrayList<PVector> getVerts(){
+		ArrayList<PVector> verts = new ArrayList<PVector>();
+		for(Cell c : this.cells) {
+			verts.add(new PVector(c.loc.x, c.loc.y));
+		}
+		return verts;
 	}
 	
 	/**
@@ -433,7 +471,11 @@ public class Organism implements Serializable{
 	
 	public void splitCell(int c) {
 		Cell cell = this.cells.get(c);
+		cell.setSplitted(true);
+//		System.out.println("Cell "+c+" has splitted");
 		Cell newCell = new Cell(cell);
+//		this.totalCellsInSystem ++;
+//		newCell.setID(this.totalCellsInSystem);
 		//split energy of cells in two
 		float e = cell.energy;
 		cell.energy = e/2;
@@ -490,6 +532,59 @@ public class Organism implements Serializable{
 
 		
 
+		
+		
+	} //splitCell
+	
+	public void splitCell(Cell c) {
+		int index_c = this.cells.indexOf(c);
+		c.setSplitted(true);
+		System.out.println("Cell "+index_c+" has splitted");
+		
+//		Cell cell = this.cells.get(c);
+		Cell newCell = new Cell(c);
+		//split energy of cells in two
+		float e = c.energy;
+		c.energy = e/2;
+		newCell.energy = e/2;
+		this.cells.add(newCell);
+		
+		//APPLY RANDOM FORCE
+		PVector f = new PVector().random2D().normalize().mult(e);
+		
+		
+		c.loc.add(f);
+		newCell.loc.add(f.mult(-1));
+		//connect parent cell to child
+		Spring s = new Spring(c, newCell);
+		s.setSpringCoef(1);
+		
+		this.springs.add(s);
+		
+		
+//		if(this.cells.size() >=3) {
+//			this.splitCell(index_c);
+//		}else if(this.cells.size() == 2) {
+//			Spring s;
+//			if(index_c == 0) {
+//				this.cells.add(0, newCell);
+//				s = new Spring(newCell, c);
+//				this.springs.add(0,s);
+//				
+//			}else {
+//				this.cells.add(newCell);
+//				s = new Spring(c, newCell);
+//				this.springs.add(s);
+//			}
+//			Spring close = new Spring(this.cells.get(0), this.cells.get(2));
+//			this.springs.add(close);
+//		}else {
+//			this.cells.add(newCell);
+//			Spring s = new Spring(c, newCell);
+//			this.springs.add(s);
+//		}
+		
+//		
 		
 		
 	} //splitCell
@@ -584,22 +679,22 @@ public class Organism implements Serializable{
 			org.add(spring);
 		}
 
-		float psum = 0;
-		float nsum = 0;
-		for(int i = 0; i< org.size(); i++){
-			int sindex = (i+1) % org.size();
-			float prod = org.get(i)[0].x * org.get(sindex)[0].y;
-			psum+=prod;
-		}
-
-		for(int i=0; i<org.size();i++){
-			int sindex = (i+1)%org.size();
-			float prod = org.get(sindex)[0].x * org.get(i)[0].y;
-			nsum += prod;
-		}
-		float area = (float) Math.abs(0.5*(psum - nsum));
-		// println(area);
-		return area;
+//		float psum = 0;
+//		float nsum = 0;
+//		for(int i = 0; i< org.size(); i++){
+//			int sindex = (i+1) % org.size();
+//			float prod = org.get(i)[0].x * org.get(sindex)[0].y;
+//			psum+=prod;
+//		}
+//
+//		for(int i=0; i<org.size();i++){
+//			int sindex = (i+1)%org.size();
+//			float prod = org.get(sindex)[0].x * org.get(i)[0].y;
+//			nsum += prod;
+//		}
+//		float area = (float) Math.abs(0.5*(psum - nsum));
+//		// println(area);
+		return getArea(org);
 	}
 	
 	/**
@@ -608,19 +703,22 @@ public class Organism implements Serializable{
 	 * @return
 	 */
 	public static float getArea(ArrayList<PVector[]> org) {
-		float psum = 0;
-		float nsum = 0;
+		
+		float psum = 0;	//positive sum
+		float nsum = 0; //negative sum
 		for(int i = 0; i< org.size(); i++){
 			int sindex = (i+1) % org.size();
-			float prod = org.get(i)[0].x * org.get(sindex)[0].y;
-			psum+=prod;
+			float pprod = org.get(i)[0].x * org.get(sindex)[0].y;
+			float nprod = org.get(sindex)[0].x * org.get(i)[0].y;
+			psum+=pprod;
+			nsum+=nprod;
 		}
 
-		for(int i=0; i<org.size();i++){
-			int sindex = (i+1)%org.size();
-			float prod = org.get(sindex)[0].x * org.get(i)[0].y;
-			nsum += prod;
-		}
+//		for(int i=0; i<org.size();i++){
+//			int sindex = (i+1)%org.size();
+//			float prod = org.get(sindex)[0].x * org.get(i)[0].y;
+//			nsum += prod;
+//		}
 		float area = (float) Math.abs(0.5*(psum - nsum));
 		// println(area);
 		return area;
@@ -654,11 +752,110 @@ public class Organism implements Serializable{
 		return winner;
 	}
 	
+	public static int bottomMostCell(ArrayList<Cell> _cells) {
+		int winner_index = -1;
+		PVector winner = new PVector();
+		for (int i=0; i < _cells.size(); i++) {
+			PVector p = _cells.get(i).loc;
+			if (p.y > winner.y) {
+				winner = p;
+				winner_index = i;
+			}else if(p.y == winner.y){
+				if(p.x > winner.x){
+					winner = p;
+					winner_index = i;
+				}
+			}else{
+				continue;
+			}
+		}
+		return winner_index;
+	}
+	
+	public void polarSort() {
+		//make a copy of cells array
+		ArrayList<Cell> cellsCopy = new ArrayList<Cell>();
+		for (Cell c : this.cells) cellsCopy.add(new Cell(c));
+		// remove duplicates
+		for(int i = 0; i < cellsCopy.size()-1; i++) {
+			PVector loc = cellsCopy.get(i).loc;
+			for(int j = i + i; j < cellsCopy.size(); j++) {
+				PVector otherLoc = cellsCopy.get(j).loc;
+				if(loc.x == otherLoc.x && loc.y == otherLoc.y) {
+					cellsCopy.remove(j);
+				}
+			}
+		}// remove duplicates
+		
+		// initialise sorted array
+		ArrayList<Cell> sorted = new ArrayList<Cell>();
+		
+		// get bottom-most cell
+		int bottomMost = bottomMostCell(cellsCopy);
+		
+		
+		// add bottomMost to sorted and remove it from cellsCopy		
+		sorted.add(cellsCopy.get(bottomMost));
+		cellsCopy.remove(bottomMost);
+		
+		//create bottom most vector
+		PVector bm = sorted.get(0).loc;
+		
+		// begin sorting process
+		double prevMinCotan = -1;
+		while(cellsCopy.size() > 0) {
+			double minCotan = 999999999;
+			PVector winner = new PVector();
+			int winner_index = -1;
+			for(int i = 0; i < cellsCopy.size(); i++) {
+				PVector cellLoc = cellsCopy.get(i).loc;
+				double cellCotan = (cellLoc.x - bm.x)/(cellLoc.y - bm.y);
+				if(cellCotan < minCotan) {
+					minCotan = cellCotan;
+					winner = cellLoc;
+					winner_index = i;
+				}else if(cellCotan == minCotan) {
+					minCotan = cellCotan;
+					if(bm.dist(cellLoc) <= bm.dist(winner)) winner = cellLoc;
+									
+				}else {
+					continue;
+				}
+			}
+			
+			PVector lastLoc = sorted.get(sorted.size() - 1).loc;
+			if(winner.x != lastLoc.x && winner.y != lastLoc.y) {
+				sorted.add(new Cell(cellsCopy.get(winner_index)));
+				cellsCopy.remove(winner_index);
+			}else {
+				cellsCopy.remove(winner_index);
+			}
+			prevMinCotan = minCotan;
+		}
+		
+		this.cells = sorted;
+		
+		
+		
+	}//polarSort() cells
+	
+	// shift cells
+	public void shiftCells(int s) {
+		//delete springs
+		this.springs.clear();
+		
+		//shift cells
+		this.cells = CommonFunctions.shiftCells(this.cells, s);
+		
+		//reconnect cells
+		this.connectCells();
+	}
+	
+	
 	public static ArrayList<PVector> polarSort(ArrayList<PVector> pts) {
 		//make a copy of pts array
 		ArrayList<PVector> ptsCopy = new ArrayList<PVector>();
 		for (PVector p : pts) ptsCopy.add(new PVector(p.x, p.y));
-		// ArrayList<PVector> points = removeDuplicates(ptsCopy);
 		// Remove duplicates
 		for (int i =0; i < ptsCopy.size()-1;i++) {
 			float ix = ptsCopy.get(i).x;
@@ -682,6 +879,7 @@ public class Organism implements Serializable{
 
 		//remove bm from pts copy
 		ptsCopy.remove(bm);
+		
 		double prevMinCotan = -1;
 		while (ptsCopy.size() > 0) {
 			double minCotan = 999999999;
@@ -701,11 +899,6 @@ public class Organism implements Serializable{
 
 			float lastX = sorted.get(sorted.size() - 1).x;
 			float lastY = sorted.get(sorted.size() - 1).y;
-			// if(minCotan == prevMinCotan){
-			//   double distToPrev = dist(bm.x, bm.y, lastX, lastY);
-			//   double distToCurrent = dist(bm.x, bm.y, winner.x, winner.y);
-			//   println("dist to prev = "+distToPrev+"dist to current = "+distToCurrent);
-		    // }
 			if(winner.x != lastX && winner.y != lastY){
 				sorted.add(new PVector(winner.x, winner.y));
 				ptsCopy.remove(winner);
@@ -802,6 +995,11 @@ public class Organism implements Serializable{
 		}
 	}
 	
+	
+	/**
+	 * 
+	 * @return diameter of convex hull at its thinnest section
+	 */
 	public float minDiameter(){
 		ArrayList<PVector> hull = this.getConvexHull();
 		  // println(" called");
@@ -815,11 +1013,32 @@ public class Organism implements Serializable{
 		  
 		ArrayList<Float> diameters = new ArrayList<Float>();
 		for(PVector[] l : edges){
-			float d = Simulation.maxLinePointDist(l,hull);
+			float d = CommonFunctions.maxLinePointDist(l,hull);
 			diameters.add(d);
 		}
 		Collections.sort(diameters, null);
 		return diameters.get(0);
+
+	}
+	
+	public float maxDiameter(){
+		ArrayList<PVector> hull = this.getConvexHull();
+		  // println(" called");
+		ArrayList<PVector[]> edges = new ArrayList<PVector[]>();
+		for(int i = 0; i < hull.size() - 1; i++) {
+			PVector[] edge = {hull.get(i), hull.get(i+1)};
+			edges.add(edge);
+		}
+		PVector[] lastEdge = {hull.get(hull.size() - 1), hull.get(0)};
+		edges.add(lastEdge);
+		  
+		ArrayList<Float> diameters = new ArrayList<Float>();
+		for(PVector[] l : edges){
+			float d = CommonFunctions.maxLinePointDist(l,hull);
+			diameters.add(d);
+		}
+		Collections.sort(diameters, null);
+		return diameters.get(diameters.size()-1);
 
 	}
 	
@@ -829,16 +1048,27 @@ public class Organism implements Serializable{
 		if(d >= this.minPrintDiameter) {
 			this.diameterFactor = 1;
 		} else {
-			this.diameterFactor =  1/this.minPrintDiameter;
+			this.diameterFactor =  d/this.minPrintDiameter;
 		}
 
 	}
 	
+	public void checkSupported(Colony layerBelow) {
+		
+		
+		//check every spring for support
+		
+	}
+	
+	public void setSupportedPerimeter(double _sp) {
+		this.supportedPerimeter = _sp;
+	}
 	
 	/**
 	 * Update method for organism
 	 */
 	public void update(Environment _e) {
+		
 		int maxX = _e.width;
 		int maxY = _e.height;
 		//check self intersection
@@ -847,9 +1077,7 @@ public class Organism implements Serializable{
 		this.checkEnergySplitting();
 		//check overlapping cells
 		this.overlappingCells();
-		//apply attraction and repulsion
-//		this.applyAttraction();
-		this.applyRepulsion();
+
 		//update split threshold
 		this.splitThreshold = this.getMaxEnergy() * this.splitEnergyMult;
 		
@@ -862,36 +1090,48 @@ public class Organism implements Serializable{
 		//update springs
 		for (int i = 0; i < this.springs.size(); i++) {
 			Spring s = this.springs.get(i);
-//	        if ((s.sp.energy + s.ep.energy) >= ((s.sp.maxEnergy + s.ep.maxEnergy) * s.getSplitThreshold()))
-//	        	this.splitSpring(i);
 	        if (s.getLen() >= (s.sp.maxEnergy + s.ep.maxEnergy) * s.splitThreshold)
 	        	this.splitSpring(i);
 		}
 		
-		
-
 		for (Spring s : this.springs) {
 			s.update();
 		}
+
 		
 		//update cells
-		for (int i = 0; i < this.cells.size(); i++) {
+		List<Integer> cell_indices = new ArrayList<Integer>();
+		for (int i = 0; i < this.cells.size(); i++) cell_indices.add(i);
+		
+		// randomize index list
+		Collections.shuffle(cell_indices);
+		
+		for(int i:cell_indices) {
 			Cell c = this.cells.get(i);
 			if (c.energy <= 0.0001f) {
-				this.killCell(i);
+				c.kill();
+//				this.killCell(i);
 			}else if(c.energy >= c.getMaxEnergy()){
 				//split cell
 				this.splitCell(i);
-			}else {
-		
-//				c.borders(maxY, maxY);
-		        
-				//the maxVel of c is updated based on the size of the organism using a sigmoid function
-//				float newMaxVel = Math.min(Math.max(MathLib.sigmoid(this.cells.size(), c.maxVel, this.maxSize, -0.1f), c.minVel), c.maxVel);
-//		        c.setMaxVel(newMaxVel);
-				c.addDrag(_e);
+				
+			} else {
 		        c.update(_e);
 			}
 		}
+		for(int i = 0; i<this.cells.size(); i++) {
+			if(!this.cells.get(i).getAlive()) this.killCell(i); 
+		}
 	} //update
+	
+	public void updateAndEval(Environment _e) {
+		this.update(_e);
+		this.perimeter = this.getPerimeter();
+		this.hullPerimeter = this.getConvexHullPerimeter();
+		this.area = this.getArea();
+	} //updateAndEval
+	
+	public void setIndex(int _i) {
+		this.indexInColony = _i;
+	}
 }

@@ -5,13 +5,15 @@ import java.io.Serializable;
 public class FoodSource implements Serializable{
 	int col;
 	int row;
-
+	
+	int initialEnergy;
 	int totalEnergy;
 	float freq;
 
 	public FoodSource(int _col, int _row, int _totalEnergy) {
 		this.col = _col;
 		this.row = _row;
+		this.initialEnergy = _totalEnergy;
 
 	    this.totalEnergy = _totalEnergy;
 	    
@@ -22,6 +24,10 @@ public class FoodSource implements Serializable{
 	
 	public float getTotalEnergy() {
 		return this.totalEnergy;
+	}
+	
+	public float getInitialEnergy() {
+		return this.initialEnergy;
 	}
 	
 	public int getRow() {

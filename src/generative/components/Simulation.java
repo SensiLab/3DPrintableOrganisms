@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 //import java.util.Arrays;
 import java.util.Collections;
+//import java.util
 //import java.util.Comparator;
 
 //import fr.inria.optimization.cmaes.IntDouble;
@@ -109,12 +110,14 @@ public class Simulation {
 		this.colony3d.clear();
 
 		for (int i = 0; i < this.colonyLayers + this.colonyWarmupLayers; i++) {
-			env.updateNutrientField(this.c);
-		      
+			Colony prev;
+//			env.updateNutrientField(this.c); 
+			env.updateNutrientField(); 
 			this.c.update();
-
-			if (i >= this.colonyWarmupLayers) {
-				
+			
+			
+			// check if new colony has to be stored
+			if (i >= this.colonyWarmupLayers) {				
 				Colony layer;
 				// Copy colony
 				if (this.c.organisms.size() != 0) {
@@ -122,11 +125,11 @@ public class Simulation {
 					layer.setZPosition((float) (i - this.colonyWarmupLayers));
 				} else {
 					layer = new Colony();
+					layer.chromosome = this.chromosome;
 				}
 				layer.setEnvironment(this.e);
 				// Add layer to colony 3d
 				this.colony3d.addLayer(layer);
-
 			}
 		}
 	} // generate
@@ -197,12 +200,12 @@ public class Simulation {
 	// Save colony as .xyz pointcloud
 	public void saveColony3D(String fileName) {
 		int res = 3;	// resolution of the mesh
-		System.out.println("saveColony3D called");
+//		System.out.println("saveColony3D called");
 		// Create file
 		File output = new File(fileName+".xyz");
 		
 		// Create string
-		String pc = new String();
+		StringBuilder pc = new StringBuilder();
 		
 		// Add points to string
 		// for every layer
@@ -228,7 +231,7 @@ public class Simulation {
 					PVector pointer = PVector.sub(next.loc, c.loc);
 					PVector normal = new PVector(pointer.x, pointer.y).normalize().rotate((float)-Math.PI/2);
 					
-					pc+=(c.loc.x+" "+c.loc.y+" "+c.loc.z+" "+"128"+" "+"128"+" "+"128"+" "+normal.x+" "+normal.y+" "+normal.z+"\n");
+					pc.append(c.loc.x+" "+c.loc.y+" "+c.loc.z+" "+"128"+" "+"128"+" "+"128"+" "+normal.x+" "+normal.y+" "+normal.z+"\n");
 					
 					// add intermediate points
 					float len = c.loc.dist(next.loc);
@@ -236,24 +239,140 @@ public class Simulation {
 					for(int j = 1; j < res; j++) {
 						PVector additional = PVector.mult(increment, j);
 						PVector np = PVector.add(c.loc,  additional);
-						pc+=(np.x+" "+np.y+" "+np.z+" "+"128"+" "+"128"+" "+"128"+" "+normal.x+" "+normal.y+" "+normal.z+"\n");
+						pc.append(np.x+" "+np.y+" "+np.z+" "+"128"+" "+"128"+" "+"128"+" "+normal.x+" "+normal.y+" "+normal.z+"\n");
 					}
 					
 				}
 			}
-			System.out.println("Layer "+layerNumber+" added");
+//			System.out.println("Layer "+layerNumber+" added");
 		}	
 		
 		// Write to file
 		try {
 			FileWriter outputWriter = new FileWriter(fileName+".xyz");
-			outputWriter.write(pc);
+			outputWriter.write(pc.toString());
 			outputWriter.close();
 		}catch(IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}// saveColony3D
+	
+	// Save colony as .txt file
+		public void saveColony1D(String fileName) {
+			int maxPts = 150;	// max points per layer
+			int maxOrgs = 20;	// max orgs per layer
+//			System.out.println("saveColony1D called");
+			// Create file
+//			File output = new File(fileName+".csv");
+			
+			// Create string
+//			String pc = new String();
+			StringBuilder pc = new StringBuilder();
+			
+			// Add points to string
+			// for every layer
+			for(Colony col : this.colony3d.layers) {
+//				int layerNumber = this.colony3d.layers.indexOf(col);
+//				System.out.println("Colony "+layerNumber+" being processed");
+				int ptCounter = 0;
+				int orgCounter = 0;
+				// for every organism
+				for(Organism o : col.organisms) {
+					for(Cell c : o.getCells()) {
+						String x = String.format("%.3f", c.loc.x);
+						String y = String.format("%.3f", c.loc.y);
+//						pc+=","+c.loc.x+","+c.loc.y;
+						pc.append(',');
+						pc.append(x);
+						pc.append(',');
+						pc.append(y);
+						ptCounter+=1;
+						
+					}
+					
+					pc.append(",-1");
+					orgCounter++;
+				}
+				//pad with -1s
+				for(int i = 0; i < maxOrgs - orgCounter; i++) {
+					pc.append(",-1");
+				}
+				//pad with zeros
+				for(int j = 0; j < maxPts - ptCounter; j++) {
+					pc.append(",0,0");
+				}
+				pc.append(",-2");
+			}	
+			
+			// Write to file
+			try {
+				FileWriter outputWriter = new FileWriter(fileName+".txt");
+				outputWriter.write(pc.toString());
+				outputWriter.close();
+			}catch(IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}// saveColony1D
+		
+		// Save colony as .txt file
+	public void saveColony(String fileName) {
+//		int maxPts = 150;	// max points per layer
+//		int maxOrgs = 20;	// max orgs per layer
+		System.out.println("saveColony called");
+		// Create file
+//					File output = new File(fileName+".csv");
+		
+		// Create string
+//					String pc = new String();
+		StringBuilder pc = new StringBuilder();
+		
+		// Add points to string
+		// for every layer
+		for(Colony col : this.colony3d.layers) {
+//						int layerNumber = this.colony3d.layers.indexOf(col);
+//						System.out.println("Colony "+layerNumber+" being processed");
+			int ptCounter = 0;
+			int orgCounter = 0;
+			// for every organism
+			for(Organism o : col.organisms) {
+				for(Cell c : o.getCells()) {
+					String x = String.format("%.3f", c.loc.x);
+					String y = String.format("%.3f", c.loc.y);
+//								pc+=","+c.loc.x+","+c.loc.y;
+					pc.append(',');
+					pc.append(x);
+					pc.append(',');
+					pc.append(y);
+//					ptCounter+=1;
+					
+				}
+				
+				pc.append(",-1");
+//				orgCounter++;
+			}
+//			//pad with -1s
+//			for(int i = 0; i < maxOrgs - orgCounter; i++) {
+//				pc.append(",-1");
+//			}
+//			//pad with zeros
+//			for(int j = 0; j < maxPts - ptCounter; j++) {
+//				pc.append(",0,0");
+//			}
+			pc.append("\n");
+		}	
+		
+		// Write to file
+		try {
+			FileWriter outputWriter = new FileWriter(fileName+".txt");
+			outputWriter.write(pc.toString());
+			outputWriter.close();
+		}catch(IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}// saveColony
 	
 	
 	/**
@@ -596,6 +715,44 @@ public class Simulation {
 		return intersections%2 == 1;
 	} // isInside
 	
+	// generate quantised representation of a layer
+	public int[] quantisedLayer(Colony layer, int res) {
+		float tileSize = (float)this.e.getHeight()/res;
+		PVector[] tileCentres = new PVector[res*res];
+		//get centre of each tile
+		for(int i = 0; i < res; i++) {
+			float y = i * tileSize + (tileSize/2);
+			for(int j = 0; j < res; j++) {
+				float x = j * tileSize + (tileSize/2);
+				PVector tileCentre = new PVector(x,y);
+				
+				tileCentres[res * i + j] = tileCentre;
+				
+			}
+		}
+		// check which tiles are inside an organism 
+		int[] l = new int[res*res];
+		for(int i=0; i < tileCentres.length;i++) {
+			PVector tc = tileCentres[i];
+			int isIn = 0;
+			for(Organism o : layer.organisms) {
+				ArrayList<PVector> vertices = o.getVerts();
+				if(isInside(tc, vertices)) {
+					l[i] = 1;
+				}
+			}
+		}
+		return l;
+	}
+	
+	public float hammingDistance(int res) {
+		// get quantised initial layer
+		int[] first = this.quantisedLayer(this.colony3d.getLayer(0), res);
+		int[] last = this.quantisedLayer(this.colony3d.getLayer(this.colonyHeight - 1), res);
+		
+		return (float) CommonFunctions.hammingDistance(first, last);
+	}
+	
 	public static PVector getHullLineIntersection(ArrayList<PVector> hull, PVector[] line) {
 		// check that one point from line is inside hull
 		if(!isInside(line[0], hull) && !isInside(line[1], hull)) return null;
@@ -664,7 +821,9 @@ public class Simulation {
 		int totalTiles = (w/res) * (h/res);
 		coverage = (float)coveredTiles/(float)totalTiles;
 		return coverage;
-	}
+	}//coverage (using 'metaball approach'
+	
+	
 	
 	public float occupiedArea() {
 		float occupiedArea = 0;
@@ -687,6 +846,21 @@ public class Simulation {
 		}else {
 			return relCov;			
 		}
+	}
+	
+	public float coverageRatio() {
+		float totalArea = this.e.getWidth() * this.e.getHeight();
+		float occupiedArea = 0;
+		for(Organism o:this.colony3d.getLayer(0).organisms) {
+			occupiedArea+=o.getArea();
+		}
+		
+		float topArea = 0;
+		for(Organism o:this.colony3d.getLayer(this.colony3d.size() - 1).organisms) {
+			topArea+=o.getArea();
+		}
+		float coverageRatio = (topArea - occupiedArea)/totalArea;
+		return coverageRatio;
 	}
 	
 	
@@ -812,19 +986,104 @@ public class Simulation {
 	}
 			
 	public float angleDispersionCoefficient(){
-		ArrayList<Float> a = this.getRealAngles();
-		if(a.size() < 1) return 0f;
-		Collections.sort(a, null);
-		float q1 = a.get((int)(a.size()/4));
-		float q3 = a.get((int)(3 * (a.size()/4)));
-			
-		float result = (q3-q1)/(q3+q1);
-		if(Float.isNaN(result)) {
-			return 0f;
-		}else {
-			return result;
-		}
+		return CommonFunctions.dispersionCoefficient(getAngles());
 	} //angle dispersion coefficient
+	
+	ArrayList<Float> getLengths(){
+		ArrayList<Float> edgeLengths = new ArrayList<Float>();
+		for(Colony layer : this.colony3d.layers) {
+			for(Organism o : layer.organisms) {
+				for(Spring s: o.getSprings()) {
+					edgeLengths.add(s.getLen());
+				}
+			}
+		}
+		
+		return edgeLengths;
+	}
+	
+	public float lengthDispersionCoefficient() {
+		return CommonFunctions.dispersionCoefficient(this.getLengths());
+	}
+	
+	//growth rate
+	//returns the average growth rate per timestep
+	public float growthRate() {
+		double[] gr = new double[this.colonyHeight - 1];
+		for(int i = 1; i < this.colonyHeight; i++) {
+			Colony current = this.colony3d.layers.get(i);
+			Colony below = this.colony3d.layers.get(i - 1);
+			if(below.getArea() == 0) return 0f;
+			//calculate growth rate between layers
+			double g = (current.getArea()/below.getArea()) - 1;
+			gr[i-1] = g;
+		}
+		double grSum = 0;
+		for(double growth : gr) {
+			grSum+=growth;
+		}
+		
+		return (float)grSum/gr.length;
+	}
+	
+	// growth rate in cell number
+	public float cellGrowthRate() {
+		double[] cgr = new double[this.colonyHeight - 1];
+		for(int i = 1; i < this.colonyHeight; i++) {
+			Colony current = this.colony3d.layers.get(i);
+			Colony below = this.colony3d.layers.get(i - 1);
+			if(below.getCellCount() == 0) return 0f;
+			//calculate growth rate between layers
+			double cg = ((double)current.getCellCount()/below.getCellCount()) - 1;
+			cgr[i-1] = cg;
+		}
+		double cgrSum = 0;
+		for(double growth : cgr) {
+			cgrSum+=growth;
+		}
+		
+		return (float)cgrSum/cgr.length;
+	}
+	
+	// energy rate of change
+	public float energyChange() {
+		double[] e = new double[this.colonyHeight - 1];
+		for(int i = 1; i < this.colonyHeight; i++) {
+			Colony current = this.colony3d.layers.get(i);
+			Colony below = this.colony3d.layers.get(i - 1);
+			if(below.getTotalEnergy() == 0) return 0f;
+			double eg = (double)(current.getTotalEnergy()/below.getTotalEnergy()) -1;
+			e[i-1] = eg;
+		}
+		double eSum = 0;
+		for(double energy : e) {
+			eSum+=energy;
+		}
+		return (float)eSum/e.length;
+	}
+	
+	//total springs
+	public int totalSprings() {
+		int s = 0;
+		for(Colony c : this.colony3d.layers) {
+			for(Organism o : c.organisms) {
+				s+=o.springs.size();
+			}
+		}
+		return s;
+	}
+	
+	//total cells
+	public int totalCells() {
+		int cells = 0;
+		for(Colony c : this.colony3d.layers) {
+			for(Organism o : c.organisms) {
+				cells+=o.cells.size();
+			}
+		}
+		return cells;
+	}
+	
 	
 	/**
 	 * Splitting Score
@@ -836,8 +1095,12 @@ public class Simulation {
 		double s = (double)this.c.getSplits();
 		double splitC = Math.pow(0.1, (1/(s+1)));
 		return (float)splitC;
-	}//splittingScore
-		  
+	}
+	
+	public int totalSplits() {
+		return this.c.getSplits();
+	}
+	
 	public float complexity() {
 		float complexity = 0;
 	  
@@ -851,13 +1114,98 @@ public class Simulation {
 		float angleDispersion = this.angleDispersionCoefficient();
 		complexity += angleDispersion;
 		
-		float splitScore = this.splittingScore();
-		complexity+=splitScore;
-		return complexity/3;
+//		float splitScore = this.splittingScore();
+//		complexity+=splitScore;
+		
+		return complexity/2;
 	}
 	
+	public int totalOrgs() {
+		int o = 0;
+		for(Colony layer:this.colony3d.layers) {
+			for(Organism org : layer.organisms) {
+				o++;
+			}
+		}
+		return o;
+	}
 	
+	// level of first split
+	public float firstSplit() {
+		int initialOrgs = this.colony3d.getLayer(0).organisms.size();
+		float splitLevel = 0;
+		for(int i = 0; i < this.colonyHeight; i++) {
+			Colony layer = this.colony3d.getLayer(i);
+			if(layer.organisms.size() > initialOrgs) {
+				splitLevel = (float)i/this.colonyHeight;
+				break;
+			}
+		}
+		return splitLevel;
+	}
+	
+	// get areas - returns an array with the ares of all layers
+	public double[] getAreas() {
+		int total_layers = this.colony3d.layers.size();
 
+		double[] areas = new double[total_layers];
+//		if(this.colony3d.layers.size() < 1) return 0f;
+		for(Colony layer:this.colony3d.layers) {
+			double a = 0;
+			for(Organism org : layer.organisms) {
+				a+=(double)org.getArea();
+			}
+			areas[this.colony3d.layers.indexOf(layer)] = a;
+		}
+		
+		return areas;
+		
+	}
+	
+	//internal volume
+	public float getVolume() {
+		float vol = 0;
+		double[] areas = this.getAreas();
+		for(double a : areas) {
+			vol+=(float)a;
+		}
+		return vol;
+	}
+	
+	//area mean
+	public float areaMean() {
+		double[] areas = this.getAreas();
+		float total = 0;
+		for(double a : areas) {
+			total+=(float)a;
+		}
+		return total/areas.length;
+		
+	}
+	// area stDev
+	public float areaStandardDev() {
+//		int total_layers = this.colony3d.layers.size();
+//		if(this.colony3d.layers.size() < 1) return 0f;
+//
+//		double[] areas = new double[total_layers];
+//		for(Colony layer:this.colony3d.layers) {
+//			double a = 0;
+//			for(Organism org : layer.organisms) {
+//				a+=(double)org.getArea();
+//			}
+//			areas[this.colony3d.layers.indexOf(layer)] = a;
+//		}
+		double[] areas = this.getAreas();
+		
+		return (float) CommonFunctions.std(areas);
+	}
+	
+	public float overlaps() {
+		return (float) this.getColony().getOverlaps();
+	}
+
+	
+	
 	public void setCostOfLiving(float cost) {
 		this.c.setCostOfLiving(cost);
 	}

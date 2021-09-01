@@ -3,6 +3,8 @@ package generative.components;
 import java.lang.Math;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 import processing.core.PVector;
 
@@ -12,6 +14,17 @@ public class Cell{
 	public PVector loc;
 	public PVector vel;
 	public PVector acc;
+	
+	int id;
+	int parent = -1;
+	boolean splitted = false;
+	boolean alive = true;
+	public boolean isInside = false;
+	
+	public PVector wander;
+	
+	public String state;
+	public boolean food = false;
 	
 	public Chromosome chromosome;
 	
@@ -26,6 +39,7 @@ public class Cell{
 	//CONSTANTS
 	float costOfLiving = 0.001f;
 	int seekDist = 3;
+	Random generator;
 //	public float attrRad = 150f;
 	float attrForce = 0.005f;
 	float repRad = 5f;
@@ -50,6 +64,7 @@ public class Cell{
 //		this.maxVel = (float) MathLib.mapDouble(this.chromosome.get(1), 0f, 1f, this.maxVMin, this.maxVMax);
 		this.maxVel = (float)this.chromosome.get(1);
 		this.maxEnergy = (float) MathLib.mapDouble(this.chromosome.get(2), 0f, 1f, this.maxEMin, this.maxEMax);
+		this.state = "seek";
 	}
 
 	public Cell(PVector _loc, Chromosome _chr) {
@@ -63,20 +78,21 @@ public class Cell{
 //	    this.maxVel = (float) MathLib.mapDouble(this.chromosome.get(1), 0f, 1f, this.maxVMin, this.maxVMax);
 	    this.maxVel = (float) this.chromosome.get(1);
 	    this.maxEnergy = (float) this.chromosome.get(2);
+	    this.state = "seek";
 	}
 
 
-	public Cell(float x, float y, float _attrRad, float _attrForce, float _repRad, float _repForce) {
-	    this.acc = new PVector(0, 0);
-	    this.vel = new PVector(0, 0);
-	    this.loc = new PVector(x, y);
-
-//	    this.attrRad = _attrRad;
-	    this.attrForce = _attrForce;
-	    this.repRad = _repRad;
-	    this.repForce = _repForce;	    
-	    
-	}
+//	public Cell(float x, float y, float _attrRad, float _attrForce, float _repRad, float _repForce) {
+//	    this.acc = new PVector(0, 0);
+//	    this.vel = new PVector(0, 0);
+//	    this.loc = new PVector(x, y);
+//
+////	    this.attrRad = _attrRad;
+//	    this.attrForce = _attrForce;
+//	    this.repRad = _repRad;
+//	    this.repForce = _repForce;	    
+//	    
+//	}
 	
 	// COPY CONSTRUCTOR
 	public Cell(Cell c) {
@@ -99,6 +115,9 @@ public class Cell{
 	    this.metabolicRate = c.metabolicRate;
 	    this.maxVel = c.maxVel;
 	    this.maxEnergy = c.maxEnergy;
+	    
+	    this.state = c.state;
+	    this.isInside = c.isInside;
 	}
 
 
@@ -127,13 +146,25 @@ public class Cell{
 	    
 //	    float currentVel = Math.max(this.vel.mag(), 0.001f);
 	    float currentVel = this.vel.mag();
-//	    this.energy-=(this.costOfLiving * this.maxEnergy * this.metabolicRate * currentVel * currentE); // Original formula
 	    
-//	    this.energy-=((this.costOfLiving) + (this.metabolicRate * 0.01f) + (((this.maxEnergy-this.maxEMin)/(this.maxEMax-this.maxEMin))*0.01f) + (currentVel * 0.01f)); // * (this.maxEMax) * this.metabolicRate * currentVel * currentE);
-	    
-//	    this.energy-=((this.costOfLiving) + (((this.metabolicRate) * (this.maxEnergy/this.maxEMax)) + ((currentVel/this.maxVMax)*this.costOfLiving)));
-//	    this.energy-=(this.costOfLiving + ((this.metabolicRate * this.chromosome.get(2) * (currentVel/1)) * (this.costOfLiving * this.costOfLiving)));
+	    this.addDrag(_e);
+
 	    this.energy-=this.costOfLiving + (this.metabolicRate + ((currentVel/this.maxVMax)/(this.maxVel*this.maxVel)))*this.costOfLiving;
+	    
+	    if(this.state == "seek") {
+	    	this.seekFood(_e);
+	    	this.eat(_e);
+	    }else {
+	    	this.wander(_e);
+	    }
+	    
+	    //update state
+	    if(this.energy >= this.maxEnergy) {
+	    	this.state = "rest";
+	    }
+	    if(this.energy <= this.maxEnergy * .8) {
+	    	this.state = "seek";
+	    }
 	    //update split ratio
 //	    this.splitThreshold = Math.max((MathLib.sigmoid((this.energy/this.maxEnergy), 1.0f, 0.75f, -15f) * this.maxEnergy), 0.01f);
 	} //update
@@ -203,24 +234,6 @@ public class Cell{
 		this.maxVel = (float) MathLib.mapDouble(this.chromosome.get(1), 0f, 1f, this.maxVMin, this.maxVMax);
 	}
 	
-//	public void applyForce(PVector force) {
-////		force.mult(1/(this.maxEnergy/this.maxEMax));
-////		force.mult(1 - ((this.maxEnergy - this.maxEMin)/(this.maxEMax - this.maxEMin)));
-////		force.mult(1/this.maxEnergy);
-//		
-//		float forceMag = force.mag();
-//		
-//		force.normalize();
-//		force.mult((forceMag * this.maxVel));
-////		force.mult((forceMag * this.maxVel)/this.maxEnergy);
-//		
-//		this.acc.add(force);
-//	}
-	
-//	public void applyForce(Cell other, PVector force) {
-//		//
-//	}
-	
 	public void applyForce(PVector force) {
 		// copy force
 		PVector f = new PVector(force.x, force.y);
@@ -235,14 +248,6 @@ public class Cell{
 		this.acc.add(f);
 	}
 
-	//attract
-	public void attract(Cell other) {
-		float attrMag = this.attrForce/(this.loc.dist(other.loc) + 0.0001f);
-		PVector attr = PVector.sub(this.loc, other.loc);
-	    attr.setMag(attrMag);
-	    other.applyForce(attr);
-	}
-
 	//repel
 	public void repel(Cell other) {
 		float repMag = this.repForce/(float) Math.max((double) this.loc.dist(other.loc)/this.repRad, 0.01);
@@ -252,79 +257,111 @@ public class Cell{
 	}
 
 	//check drag
-	void addDrag(Environment e) {
+	public void addDrag(Environment e) {
 		float drag = e.drag;
 		this.vel.mult(1 - (drag * drag));
 	}
+	
+	public void wander(Environment _e) {
+		if (this.wander == null) {
+			this.wander = new PVector().random2D().setMag(maxVel * .1f);
+		}
+		this.generator = new Random();
+		float r = generator.nextFloat();
+		if(r > .999f) {
+			this.wander = new PVector().random2D().setMag(maxVel * .1f);
+		}
+		this.borders(wander, _e.width, _e.height);
+//		this.vel  = this.wander;
+		this.applyForce(wander);
+	}
 
 //	  //check nutrients
-	 public void eat(Environment e) {
-	    //float food = e.lookupNutrients(this.loc) * sq(1+this.metabolicRate);
-	    float food = e.lookupNutrients(this.loc);
-	    if (this.energy < this.maxEnergy) {
-	      this.energy+=(food * this.metabolicRate);
-	      int[] coord = e.getCurrentTile(this.loc);
-	      e.depleteNutrients(coord[0], coord[1]);
-	    }
-	  }
+	public void eat(Environment e) {
+		//float food = e.lookupNutrients(this.loc) * sq(1+this.metabolicRate);
+		float food = e.lookupNutrients(this.loc);
+		if (this.energy >= this.maxEnergy) {
+			return;
+		}else{
+			this.energy+=(food * this.metabolicRate);
+			int[] coord = e.getCurrentTile(this.loc);
+			e.depleteNutrients(coord[0], coord[1]);
+		}
+	}
 
-	  ArrayList<int[]> getNeighbours(Environment e) {
-	    ArrayList<int[]> neighbours = new ArrayList<int[]>();
+	ArrayList<int[]> getNeighbours(Environment e) {
+		ArrayList<int[]> neighbours = new ArrayList<int[]>();
 	    int[] here = e.getCurrentTile(this.loc);
 	    for (int i = -this.seekDist; i < this.seekDist; i++) {
-	      int col = here[0] + i;
-	      for (int j = -this.seekDist; j < this.seekDist; j++) {
-	        int[] n = new int[2];
-	        int row = here[1] + j;
-	        n[0] = col;
-	        n[1] = row;
-	        if ((n[0] >= 0 && n[0] <= e.cols - 1) && (n[1] >= 0 && n[1] <= e.rows - 1)) neighbours.add(n);
-	      }
+	    	int col = here[0] + i;
+	    	for (int j = -this.seekDist; j < this.seekDist; j++) {
+	    		int[] n = new int[2];
+	    		int row = here[1] + j;
+	    		n[0] = col;
+	    		n[1] = row;
+	    		if ((n[0] >= 0 && n[0] <= e.cols - 1) && (n[1] >= 0 && n[1] <= e.rows - 1)) neighbours.add(n);
+	    	}
 	    }
 	    return neighbours;
-	  }
+	}
 
-	  int[] findMaxEnergyNeighbour(Environment e) {
-	    ArrayList<int[]> neighbours = this.getNeighbours(e);
-	    float maxFood = 0;
-	    int maxFoodTile = 0;
+	public int[] findMaxEnergyNeighbour(Environment e) {
+		ArrayList<int[]> neighbours = this.getNeighbours(e);
+		Collections.shuffle(neighbours);
+		float maxFood = 0;
+		int maxFoodTile = 0;
 	    for (int i = 0; i < neighbours.size(); i++) {
-	      int[] tile = neighbours.get(i);
-	      float food = e.lookupNutrients(tile);
+	    	int[] tile = neighbours.get(i);
+	    	float food = e.lookupNutrients(tile);
 
-	      if (food > maxFood) {
-	        maxFood = food;
-	        maxFoodTile = i;
-	      }
+	    	if (food > maxFood) {
+	    		maxFood = food;
+	    		maxFoodTile = i;
+	    	}
+	    	if (food == maxFood) {
+	    		this.generator = new Random();
+	    		float p = this.generator.nextFloat();
+	    		if(p > 0.5f) {
+	    			maxFood = food;
+		    		maxFoodTile = i;
+	    		}else {
+	    			continue;
+	    		}
+	    	}
 	    }
 
 	    if (maxFood == 0) {
-	      return null;
+	    	return null;
 	    } else {
-	      return neighbours.get(maxFoodTile);
+	    	return neighbours.get(maxFoodTile);
 	    }
-	  }
+	}
 
-	  PVector findFoodTarget(Environment e) {
-	    //ArrayList<int[]> neighbours = this.getNeighbours(e);;
-	    int[] targetTile = this.findMaxEnergyNeighbour(e);
+	public PVector findFoodTarget(Environment e) {
+		//ArrayList<int[]> neighbours = this.getNeighbours(e);;
+		int[] targetTile = this.findMaxEnergyNeighbour(e);
 
 	    if (targetTile != null) {
-	      float foodX = targetTile[0] * e.resolution + (e.resolution/2);
-	      float foodY = targetTile[1] * e.resolution + (e.resolution/2);
-	      PVector foodLoc = new PVector(foodX, foodY);
-	      return foodLoc;
+	    	float foodX = targetTile[0] * e.resolution + (e.resolution/2);
+	    	float foodY = targetTile[1] * e.resolution + (e.resolution/2);
+	    	PVector foodLoc = new PVector(foodX, foodY);
+	    	this.food = true;
+	    	return foodLoc;
 	    }else{
-	     return null;
+	    	this.food = false;
+	    	return null;
 	    }
-	  }
-//
+	}
+
 //	  //seek food
 	  public void seekFood(Environment e) {
 	    PVector foodLoc = this.findFoodTarget(e);
 
 	    //apply force
-	    if (foodLoc == null) return;
+	    if (foodLoc == null) {
+
+	    	return;
+	    }
 	    if (this.energy >= this.maxEnergy) return;
 	    
 	    PVector foodTarget = PVector.sub(foodLoc, this.loc);
@@ -341,43 +378,12 @@ public class Cell{
 	  } // seek food
 
 
-//	  Boolean isOccluded(PVector food, ArrayList<Spring> others) {
-//	    //PVector mp = this.getMidpoint();
-//	    PVector offset = PVector.sub(food, this.loc).normalize();
-//
-//	    float x3 = offset.x;
-//	    float y3 = offset.y;
-//	    float x4 = food.x;
-//	    float y4 = food.y;
-//
-//	    for (Spring other : others) {
-//
-//	      float x1 = other.sp.loc.x;
-//	      float y1 = other.sp.loc.y;
-//	      float x2 = other.ep.loc.x;
-//	      float y2 = other.ep.loc.y;
-//	      float den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-//	      if (den == 0) return false;
-//
-//	      float t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4))/den;
-//	      float u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3))/den;
-//	      //println("t: "+t+" u: "+u);
-//	      if (t > 1f || t < 0f || u > 1f && u < 0f) return false;
-//	    }
-//	    //println("true");
-//
-//	    //draw occlusion lines
-//	    //stroke(0);
-//	    //strokeWeight(0.1);
-//	    //line(x3, y3, x4, y4);
-//	    return true;
-//	  }
 
 	  public Boolean isInside(Organism o) {
 		  float x3 = this.loc.x;
 		  float y3 = this.loc.y;
 
-		  float x4 = 9999;	//this is a constant to draw a long horizontal line
+		  float x4 = 999999;	//this is a constant to draw a long horizontal line
 		  float y4 = this.loc.y;
 
 		  int intersections = 0;
@@ -391,32 +397,89 @@ public class Cell{
 			  float t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4))/den;
 			  float u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3))/den;
 
-			  if (t <= 1f && t >= 0f && u <= 1f && u >= 0f) intersections++;
+			  if (t <= 1f && t >= 0f && u <= 1f && u >= 0f) {
+				  intersections++;
+//				  System.out.println("cell loc :"+x3+" "+y3+" | spring loc: "+x1+","+y1+" | "+x2+","+y2);
+			  }
+			  
 		  }
-		  return intersections%2 == 1;
+		  this.isInside = intersections%2 == 1;
+		  
+		  return this.isInside;
 	  } // isInside
 
 	  public void borders(int maxX, int maxY) {
-	    if (this.loc.x <= 0) {
-	      this.loc.x = 0;
+	    if (this.loc.x <= this.energy) {
+	      this.loc.x = this.energy;
 	      this.vel.x *= -1;
 	    }
-	    if (this.loc.x >= maxX) {
-	      this.loc.x = maxX;
+	    if (this.loc.x >= (maxX - this.energy)) {
+	      this.loc.x = maxX - this.energy;
 	      this.vel.x *= -1;
 	    }
-	    if (this.loc.y <= 0) {
-	      this.loc.y = 0;
+	    if (this.loc.y <= this.energy) {
+	      this.loc.y = this.energy;
 	      this.vel.y *= -1;
 	    }
-	    if (this.loc.y >= maxY) {
-	      this.loc.y = maxY;
+	    if (this.loc.y >= (maxY - this.energy)) {
+	      this.loc.y = maxY - this.energy;
 	      this.vel.y *= -1;
 	    }
 	  } // borders
 	  
+	  public void borders(PVector _f, int maxX, int maxY) {
+		    if (this.loc.x <= this.energy) {
+		      this.loc.x = this.energy;
+		      _f.x *= -1;
+		    }
+		    if (this.loc.x >= (maxX - this.energy)) {
+		      this.loc.x = maxX - this.energy;
+		      _f.x *= -1;
+		    }
+		    if (this.loc.y <= this.energy) {
+		      this.loc.y = this.energy;
+		      _f.y *= -1;
+		    }
+		    if (this.loc.y >= maxY - (this.energy)) {
+		      this.loc.y = maxY - this.energy;
+		      _f.y *= -1;
+		    }
+		  } // borders
+	  
 	  public void noAccess(Environment e) {
 		  
+	  }
+	  
+	  public void setID(int _id) {
+		  this.id = _id;
+	  }
+	  
+	  public int getID() {
+		  return this.id;
+	  }
+	  
+	  public void setParent(int _p) {
+		  this.parent = _p;
+	  }
+	  
+	  public int getParent() {
+		  return this.parent;
+	  }
+	  
+	  public boolean getSplitted() {
+		  return this.splitted;
+	  }
+	  
+	  public void setSplitted(boolean _s) {
+		  this.splitted = _s;
+	  }
+	  
+	  public void kill() {
+		  this.alive = false;
+	  }
+	  
+	  public boolean getAlive() {
+		  return this.alive;
 	  }
 
 }

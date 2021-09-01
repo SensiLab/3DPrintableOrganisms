@@ -14,7 +14,7 @@ public class fitnessChange {
 		CMAESManager cma = new CMAESManager();
 		
 		//Environment (This environment will be used for all 
-		Environment e = new Environment(600, 600, 20, 0.3f, 5, 30, 60, 20, -732428508956609621L);	//Environment with randomisation
+		Environment e = new Environment();	//Environment with randomisation
 //		cma.setEnvironment(e);
 		
 		String destFolder = "../out/CMA_Testing/MultiFitnessFunc/";

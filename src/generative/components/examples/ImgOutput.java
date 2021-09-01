@@ -95,7 +95,8 @@ public class ImgOutput extends PApplet{
 	                }
 
 	                Chromosome chr = new Chromosome(genes);
-	                Environment e = new Environment(envWidth, envHeight, res, drag, fss, fsSizeMin, fsSizeMax, foodGrowthRate, foodDecayRate, rSeed);
+	                Environment e = new Environment();
+	                e.setRandomSeed(rSeed);
 	                Simulation s = new Simulation(chr, e, 500, 20);
 	                
 	                s.generate();
